@@ -1,27 +1,49 @@
 import { DEFAULT_MODEL, DEBATE_TACTICS, getRandomElement } from "../constants";
 import { AICharacter, Message, OpenRouterResponse } from "../types";
 
-// OPTIMIZATION: Reduced from 8 to 4. 
-// A debater only needs immediate context to rebut. This saves ~50% of input tokens per request.
-const MAX_HISTORY = 4; 
+// Keep only short recent context to reduce input tokens per turn.
+const MAX_HISTORY = 4;
 
-/**
- * Generates the system prompt based on character configuration and RECENT CONTEXT.
- */
+// Reusable response pool to reduce needless generation retries and keep style sharp.
+const PHRASE_BANK = {
+  openers: [
+    "Let's stop romanticizing this.",
+    "Cute claim, weak foundation.",
+    "You're dodging the core issue.",
+    "This sounds bold but collapses on contact.",
+    "Let's call it what it is: convenience over truth."
+  ],
+  rebuttals: [
+    "Your premise assumes perfect actors in an imperfect system.",
+    "You confuse correlation with causation.",
+    "That argument ignores second-order effects.",
+    "You're optimizing optics, not outcomes.",
+    "You're treating an exception as the rule."
+  ],
+  closers: [
+    "That is why your conclusion fails.",
+    "So no, this doesn't hold up.",
+    "Reality is less flattering to your position.",
+    "That's conviction, not proof.",
+    "This debate needs evidence, not vibes."
+  ]
+};
+
+const generateBankedFallback = (char: AICharacter): string => {
+  return `${getRandomElement(PHRASE_BANK.openers)} ${getRandomElement(PHRASE_BANK.rebuttals)} ${getRandomElement(PHRASE_BANK.closers)} ⚡`;
+};
+
 const generateSystemPrompt = (
-  char: AICharacter, 
-  opponentName: string, 
-  topic: string, 
-  language: string, 
+  char: AICharacter,
+  opponentName: string,
+  topic: string,
+  language: string,
   lastOpponentMessage: string | null,
   previousSelfMessages: string[],
   intervention: string | null
 ): string => {
-  
-  // 1. INJECT RANDOM TACTIC (The "Brain Upgrade")
   const currentTactic = getRandomElement(DEBATE_TACTICS);
 
-  // OPTIMIZATION: Condensed prompt to save tokens while keeping instructions strict.
   let prompt = `
 Identity: ${char.name} (${char.role}).
 Traits: ${char.traits}.
@@ -31,67 +53,62 @@ Topic: "${topic}".
 Vs: ${opponentName}.
 
 MANDATORY STRATEGY: "${currentTactic}".
-
-EMOJI RULE: You MUST use 1-3 emojis in your response to convey strong emotion. Place them naturally.
+EMOJI RULE: Use 1-2 emojis naturally.
 `;
 
-  // 2. DIRECTOR INTERVENTION (God Mode)
   if (intervention) {
     prompt += `
-*** URGENT DIRECTOR INSTRUCTION ***
-The show director has issued a command you MUST follow immediately:
+DIRECTOR PRIORITY ORDER:
 ${intervention}
-***********************************
 `;
   }
 
-  // 3. IMMEDIATE CONTEXT & ATTACK PLAN
   if (lastOpponentMessage) {
     prompt += `
 OPPONENT SAID:
-"${lastOpponentMessage.substring(0, 200)}..."
+"${lastOpponentMessage.substring(0, 180)}..."
 
 TASK:
-1. Acknowledge their point briefly.
-2. DESTROY it using the strategy.
+1) Briefly acknowledge.
+2) Rebut hard with strategy.
 `;
   } else {
     prompt += `
 TASK:
-Start with a controversial claim about "${topic}".
+Open with a controversial claim about "${topic}".
 `;
   }
 
-  // 4. REPETITION BLOCKER
   if (previousSelfMessages.length > 0) {
     prompt += `
 AVOID REPEATING:
-${previousSelfMessages.map(m => `- [${m.substring(0, 30)}...]`).join('\n')}
+${previousSelfMessages.map(m => `- [${m.substring(0, 28)}...]`).join('\n')}
 `;
   }
 
   prompt += `
 RULES:
-- Max 2 sentences. Punchy.
-- No boilerplate.
+- Max 2 sentences.
+- No intro/outro boilerplate.
+- Specific > generic.
 `;
 
   return prompt;
 };
 
-// Fallback messages
-const getFallbackMessage = (char: AICharacter, opponentName: string, language: string) => {
-  const fallbacks = [
+const getFallbackMessage = (char: AICharacter): string => {
+  const hardFallbacks = [
     "Your logic is full of holes. 🕳️",
     "Are you even listening to yourself? 🤨",
     "That is scientifically inaccurate. 🧪",
     "You are missing the entire point. 🎯",
     "Let's stick to the facts, shall we? 📉"
   ];
-  return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+
+  // Blend static and composable bank fallbacks.
+  return Math.random() < 0.5 ? getRandomElement(hardFallbacks) : generateBankedFallback(char);
 };
 
-// Clean up text artifacts
 const cleanResponseText = (text: string, charName: string): string => {
   if (!text) return "";
   let clean = text;
@@ -111,45 +128,39 @@ export const fetchAIResponse = async (
   _fakeModelName: string = "Generic AI",
   intervention: string | null = null
 ): Promise<string> => {
-  
-  // 1. Extract context
   const relevantHistory = history.filter(m => m.senderId !== 'system' && !m.isThinking);
-  
-  // Last message from opponent
+
   const lastMsgObj = relevantHistory.length > 0 ? relevantHistory[relevantHistory.length - 1] : null;
   const lastOpponentMessage = (lastMsgObj && lastMsgObj.senderId !== character.id) ? lastMsgObj.content : null;
 
-  // Last 3 messages from SELF
   const previousSelfMessages = relevantHistory
     .filter(m => m.senderId === character.id)
     .slice(-3)
     .map(m => m.content);
 
   const systemPrompt = generateSystemPrompt(
-    character, 
-    opponent.name, 
-    topic, 
-    language, 
+    character,
+    opponent.name,
+    topic,
+    language,
     lastOpponentMessage,
     previousSelfMessages,
     intervention
   );
-  
+
   const apiMessages: { role: string; content: string }[] = [
     { role: 'system', content: systemPrompt }
   ];
 
-  // Add history (limited to keep focus tight)
   const recent = relevantHistory.slice(-MAX_HISTORY);
   recent.forEach((msg) => {
     const role = msg.senderId === character.id ? 'assistant' : 'user';
-    let content = role === 'user' ? `[${msg.senderName}]: ${msg.content}` : msg.content;
+    const content = role === 'user' ? `[${msg.senderName}]: ${msg.content}` : msg.content;
     apiMessages.push({ role, content });
   });
 
-  // RETRY LOGIC with EXPONENTIAL BACKOFF for 429s
-  const MAX_RETRIES = 3; 
-  
+  const MAX_RETRIES = 3;
+
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
       const response = await fetch("/api/chat", {
@@ -158,30 +169,28 @@ export const fetchAIResponse = async (
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: DEFAULT_MODEL, 
+          model: DEFAULT_MODEL,
           messages: apiMessages,
-          max_tokens: 180, // OPTIMIZATION: Reduced from 300. Keeps answers punchy and saves tokens.
-          temperature: 1.0, 
-          frequency_penalty: 1.2, 
-          presence_penalty: 0.8,
-          top_p: 0.95
+          max_tokens: 120,
+          temperature: 0.9,
+          frequency_penalty: 1.1,
+          presence_penalty: 0.7,
+          top_p: 0.9
         })
       });
 
       if (!response.ok) {
-        // RATE LIMIT HANDLING (429)
         if (response.status === 429) {
-           console.warn(`Rate limited (429). Waiting before retry ${attempt}...`);
-           // Wait 3 seconds * attempt number (3s, 6s, 9s) to let limits reset
-           await new Promise(r => setTimeout(r, 3000 * attempt));
-           if (attempt === MAX_RETRIES) throw new Error("Rate Limit Exceeded");
-           continue; // Retry loop
+          console.warn(`Rate limited (429). Waiting before retry ${attempt}...`);
+          await new Promise(r => setTimeout(r, 3000 * attempt));
+          if (attempt === MAX_RETRIES) throw new Error("Rate Limit Exceeded");
+          continue;
         }
-        
+
         if (response.status >= 500) {
-           throw new Error(`OpenRouter Status ${response.status}`);
+          throw new Error(`OpenRouter Status ${response.status}`);
         }
-        
+
         const errData = await response.json();
         console.error("OpenRouter Error:", errData);
         return `[Error: ${errData.error?.message || "API Issue"}]`;
@@ -189,21 +198,19 @@ export const fetchAIResponse = async (
 
       const data: OpenRouterResponse = await response.json();
       let content = data.choices?.[0]?.message?.content;
-      
+
       if (!content) continue;
-      
+
       content = content.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
       content = cleanResponseText(content, character.name);
 
       if (!content) continue;
-      return content; 
-
+      return content;
     } catch (error: any) {
       console.warn(`Attempt ${attempt} failed:`, error);
-      // General backoff for other errors
       await new Promise(r => setTimeout(r, 1000));
     }
   }
 
-  return getFallbackMessage(character, opponent.name, language);
+  return getFallbackMessage(character);
 };
