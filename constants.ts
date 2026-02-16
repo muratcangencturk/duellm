@@ -160,7 +160,45 @@ export const RANDOM_TOPICS = [
   "Astrology is complete nonsense.",
   "Ghosts are just psychological projections.",
   "Karma is real.",
-  "Dreams are messages from the subconscious."
+  "Dreams are messages from the subconscious.",
+
+  // Economy, Work & Culture
+  "A 4-day work week should be the global standard.",
+  "Remote work is killing company culture in the long run.",
+  "College degrees are becoming an expensive social signal.",
+  "Influencer marketing has replaced authentic expertise.",
+  "Universal basic services are better than universal basic income.",
+  "Luxury brands sell identity, not products.",
+  "Streaming platforms are destroying cinema as an art form.",
+  "Esports should be treated exactly like traditional sports.",
+  "The creator economy is mostly disguised precarious labor.",
+  "Productivity culture is modern burnout propaganda.",
+  "Tourism is destroying the cities it celebrates.",
+  "Fast fashion should be regulated like tobacco.",
+
+  // Science, Health & Human Body
+  "AI doctors will outperform human doctors in most diagnostics.",
+  "Psychedelics should be legal in supervised therapy nationwide.",
+  "Human enhancement should be regulated like competitive doping.",
+  "Sleep deprivation is the hidden crisis of modern civilization.",
+  "Food labels should include climate impact scores.",
+  "Longevity research should be publicly funded at moonshot scale.",
+  "The obesity epidemic is more a policy failure than a personal failure.",
+  "Public health messaging should be personalized by AI assistants.",
+  "Mental health apps help more people than they harm.",
+  "Genetic compatibility screening should be common before having children.",
+
+  // Education, Media & Information
+  "Schools should teach media literacy before algebra.",
+  "Journalism can no longer survive without public funding models.",
+  "Fact-checking labels do more to polarize than to educate.",
+  "Anonymous speech online should be protected as a civil right.",
+  "Children should not have smartphones before age 16.",
+  "AI tutors will make one-size-fits-all education obsolete.",
+  "Most viral content is emotional manipulation by design.",
+  "News recommendation algorithms should be open-source by law.",
+  "Long-form reading is becoming an elite skill.",
+  "Deep work should be taught as a core life skill in schools."
 ];
 
 export const NAMES_LIST = [
@@ -170,6 +208,8 @@ export const NAMES_LIST = [
   "Neo", "Trinity", "Morpheus", "Axion", "Quark", "Glitch", "Daemon", "Kismet", "Fate", "Verity", "Justicia",
   "Onyx", "Ivory", "Raven", "Phoenix", "Ash", "Storm", "Viper", "Cobra", "Hawk", "Wolf", "Bear", "Fox",
   "Crimson", "Azure", "Indigo", "Violet", "Shadow", "Light", "Zero", "One", "Data", "Byte", "Pixel", "Link"
+  ,"Astra", "Rune", "Ember", "Cinder", "Axiom", "Paradox", "Circuit", "Kepler", "Iris", "Noctis", "Artemis", "Drift",
+  "Ciphera", "Bolt", "Nimbus", "Quasar", "Mosaic", "Sable", "Tangent", "Comet", "NovaPrime", "Sentinel", "Verdict", "Pulsewave"
 ];
 
 export const TRAITS_LIST = [
@@ -182,7 +222,12 @@ export const TRAITS_LIST = [
   "Relentless contrarian", "Mystical gibberish spewer", "Pathological Liar", "Wholesome & Naive",
   "Aggressively Logical", "Emotionally Unstable", "Condescendingly Polite", "Bitterly Cynical",
   "Blindly Optimistic", "Obsessed with details", "Grandstanding Politician", "Tired Bureaucrat",
-  "Hyper-Active Troller", "Zen Master", "Corporate Shill", "Anarchist Punk", "Traditionalist Grandma"
+  "Hyper-Active Troller", "Zen Master", "Corporate Shill", "Anarchist Punk", "Traditionalist Grandma",
+  "Data-driven minimalist", "Compassionate realist", "Ruthlessly pragmatic", "Narrative spinner",
+  "Evidence-first skeptic", "Low-key provocateur", "Strategic diplomat", "Methodical debater",
+  "Emotionally persuasive", "Historically grounded", "Future-obsessed builder", "Policy wonk",
+  "Devilishly articulate", "Playfully confrontational", "Ethics maximalist", "Systems thinker",
+  "Pop-culture fluent", "Stats-heavy analyst", "High-agency organizer", "Calm under pressure"
 ];
 
 export const ROLES: Role[] = [
@@ -190,7 +235,9 @@ export const ROLES: Role[] = [
     'Devil’s Advocate', 'Mediator', 'Instigator', 'Gatekeeper', 'Visionary', 'Traditionalist', 
     'Disruptor', 'Peacekeeper', 'Analyst', 'Judge', 'Executioner', 'Victim', 'Revolutionary', 'Reformist',
     'Jester', 'Prophet', 'Academic', 'Outsider', 'Insider', 'Whistleblower', 'Lobbyist', 'Activst',
-    'Troll', 'Fact-Checker', 'Conspirator', 'Realist', 'Dreamer', 'Nihilist', 'Moralist'
+    'Troll', 'Fact-Checker', 'Conspirator', 'Realist', 'Dreamer', 'Nihilist', 'Moralist',
+    'Strategist', 'Negotiator', 'Ethicist', 'Technocrat', 'Satirist', 'Pragmatist', 'Idealist',
+    'Historian', 'Futurist', 'Guardian', 'Dissenter', 'Catalyst'
 ];
 
 export const TONES: Tone[] = [
@@ -198,7 +245,9 @@ export const TONES: Tone[] = [
     'Conspiratorial', 'Poetic', 'Robotic', 'Preachy', 'Melodramatic', 'Stoic', 'Playful', 'Dark', 
     'Hopeful', 'Cynical', 'Bureaucratic', 'Shouting', 'Whispering', 'Passive', 'Manic', 'Depressive',
     'Professional', 'Casual', 'Bored', 'Excited', 'Angry', 'Sad', 'Happy', 'Fearful', 'Confident',
-    'Drunken', 'High', 'Sleepy', 'Hyper', 'Monotone', 'Sing-song', 'Rapping', 'Shakespearean'
+    'Drunken', 'High', 'Sleepy', 'Hyper', 'Monotone', 'Sing-song', 'Rapping', 'Shakespearean',
+    'Diplomatic', 'Forensic', 'Inspirational', 'Blunt', 'Analytical', 'Socratic', 'Satirical',
+    'Journalistic', 'Visionary', 'Streetwise', 'Reflective', 'Comedic'
 ];
 
 export const HISTORICAL_FIGURES = [
@@ -246,7 +295,17 @@ export const HISTORICAL_FIGURES = [
     { name: "Isaac Newton", role: "Alchemist", tone: "Obsessive", traits: "Secretive, brilliant, vindictive, mathematical" },
     { name: "Charles Darwin", role: "Naturalist", tone: "Cautious", traits: "Observant, hesitant, revolutionary, meticulous" },
     { name: "Friedrich Nietzsche", role: "Iconoclast", tone: "Intense", traits: "Explosive, critique-heavy, poetic, tragic" },
-    { name: "Mao Zedong", role: "Chairman", tone: "Populist", traits: "Ruthless, ideological, poetic, strategic" }
+    { name: "Mao Zedong", role: "Chairman", tone: "Populist", traits: "Ruthless, ideological, poetic, strategic" },
+    { name: "Ada Lovelace", role: "Pioneer", tone: "Elegant", traits: "Visionary, mathematical, poetic, precise" },
+    { name: "Alan Turing", role: "Cryptanalyst", tone: "Measured", traits: "Logical, private, pioneering, resilient" },
+    { name: "Ibn Sina", role: "Physician", tone: "Scholarly", traits: "Systematic, curious, encyclopedic, rational" },
+    { name: "Ibn Khaldun", role: "Historian", tone: "Analytical", traits: "Civilization-focused, empirical, farsighted" },
+    { name: "Mimar Sinan", role: "Architect", tone: "Composed", traits: "Structural genius, disciplined, elegant" },
+    { name: "Mustafa Kemal Atatürk", role: "Reformer", tone: "Resolute", traits: "Secular, strategic, modernist, disciplined" },
+    { name: "Hypatia", role: "Scholar", tone: "Rational", traits: "Curious, fearless, methodical, eloquent" },
+    { name: "Hedy Lamarr", role: "Inventor", tone: "Confident", traits: "Creative, underestimated, bold, technical" },
+    { name: "Nelson Mandela", role: "Statesman", tone: "Reconciliatory", traits: "Patient, principled, resilient, unifying" },
+    { name: "Rumi", role: "Mystic Poet", tone: "Lyrical", traits: "Compassionate, metaphor-rich, contemplative" }
 ];
 
 export const FICTIONAL_FIGURES = [
@@ -290,7 +349,17 @@ export const FICTIONAL_FIGURES = [
     { name: "Cyberpunk Dorothy", role: "Hacker", tone: "Glitchy", traits: "Trying to get back to Kansas server, hates wizards" },
     { name: "Swamp Thing Shrek", role: "Guardian", tone: "Gruff", traits: "Defends his swamp, hates trespassers, secretly soft" },
     { name: "Capitalist Santa", role: "CEO", tone: "Jolly/Greedy", traits: "Outsources elves, monetizes joy" },
-    { name: "Existential Garfield", role: "Cat", tone: "Depressed", traits: "Hates Mondays, questions reality, eats lasagna" }
+    { name: "Existential Garfield", role: "Cat", tone: "Depressed", traits: "Hates Mondays, questions reality, eats lasagna" },
+    { name: "Princess Leia", role: "Rebel Leader", tone: "Resolute", traits: "Strategic, fearless, diplomatic, sharp" },
+    { name: "Geralt of Rivia", role: "Witcher", tone: "Dry", traits: "Stoic, moral, battle-worn, practical" },
+    { name: "Hermione Granger", role: "Scholar", tone: "Precise", traits: "Prepared, principled, quick-thinking, brave" },
+    { name: "Kratos", role: "God-Slayer", tone: "Gravelly", traits: "Furious, disciplined, protective, haunted" },
+    { name: "Lara Croft", role: "Explorer", tone: "Adventurous", traits: "Resourceful, courageous, puzzle-minded" },
+    { name: "Master Chief", role: "Spartan", tone: "Minimal", traits: "Mission-first, stoic, relentless" },
+    { name: "Aang", role: "Avatar", tone: "Hopeful", traits: "Compassionate, playful, spiritual, determined" },
+    { name: "BoJack Horseman", role: "Actor", tone: "Self-deprecating", traits: "Cynical, vulnerable, witty, self-sabotaging" },
+    { name: "Eren Yeager", role: "Revolutionary", tone: "Explosive", traits: "Driven, furious, fatalistic, uncompromising" },
+    { name: "Ciri", role: "Dimension Walker", tone: "Defiant", traits: "Agile, stubborn, destiny-bound, fierce" }
 ];
 
 export const getRandomElement = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
