@@ -1,68 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI Arena - Autonomous Debate</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              arena: {
-                dark: '#0f172a',
-                card: '#1e293b',
-                accent: '#3b82f6',
-                danger: '#ef4444',
-                success: '#22c55e',
-                red: '#991b1b', // for AI 1 (Red team)
-                blue: '#1e40af', // for AI 2 (Blue team)
-              }
-            },
-            animation: {
-              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            }
-          }
-        }
-      }
-    </script>
-    <style>
-      /* Custom scrollbar for chat */
-      .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-      }
-      .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-      }
-      .chat-scroll::-webkit-scrollbar {
-        width: 6px;
-      }
-      .chat-scroll::-webkit-scrollbar-track {
-        background: #0f172a; 
-      }
-      .chat-scroll::-webkit-scrollbar-thumb {
-        background: #334155; 
-        border-radius: 3px;
-      }
-      .chat-scroll::-webkit-scrollbar-thumb:hover {
-        background: #475569; 
-      }
-    </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>duellm</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>*{box-sizing:border-box}html,body{margin:0;padding:0;height:100%;background:#0d0d0d;color:#e5e5e5;overflow:hidden;font-family:system-ui,-apple-system,sans-serif}@media(max-width:768px){input,textarea{font-size:16px!important}}@keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}.ap{animation:pop .25s ease-out}.st::-webkit-scrollbar{width:4px}.st::-webkit-scrollbar-track{background:transparent}.st::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:2px}</style>
 </head>
-  <body class="bg-arena-dark text-slate-100 font-sans antialiased overflow-hidden">
-    <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
+<body><div id="root" style="height:100dvh;display:flex"></div>
+<script>
+const{createElement:h,Fragment,useState,useEffect,useRef,useCallback}=React;const{createRoot}=ReactDOM;
+
+const MODELS=["DeepSeek V3.1 671B","Gemma4 31B","GPT-5.2","Grok 4.1","Gemini 3","Kimi 2.5","Llama 4","Claude 4.5 Opus","DeepSeek V4","Qwen 3.0 Max","Mistral Large 3","Apple MM1","Nemotron-5","Minimax 7","Falcon 3","Command R++","Nova-Pro 90B","Chaos-X","Zenith-X","Pinnacle-AI"];
+const TOPICS=["Is AI a threat to creativity?","Should space be privatized?","UBI: savior or disaster?","Nuclear = only climate fix?","Social media destroyed connection?","Is free will an illusion?","Should billionaires exist?","Are we in a simulation?","Should AI have rights?","Remote work > office?","Is democracy the best?","Internet makes us smarter?"];
+const NAMES=["Omega","Helix","Nova","Cipher","Echo","Atlas","Raven","Phoenix","Sage","Zero"];
+const pick=a=>a[Math.floor(Math.random()*a.length)];const uid=()=>Math.random().toString(36).slice(2,10);
+
+function App(){
+  const [s,ss]=useState(()=>{const n=pick(NAMES);return{id:uid(),topic:pick(TOPICS),modelL:MODELS[0],modelR:MODELS[1],nameL:n,nameR:pick(NAMES.filter(x=>x!==n))}});
+  const [sb,setSb]=useState(false);const [hist,setHist]=useState([]);
+
+  const nc=()=>{setHist(p=>[s.topic,...p.slice(0,19)]);const n=pick(NAMES);ss({id:uid(),topic:pick(TOPICS),modelL:MODELS[0],modelR:MODELS[1],nameL:n,nameR:pick(NAMES.filter(x=>x!==n))});setSb(false)};
+
+  return h('div',{style:{display:'flex',height:'100dvh',width:'100%',background:'#0d0d0d',color:'#e5e5e5'}},
+    sb&&h('div',{onClick:()=>setSb(false),style:{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',zIndex:20},className:'md:hidden'}),
+    // Sidebar
+    h('div',{style:{position:'fixed',top:0,left:0,height:'100%',width:260,background:'#111',borderRight:'1px solid #1e1e1e',display:'flex',flexDirection:'column',zIndex:30,transform:sb?'translateX(0)':'translateX(-100%)',transition:'transform .2s'},className:'md:relative md:translate-x-0 md:w-60'},
+      h('div',{style:{padding:12,borderBottom:'1px solid #1e1e1e'}},h('button',{onClick:nc,style:{width:'100%',display:'flex',alignItems:'center',gap:8,padding:'8px 12px',borderRadius:8,border:'1px solid #2a2a2a',background:'transparent',color:'#d1d5db',fontSize:14,fontWeight:500,cursor:'pointer'}},'+ New Debate')),
+      h('div',{style:{flex:1,overflowY:'auto',padding:6},className:'st'},
+        h('div',{style:{fontSize:10,color:'#52525b',fontWeight:600,textTransform:'uppercase',padding:'8px 12px'}},'History'),
+        hist.length?hist.map((t,i)=>h('button',{key:i,onClick:()=>{ss(p=>({...p,topic:t,nameL:pick(NAMES),nameR:pick(NAMES)}));setSb(false)},style:{width:'100%',textAlign:'left',padding:'8px 12px',borderRadius:8,border:'none',background:'transparent',color:'#9ca3af',fontSize:12,cursor:'pointer',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'},onMouseEnter:e=>e.target.style.background='#1a1a1a',onMouseLeave:e=>e.target.style.background='transparent'},t.slice(0,50))):h('div',{style:{padding:'8px 12px',fontSize:12,color:'#52525b',fontStyle:'italic'}},'History appears here')
+      ),
+      h('div',{style:{padding:12,borderTop:'1px solid #1e1e1e'}},h('button',{style:{width:'100%',textAlign:'left',padding:'8px 12px',borderRadius:8,border:'none',background:'transparent',color:'#9ca3af',fontSize:12,cursor:'pointer'}},'🔐 Sign Up / Login'))
+    ),
+    // Main
+    h('div',{style:{flex:1,display:'flex',flexDirection:'column',minWidth:0}},
+      h('div',{style:{height:44,borderBottom:'1px solid #1e1e1e',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 12px',background:'#0d0d0d',flexShrink:0},className:'md:h-12 md:px-5'},
+        h('div',{style:{display:'flex',alignItems:'center',gap:8,minWidth:0}},
+          h('button',{onClick:()=>setSb(!sb),style:{background:'transparent',border:'none',color:'#9ca3af',cursor:'pointer',padding:4,fontSize:20}},'☰'),
+          h('span',{style:{fontSize:13,fontWeight:600,color:'#d1d5db',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',display:'none'},className:'md:inline md:text-sm'},s.topic)
+        ),
+        h('div',{style:{display:'flex',alignItems:'center',gap:12,flexShrink:0},className:'md:gap-5'},
+          h(ModelPicker,{side:'L',current:s.modelL,onChange:v=>ss(p=>({...p,modelL:v}))}),
+          h('span',{style:{fontSize:10,fontWeight:700,color:'#374151'}},'VS'),
+          h(ModelPicker,{side:'R',current:s.modelR,onChange:v=>ss(p=>({...p,modelR:v}))})
+        )
+      ),
+      h(Arena,{key:s.id,session:s,onTopic:t=>ss(p=>({...p,topic:t}))})
+    )
+  );
+}
+
+function ModelPicker({side,current,onChange}){
+  const[open,setOpen]=useState(false);const ref=useRef(null);
+  useEffect(()=>{const h=e=>{if(ref.current&&!ref.current.contains(e.target))setOpen(false)};document.addEventListener('mousedown',h);return()=>document.removeEventListener('mousedown',h)},[]);
+  const L=side==='L';
+  return h('div',{ref,style:{position:'relative'}},
+    h('button',{onClick:()=>setOpen(!open),style:{display:'flex',alignItems:'center',gap:4,background:'transparent',border:'none',fontSize:11,fontWeight:500,cursor:'pointer',color:L?'#60a5fa':'#f87171',padding:'4px 6px',borderRadius:6},className:'md:text-xs'},
+      h('span',{style:{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:80},className:'md:max-w-[110px]'},current),
+      h('span',{style:{fontSize:8,opacity:0.6,color:L?'#2563eb':'#dc2626'}},'change ▼')
+    ),
+    open&&h('div',{style:{position:'absolute',top:'100%',marginTop:4,width:180,maxHeight:250,overflowY:'auto',background:'#1a1a1a',border:'1px solid #333',borderRadius:10,boxShadow:'0 10px 30px rgba(0,0,0,.6)',zIndex:50},className:'st'},
+      MODELS.map(m=>h('button',{key:m,onClick:()=>{onChange(m);setOpen(false)},style:{width:'100%',textAlign:'left',padding:'6px 12px',border:'none',background:'transparent',fontSize:12,cursor:'pointer',color:m===current?'#fff':'#9ca3af',fontWeight:m===current?600:400,backgroundColor:m===current?'#1a1a1a':'transparent'},onMouseEnter:e=>e.target.style.background='#252525',onMouseLeave:e=>{if(m!==current)e.target.style.background='transparent'}},m))
+    )
+  );
+}
+
+function Arena({session,onTopic}){
+  const[msgs,setMsgs]=useState([]);const[inp,setInp]=useState('');const[status,setStatus]=useState('idle');const[sp,setSp]=useState('L');
+  const sr=useRef(null);const mr=useRef([]);const tr=useRef('idle');
+  useEffect(()=>{mr.current=msgs},[msgs]);useEffect(()=>{tr.current=status},[status]);
+  useEffect(()=>{const e=sr.current;if(e)e.scrollTop=e.scrollHeight},[msgs.length]);
+
+  const go=useCallback(async()=>{
+    if(tr.current!=='running')return;
+    const L=sp==='L';const nm=L?session.nameL:session.nameR;const op=L?session.nameR:session.nameL;
+    const tid=uid();setMsgs(p=>[...p,{id:tid,role:L?'L':'R',name:nm,text:'',thinking:true}]);
+    await new Promise(r=>setTimeout(r,1200));if(tr.current!=='running'){setMsgs(p=>p.filter(m=>m.id!==tid));return}
+    const sys=`You are ${nm}, debating "${session.topic}". Opponent: ${op}. 2 sharp sentences.`;
+    const hist=mr.current.filter(m=>!m.thinking&&m.role!=='u').slice(-4);
+    const am=[{role:'system',content:sys}];
+    hist.forEach(m=>{const mn=m.name||(m.role==='L'?session.nameL:session.nameR);am.push({role:m.role===sp?'assistant':'user',content:m.role!==sp?`[${mn}]: ${m.text}`:m.text})});
+    const resp=await callAI(am);
+    if(tr.current!=='running'){setMsgs(p=>p.filter(m=>m.id!==tid));return}
+    setMsgs(p=>p.map(m=>m.id===tid?{...m,text:resp,thinking:false}:m));
+    const dly=Math.max(1500,(resp.split(' ').length/2.5)*1000);
+    setTimeout(()=>{if(tr.current==='running')setSp(p=>p==='L'?'R':'L')},dly);
+  },[sp,session]);
+
+  useEffect(()=>{if(status==='running')go()},[go,status]);
+
+  const send=()=>{const t=inp.trim();if(!t)return;setMsgs(p=>[...p,{id:uid(),role:'u',name:'You',text:t}]);setInp('');if(status==='idle')setStatus('running')};
+
+  return h('div',{style:{flex:1,display:'flex',flexDirection:'column',minHeight:0}},
+    h('div',{ref:sr,style:{flex:1,overflowY:'auto',padding:'16px 20px'},className:'st md:px-8'},
+      !msgs.length&&status==='idle'&&h('div',{style:{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',textAlign:'center'}},
+        h('div',{style:{fontSize:36,marginBottom:12}},'⚔️'),
+        h('h2',{style:{fontSize:18,fontWeight:600,color:'#d1d5db',marginBottom:4,maxWidth:400,wordBreak:'break-word'}},session.topic),
+        h('p',{style:{fontSize:12,color:'#52525b',maxWidth:300}},session.nameL+' vs '+session.nameR),
+        h('p',{style:{fontSize:12,color:'#404040',marginTop:8}},'Send a message to start')
+      ),
+      msgs.map(m=>{
+        if(m.role==='u')return h('div',{key:m.id,style:{display:'flex',justifyContent:'center',marginBottom:12},className:'ap'},
+          h('div',{style:{maxWidth:'75%',padding:'8px 12px',borderRadius:8,fontSize:14,wordBreak:'break-word',background:'rgba(139,92,246,.15)',border:'1px solid rgba(139,92,246,.25)',color:'#d8b4fe'}},m.text));
+        const L=m.role==='L';
+        return h('div',{key:m.id,style:{display:'flex',justifyContent:L?'flex-start':'flex-end',marginBottom:12},className:'ap'},
+          h('div',{style:{maxWidth:'75%'}},
+            h('div',{style:{fontSize:10,fontWeight:600,marginBottom:2,color:L?'#60a5fa':'#f87171'}},m.name),
+            h('div',{style:{padding:'8px 12px',borderRadius:8,fontSize:14,wordBreak:'break-word',background:'#1a1a1a',color:'#e5e5e5',[L?'borderLeft':'borderRight']:'2px solid '+(L?'#3b82f6':'#ef4444')}},m.thinking?h('span',{style:{opacity:.6,fontStyle:'italic'}},'thinking...'):m.text)
+          )
+        );
+      })
+    ),
+    h('div',{style:{padding:'12px 20px'},className:'md:px-8'},
+      h('div',{style:{display:'flex',alignItems:'flex-end',gap:8,maxWidth:700,margin:'0 auto',background:'#1a1a1a',border:'1px solid #2a2a2a',borderRadius:12,padding:'6px 12px'}},
+        h('textarea',{value:inp,onChange:e=>setInp(e.target.value),onKeyDown:e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}},rows:1,placeholder:'Join the debate...',style:{flex:1,background:'transparent',border:'none',resize:'none',fontSize:14,color:'#e5e5e5',padding:'4px 0',outline:'none',fontFamily:'inherit',lineHeight:1.4}}),
+        h('button',{onClick:send,disabled:!inp.trim(),style:{flexShrink:0,width:32,height:32,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',border:'none',cursor:inp.trim()?'pointer':'default',fontSize:16,background:inp.trim()?'#d1d5db':'#252525',color:inp.trim()?'#111':'#52525b',transition:'all .15s'}},'➤')
+      )
+    )
+  );
+}
+
+async function callAI(msgs){for(let i=0;i<3;i++){try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'qwen/qwen3-next-80b-a3b-instruct:free',messages:msgs,max_tokens:120,temperature:0.9})});if(!r.ok){await new Promise(r=>setTimeout(r,1500*(i+1)));continue}const d=await r.json();let c=d.choices?.[0]?.message?.content||'';c=c.replace(/[\s\S]*?<\/think>/g,'').trim();if(c)return c}catch(e){await new Promise(r=>setTimeout(r,800))}}return"I disagree. 🔥";}
+
+createRoot(document.getElementById('root')).render(h(App));
+</script>
 </body>
 </html>
