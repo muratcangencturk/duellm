@@ -31,6 +31,8 @@ export const LANGUAGES = [
 ];
 
 export const FAKE_MODELS = [
+  "DeepSeek V3.1 671B",
+  "Gemma4 31B",
   "GPT-5.2 (OpenAI)", 
   "Grok 4.1 (xAI)", 
   "Gemini 3 (Google)", 

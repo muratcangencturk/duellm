@@ -1,64 +1,47 @@
-import React, { useState, useEffect } from 'react';
-import { SetupScreen } from './components/SetupScreen';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ArenaScreen } from './components/ArenaScreen';
-import { DebateConfig } from './types';
-import { onAuthChange, signInWithGoogle, signOut, User } from './src/firebase';
+import { DebateConfig, AICharacter } from './types';
+import { RANDOM_TOPICS, FAKE_MODELS, generateRandomCharacter, getRandomElement } from './constants';
+
+const makeDefaultConfig = (): DebateConfig => {
+  const topic = getRandomElement(RANDOM_TOPICS);
+  const ai1 = generateRandomCharacter('ai1', 'bg-red-700');
+  const ai2 = generateRandomCharacter('ai2', 'bg-blue-700');
+  // Rolleri netleştir ama karakteri bozma
+  ai1.role = 'Opponent';
+  ai2.role = 'Defender';
+  return {
+    topic,
+    ai1,
+    ai2,
+    language: 'English',
+    model1: 'Gemma4 31B',   // Sağ/Kırmızı
+    model2: 'DeepSeek V3.1 671B', // Sol/Mavi
+  };
+};
 
 const App: React.FC = () => {
-  const [debateConfig, setDebateConfig] = useState<DebateConfig | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [debateConfig, setDebateConfig] = useState<DebateConfig>(makeDefaultConfig);
+  const [sessionKey, setSessionKey] = useState(0); // Arena'yı resetlemek için
 
-  useEffect(() => {
-    const unsub = onAuthChange((u) => {
-      setUser(u);
-      setAuthLoading(false);
-    });
-    return () => unsub();
+  const handleStart = useCallback((config: DebateConfig) => {
+    setDebateConfig(config);
+    setSessionKey(k => k + 1);
   }, []);
 
-  const handleStart = (config: DebateConfig) => {
-    setDebateConfig(config);
-  };
-
-  const handleExit = (force: boolean = false) => {
+  const handleExit = useCallback((force: boolean = false) => {
     if (force) {
-      setDebateConfig(null);
+      setDebateConfig(makeDefaultConfig());
+      setSessionKey(k => k + 1);
       return;
     }
     if (window.confirm("Are you sure you want to end this debate session?")) {
-      setDebateConfig(null);
+      setDebateConfig(makeDefaultConfig());
+      setSessionKey(k => k + 1);
     }
-  };
+  }, []);
 
-  const handleSignIn = () => {
-    signInWithGoogle().catch((err) => {
-      console.error("Sign in failed:", err);
-      alert("Sign in failed. Check console for details.");
-    });
-  };
-
-  const handleSignOut = () => {
-    signOut().catch(console.error);
-  };
-
-  if (authLoading) {
-    return (
-      <div className="h-screen w-screen bg-black flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      {!debateConfig ? (
-        <SetupScreen onStart={handleStart} user={user} onSignIn={handleSignIn} onSignOut={handleSignOut} />
-      ) : (
-        <ArenaScreen config={debateConfig} onExit={handleExit} />
-      )}
-    </>
-  );
+  return <ArenaScreen key={sessionKey} config={debateConfig} onExit={handleExit} onNewConfig={handleStart} />;
 };
 
 export default App;
