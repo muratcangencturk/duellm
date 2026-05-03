@@ -308,7 +308,9 @@ export const SetupScreen: React.FC<Props> = ({ onStart }) => {
 
             <div className="space-y-3">
               <div>
-                <label className="text-xs uppercase text-red-400 font-bold mb-1 block">{t('contender1Engine')}</label>
+                <label className="text-xs uppercase text-red-400 font-bold mb-1 block">
+                {t('contender1Engine')} <span className="text-slate-600 font-normal text-[9px] italic ml-1">change model</span>
+              </label>
                 <select 
                   value={model1}
                   onChange={(e) => setModel1(e.target.value)}
@@ -320,7 +322,9 @@ export const SetupScreen: React.FC<Props> = ({ onStart }) => {
               </div>
 
               <div>
-                <label className="text-xs uppercase text-blue-400 font-bold mb-1 block">{t('contender2Engine')}</label>
+                <label className="text-xs uppercase text-blue-400 font-bold mb-1 block">
+                {t('contender2Engine')} <span className="text-slate-600 font-normal text-[9px] italic ml-1">change model</span>
+              </label>
                 <select 
                   value={model2}
                   onChange={(e) => setModel2(e.target.value)}
