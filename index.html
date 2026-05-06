@@ -27,7 +27,7 @@ input,textarea{font-size:16px!important}
 #randBtn{flex-shrink:0;width:40px;height:40px;border-radius:9px;border:none;font-size:20px;display:flex;align-items:center;justify-content:center;background:transparent;color:#777;cursor:pointer}
 #randBtn:hover{color:#e0e0e0;background:#333}
 #randBtn.loading{opacity:.5;pointer-events:none}
-.tip{position:relative}.tip::after{content:attr(tip);position:absolute;top:115%;left:50%;transform:translateX(-50%);background:#333;color:#aaa;font-size:10px;padding:2px 8px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:60}.tip:hover::after{opacity:1}
+.tip{position:relative}.tip::after{content:attr(tip);position:absolute;top:115%;left:50%;transform:translateX(-50%);background:#333;color:#aaa;font-size:11px;padding:3px 9px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:60}.tip:hover::after{opacity:1}
 .hamburger{background:transparent;border:none;color:#888;cursor:pointer;font-size:20px;padding:4px 8px;margin-right:4px}
 @keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .msg{animation:pop .2s ease-out}
@@ -40,13 +40,17 @@ input,textarea{font-size:16px!important}
 .hist-i{width:100%;text-align:left;padding:9px 16px;border-radius:8px;border:none;background:transparent;color:#999;font-size:12px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
 .hist-i:hover{background:#242424}
 .hist-i .hdate{font-size:9px;color:#555;display:block}
+.hist-del{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:#555;cursor:pointer;font-size:12px;padding:2px 4px;border-radius:4px;display:none;line-height:1;z-index:5}
+.hist-i:hover .hist-del{display:block}
+.hist-del:hover{color:#e84040;background:#333}
+@media(hover:none){.hist-i .hist-del.mobile-show{display:block}}
 .m-row{display:flex;margin-bottom:10px}.m-row.end{justify-content:flex-end}.m-row.c{justify-content:center}
 .m-user{padding:7px 14px;border-radius:10px;font-size:14px;word-break:break-word;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.18);color:#c4b5fd;max-width:85%}
 .m-lab{font-size:10px;font-weight:700;margin-bottom:2px;letter-spacing:.3px}.m-lab.l{color:#4b8cf7}.m-lab.r{color:#e84040}
 .bub{width:fit-content;max-width:85%;padding:8px 14px;border-radius:10px;font-size:14px;word-break:break-word;background:#242424;color:#e0e0e0;position:relative;line-height:1.5}.bub.l{border-left:3px solid #4b8cf7}.bub.r{border-right:3px solid #e84040}
-.m-btn{background:transparent;border:none;font-size:12px;font-weight:600;cursor:pointer;padding:4px 6px;border-radius:6px;display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+.m-btn{background:transparent;border:none;font-size:13px;font-weight:600;cursor:pointer;padding:4px 6px;border-radius:6px;display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
 .m-btn.blue{color:#4b8cf7}.m-btn.red{color:#e84040}.m-btn.none{color:#666}
-.g-btn{background:transparent;border:none;cursor:pointer;font-size:12px;padding:3px 4px;border-radius:4px;color:#3a3a3a}
+.g-btn{background:transparent;border:none;cursor:pointer;font-size:14px;padding:3px 4px;border-radius:4px;color:#3a3a3a}
 .dd{position:absolute;top:115%;margin-top:4px;width:210px;max-height:290px;overflow-y:auto;background:#242424;border:1px solid #333;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.7);z-index:50}
 .dd-i{width:100%;text-align:left;padding:8px 14px;border:none;font-size:13px;cursor:pointer;color:#aaa;background:transparent;display:block}
 .dd-i:hover{background:#333}.dd-i.sel{color:#fff;font-weight:600;background:#333}
@@ -65,12 +69,12 @@ input,textarea{font-size:16px!important}
 .modal .sw{color:#888;font-size:11px;text-align:center;margin-top:10px}
 .modal .sw a{color:#4b8cf7;cursor:pointer;text-decoration:underline}
 .modal .sw a:hover{color:#6aa8ff}
-.vs{font-size:10px;font-weight:700;color:#444}
+.vs{font-size:11px;font-weight:700;color:#444}
 .model-center{display:flex;align-items:center;gap:6px;flex:1;justify-content:center}
 .pw{position:relative;display:flex;align-items:center;gap:3px}
-.lang-btn{background:transparent;border:none;font-size:10px;font-weight:700;cursor:pointer;padding:2px 5px;border-radius:4px;color:#666;text-transform:uppercase}
+.lang-btn{background:transparent;border:none;font-size:11px;font-weight:700;cursor:pointer;padding:3px 6px;border-radius:4px;color:#666;text-transform:uppercase}
 .lang-btn.on{color:#e0e0e0;background:#333}
-#shareBtn{background:transparent;border:none;color:#666;cursor:pointer;font-size:14px;padding:2px 3px;border-radius:4px;display:flex;align-items:center}
+#shareBtn{background:transparent;border:none;color:#666;cursor:pointer;font-size:16px;padding:3px 4px;border-radius:4px;display:flex;align-items:center}
 #shareBtn:hover{color:#e0e0e0;background:#333}
 #shareBtn.done{color:#4ade80}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#333;color:#e0e0e0;padding:8px 18px;border-radius:8px;font-size:13px;z-index:200;animation:pop .2s ease-out;opacity:0;transition:opacity .3s}
@@ -105,8 +109,8 @@ input,textarea{font-size:16px!important}
       </div>
       <span class="vs" id="vsSpan">VS</span>
       <div class="pw" id="pwR">
-        <button class="m-btn red tip" tip="Change Model" id="btnR" onclick="toggleDropdown(event,'R')">Gemma3 27b ▼</button>
         <button class="g-btn tip" tip="Settings" id="gearR" onclick="openSettings('R')" style="display: inline-flex;">⚙</button>
+        <button class="m-btn red tip" tip="Change Model" id="btnR" onclick="toggleDropdown(event,'R')">▼ Gemma3 27b</button>
       </div>
     </div>
     <div id="topright">
@@ -291,7 +295,7 @@ function tk(){return new Date().toISOString().split('T')[0]}
 function GM(s){return s==='L'?S.modelL:S.modelR}
 function GO(s){return s==='L'?S.modelR:S.modelL}
 function GS(s){return s==='L'?S.sysL:S.sysR}
-function bl(m){return m?fmt(m)+' ▼':t('none')+' ▼'}
+function bl(m,s){var label=m?fmt(m):t('none');return s==='R'?'▼ '+label:label+' ▼'}
 function estTok(txt){return Math.ceil(txt.length/4)}
 function totalUsedToday(){
   var k='dk_'+tk();return parseInt(localStorage.getItem(k)||'0');
@@ -300,8 +304,8 @@ function totalUsedToday(){
 // ── UI ──
 function refreshUI(){
   var bL=document.getElementById('btnL'),bR=document.getElementById('btnR');
-  bL.innerHTML=bl(S.modelL);bL.className='m-btn '+(S.modelL?'blue':'none')+' tip';
-  bR.innerHTML=bl(S.modelR);bR.className='m-btn '+(S.modelR?'red':'none')+' tip';
+  bL.innerHTML=bl(S.modelL,'L');bL.className='m-btn '+(S.modelL?'blue':'none')+' tip';
+  bR.innerHTML=bl(S.modelR,'R');bR.className='m-btn '+(S.modelR?'red':'none')+' tip';
   document.getElementById('gearL').style.display=S.modelL?'inline-flex':'none';
   document.getElementById('gearR').style.display=S.modelR?'inline-flex':'none';
 }
@@ -366,11 +370,16 @@ function renderHistory(){
   c.innerHTML='<div class="sec-t">'+t('history')+'</div>';
   if(!H.length){c.innerHTML+='<div id="histEmp" style="padding:8px 16px;font-size:12px;color:#666;font-style:italic">'+t('noHistory')+'</div>';return}
   H.forEach(function(h){
-    var b=document.createElement('button');b.className='hist-i';
+    var wrap=document.createElement('div');wrap.className='hist-i';wrap.style.position='relative';
     var d=new Date(h.ts),time=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    b.innerHTML=(h.topic||'(untitled)').slice(0,45)+'<span class="hdate">'+time+'</span>';
-    b.onclick=function(){stopAll();saveHistory();restoreSession(h);closeSidebar();};
-    c.appendChild(b);
+    wrap.innerHTML=(h.topic||'(untitled)').slice(0,35)+'<span class="hdate">'+time+'</span><button class="hist-del" onclick="event.stopPropagation();deleteHistoryEntry(\''+h.id+'\')" title="Delete"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>';
+    // Long-press on mobile to show delete
+    var pressTimer;
+    wrap.addEventListener('touchstart',function(){pressTimer=setTimeout(function(){wrap.querySelector('.hist-del').classList.add('mobile-show')},500)});
+    wrap.addEventListener('touchend',function(){clearTimeout(pressTimer)});
+    wrap.addEventListener('touchmove',function(){clearTimeout(pressTimer)});
+    wrap.addEventListener('click',function(e){if(!e.target.closest('.hist-del')){stopAll();saveHistory();restoreSession(h);closeSidebar();}});
+    c.appendChild(wrap);
   });
 }
 
@@ -576,6 +585,11 @@ async function speakDebate(side){
 }
 
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function deleteHistoryEntry(id){
+  H=H.filter(function(h){return h.id!==id;});
+  localStorage.setItem('duellm_hist',JSON.stringify(H));
+  renderHistory();
+}
 
 // ── UPGRADE ──
 function upgradePlan(){
