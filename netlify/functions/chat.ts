@@ -105,7 +105,7 @@ const handler: Handler = async (event) => {
       return { statusCode: 429, headers: h, body: JSON.stringify({ error: "daily_limit", limit, used: usage.total_tokens }) };
   }
 
-  payload.options = { ...(payload.options || {}), num_predict: Math.min(payload.options?.num_predict || 256, 256) };
+  payload.options = { ...(payload.options || {}), num_predict: Math.min(payload.options?.num_predict || 512, 512) };
   payload.stream = false;
 
   try {

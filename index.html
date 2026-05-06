@@ -47,7 +47,7 @@ input,textarea{font-size:16px!important}
 .m-row{display:flex;margin-bottom:10px}.m-row.end{justify-content:flex-end}.m-row.c{justify-content:center}
 .m-user{padding:7px 14px;border-radius:10px;font-size:14px;word-break:break-word;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.18);color:#c4b5fd;max-width:85%}
 .m-lab{font-size:10px;font-weight:700;margin-bottom:2px;letter-spacing:.3px}.m-lab.l{color:#4b8cf7}.m-lab.r{color:#e84040}
-.bub{width:fit-content;max-width:85%;padding:8px 14px;border-radius:10px;font-size:14px;word-break:break-word;background:#242424;color:#e0e0e0;position:relative;line-height:1.5}.bub.l{border-left:3px solid #4b8cf7}.bub.r{border-right:3px solid #e84040}
+.bub{width:fit-content;max-width:85%;padding:8px 14px;border-radius:10px;font-size:14px;word-break:break-word;background:#242424;color:#e0e0e0;position:relative;line-height:1.5}.bub.l{border-left:3px solid #4b8cf7}.bub.r{border-left:3px solid #e84040}
 .m-btn{background:transparent;border:none;font-size:13px;font-weight:600;cursor:pointer;padding:4px 6px;border-radius:6px;display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
 .m-btn.blue{color:#4b8cf7}.m-btn.red{color:#e84040}.m-btn.none{color:#666}
 .g-btn{background:transparent;border:none;cursor:pointer;font-size:14px;padding:3px 4px;border-radius:4px;color:#3a3a3a}
@@ -130,7 +130,7 @@ input,textarea{font-size:16px!important}
 
 <script>
 // ── MODELS ──
-var MODELS=["gemma4:31b","cogito-2.1:671b","qwen3-next:80b","qwen3-coder-next","deepseek-v3.1:671b","qwen3-vl:235b-instruct","qwen3-vl:235b","gpt-oss:120b","ministral-3:8b","gemma3:27b","ministral-3:14b","gemma3:12b","mistral-large-3:675b","gemini-3-flash-preview"];
+var MODELS=["gemma4:31b","cogito-2.1:671b","qwen3-next:80b","qwen3-coder-next","deepseek-v3.1:671b","qwen3-vl:235b-instruct","qwen3-vl:235b","gpt-oss:120b","ministral-3:8b","gemma3:27b","ministral-3:14b","gemma3:12b","mistral-large-3:675b","gemini-3-flash-preview","deepseek-v4-pro","deepseek-v4-flash","deepseek-v3.2","qwen3.5:397b","qwen3-coder:480b","glm-5.1","glm-5","glm-4.6","glm-4.7","gpt-oss:20b","devstral-2:123b","devstral-small-2:24b","minimax-m2","minimax-m2.1","minimax-m2.5","minimax-m2.7","gemma3:4b","ministral-3:3b","rnj-1:8b"];
 
 // ── LIMITS ──
 var LIMIT_GUEST=10000, LIMIT_USER=30000, LIMIT_PREMIUM=300000;
@@ -469,7 +469,7 @@ function addMsgEl(side,txt,model){
   if(side==='u'){row.className='m-row c msg';row.innerHTML='<div class="m-user">'+esc(txt)+'</div>'}
   else{
     row.className='m-row'+(side==='R'?' end':'')+' msg';
-    var label=model?fmt(model):t(side==='L'?'blue':'red');
+    var label=model?fmt(model):'???';
     row.innerHTML='<div><div class="m-lab '+(side==='L'?'l':'r')+'">'+label+'</div><div class="bub '+(side==='L'?'l':'r')+'" id="'+id+'"></div></div>';
   }
   document.getElementById('msgs').appendChild(row);
@@ -483,13 +483,13 @@ function updateBub(id,txt,showCursor){
   if(ms.scrollHeight-ms.scrollTop-ms.clientHeight<60)ms.scrollTop=ms.scrollHeight;
 }
 function typewrite(id,full,cb){
-  var i=0,spd=30,chunk=3;
+  var i=0,spd=120; // 0.25x speed — ~8 chars/sec, readable, single char
   function step(){
     if(i>=full.length){updateBub(id,full,false);E.timer=null;if(cb)cb();return}
-    i+=chunk;if(i>full.length)i=full.length;
+    i++;if(i>full.length)i=full.length;
     updateBub(id,full.slice(0,i),true);E.timer=setTimeout(step,spd);
   }
-  updateBub(id,'',true);E.timer=setTimeout(step,80);
+  updateBub(id,'',true);E.timer=setTimeout(step,spd);
 }
 
 // ── SEND / STOP ──
@@ -528,7 +528,7 @@ async function speakOnce(side){
   var msgId=addMsgEl(side,'...',mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
   var sys=GS(side);
-  var sp='You are '+fmt(mn)+'. A user said: "'+S.topic+'". You are having a 1-on-1 conversation with this user. Respond directly — be conversational. 2-4 sentences. Plain text.'+(sys?'\n\n'+sys:'');
+  var sp='You are in a natural ongoing discussion. DO NOT introduce yourself or say your name. DO NOT roleplay, DO NOT use markdown, DO NOT write actions or stage directions. DO NOT label who is speaking. Just respond naturally in 2-4 sentences as if you are continuing a conversation. Plain text only. The topic is: "'+S.topic+'".'+(sys?'\n\n'+sys:'');
   try{
     var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-duellm-uid':isAuth()?AU.user_id:'','x-duellm-tier':userTier()},body:JSON.stringify({model:mn,messages:[{role:'system',content:sp},{role:'user',content:S.topic}],options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
     var d=await r.json();
@@ -550,7 +550,7 @@ async function speakDebate(side){
   var mn=GM(side),op=GO(side);
   var msgId=addMsgEl(side,'...',mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
-  var sp='You are '+fmt(mn)+'. Group chat. The user said: "'+S.topic+'". Your debate partner is '+fmt(op)+'. Talk naturally with your partner — build on what they say. 2-3 sentences. Plain text only. Messages from "[User]" are the human speaking — respond to them too.'+(GS(side)?'\n\n'+GS(side):'');
+  var sp='You are in a group discussion. DO NOT introduce yourself or say your name. DO NOT roleplay, DO NOT use markdown, DO NOT write stage directions. DO NOT say "User:" or label others. Just respond naturally in 2-3 sentences as if talking to friends. Plain text only. Topic: "'+S.topic+'".'+(GS(side)?'\n\n'+GS(side):'');
   var am=[{role:'system',content:sp}];
   var rows=document.getElementById('msgs').children;
   var ctxLen=0,ctxMax=10000;
