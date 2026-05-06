@@ -10,7 +10,16 @@ const sb = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNuc3lya3VrZG1qcG92eHJzcmN3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzgxNDk1NiwiZXhwIjoyMDkzMzkwOTU2fQ.UODAA6Jgiir1BnMNofUL2gMsja8bw5bRTYBwsacIYsQ"
 );
 
-const clean = (t: string) => t.replace(/<\s*think\s*>[\s\S]*?<\s*\/\s*think\s*>/gi, " ").replace(/<\s*think\s*\/\s*>/gi, "").trim();
+const clean = (t: string) => {
+  // Only remove think tags, don't kill the whole response
+  let txt = t;
+  // Remove everything between think tags
+  while (/<\s*think\s*>[\s\S]*?<\s*\/\s*think\s*>/gi.test(txt)) {
+    txt = txt.replace(/<\s*think\s*>[\s\S]*?<\s*\/\s*think\s*>/gi, "");
+  }
+  txt = txt.replace(/<\s*think\s*\/\s*>/gi, "");
+  return txt.trim();
+};
 const dk = (uid: string) => uid + ":" + new Date().toISOString().split("T")[0];
 
 const handler: Handler = async (event) => {
