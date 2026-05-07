@@ -7,13 +7,11 @@ const LIMITS: Record<string, number> = { guest: 10000, user: 30000, premium: 300
 
 const sb = createClient(
   "https://snsyrkukdmjpovxrsrcw.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNuc3lya3VrZG1qcG92eHJzcmN3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzgxNDk1NiwiZXhwIjoyMDkzMzkwOTU2fQ.UODAA6Jgiir1BnMNofUL2gMsja8bw5bRTYBwsacIYsQ"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNuc3lya3VrZG1qcG92eHJzcmN3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NjM2NTQxMywiZXhwIjoyMDYxOTQxNDEzfQ.P1V4G8h4RqP9nNl7QpL1GcJ8e3zNxO5XWqHq1VrMhYs"
 );
 
 const clean = (t: string) => {
-  // Only remove think tags, don't kill the whole response
   let txt = t;
-  // Remove everything between think tags
   while (/<\s*think\s*>[\s\S]*?<\s*\/\s*think\s*>/gi.test(txt)) {
     txt = txt.replace(/<\s*think\s*>[\s\S]*?<\s*\/\s*think\s*>/gi, "");
   }
@@ -27,6 +25,7 @@ const handler: Handler = async (event) => {
   if (event.httpMethod === "OPTIONS") return { statusCode: 204, headers: h, body: "" };
 
   const path = event.path.replace("/.netlify/functions/chat", "").replace("/api/chat", "").replace("/api", "");
+  const uid = event.headers["x-duellm-uid"] || "";
 
   // GUMROAD WEBHOOK
   if (event.httpMethod === "POST" && path === "/webhook") {
@@ -87,10 +86,53 @@ const handler: Handler = async (event) => {
     }
   }
 
+  // ── HISTORY SYNC ──
+  // GET history
+  if (event.httpMethod === "GET" && path === "/history") {
+    if (!uid) return { statusCode: 401, headers: h, body: JSON.stringify({ error: "Not authenticated" }) };
+    try {
+      const { data, error } = await sb.from("history").select("*").eq("user_id", uid).order("created_at", { ascending: false }).limit(50);
+      if (error) return { statusCode: 500, headers: h, body: JSON.stringify({ error: "Failed to fetch" }) };
+      return { statusCode: 200, headers: h, body: JSON.stringify(data || []) };
+    } catch (e: any) {
+      return { statusCode: 500, headers: h, body: JSON.stringify({ error: e.message }) };
+    }
+  }
+
+  // POST save history
+  if (event.httpMethod === "POST" && path === "/history") {
+    if (!uid) return { statusCode: 401, headers: h, body: JSON.stringify({ error: "Not authenticated" }) };
+    try {
+      const { id, topic, modelL, modelR, sysL, sysR, msgs } = JSON.parse(event.body || "{}");
+      if (!id) return { statusCode: 400, headers: h, body: JSON.stringify({ error: "Missing id" }) };
+      const { data: ex } = await sb.from("history").select("id").eq("user_id", uid).eq("id", id).maybeSingle();
+      if (ex) {
+        await sb.from("history").update({ topic, modelL, modelR, sysL, sysR, msgs, updated_at: new Date().toISOString() }).eq("user_id", uid).eq("id", id);
+      } else {
+        await sb.from("history").insert({ id, user_id: uid, topic, modelL, modelR, sysL, sysR, msgs });
+      }
+      return { statusCode: 200, headers: h, body: JSON.stringify({ success: true }) };
+    } catch (e: any) {
+      return { statusCode: 500, headers: h, body: JSON.stringify({ error: e.message }) };
+    }
+  }
+
+  // DELETE history
+  if (event.httpMethod === "DELETE" && (path === "/history" || path.startsWith("/history/"))) {
+    if (!uid) return { statusCode: 401, headers: h, body: JSON.stringify({ error: "Not authenticated" }) };
+    try {
+      const entryId = path === "/history" ? (JSON.parse(event.body || "{}")).id : path.replace("/history/", "");
+      if (!entryId) return { statusCode: 400, headers: h, body: JSON.stringify({ error: "Missing id" }) };
+      await sb.from("history").delete().eq("user_id", uid).eq("id", entryId);
+      return { statusCode: 200, headers: h, body: JSON.stringify({ success: true }) };
+    } catch (e: any) {
+      return { statusCode: 500, headers: h, body: JSON.stringify({ error: e.message }) };
+    }
+  }
+
   // CHAT
   if (event.httpMethod !== "POST") return { statusCode: 405, headers: h, body: JSON.stringify({ error: "Method Not Allowed" }) };
   const payload = JSON.parse(event.body || "{}");
-  const uid = event.headers["x-duellm-uid"] || "";
   let tier = "guest", limit = LIMITS.guest;
   if (uid) {
     const { data: u } = await sb.from("users").select("tier").eq("id", uid).maybeSingle();

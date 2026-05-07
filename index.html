@@ -154,10 +154,49 @@ var AU=null;
   var s=localStorage.getItem('duellm_session');
   if(s){try{AU=JSON.parse(s)}catch(e){}}
 })();
-function saveAuth(){if(AU)localStorage.setItem('duellm_session',JSON.stringify(AU));else localStorage.removeItem('duellm_session')}
+function saveAuth(){
+  if(AU)localStorage.setItem('duellm_session',JSON.stringify(AU));
+  else{
+    localStorage.removeItem('duellm_session');
+    // On logout: restore localStorage-only history
+    H=JSON.parse(localStorage.getItem('duellm_hist_local')||'[]');
+    renderHistory();
+  }
+}
 function isAuth(){return !!AU}
 function userTier(){return AU?AU.tier:'guest'}
 function userDailyLimit(){var t=userTier();return t==='premium'?LIMIT_PREMIUM:t==='user'?LIMIT_USER:LIMIT_GUEST}
+
+// ── SUPABASE HISTORY SYNC ──
+function syncHistoryToCloud(entry){
+  if(!isAuth())return;
+  fetch('/api/history',{
+    method:'POST',headers:{'Content-Type':'application/json','x-duellm-uid':AU.user_id},
+    body:JSON.stringify(entry)
+  }).catch(function(){});
+}
+function syncDeleteFromCloud(id){
+  if(!isAuth())return;
+  fetch('/api/history/'+encodeURIComponent(id),{
+    method:'DELETE',headers:{'x-duellm-uid':AU.user_id}
+  }).catch(function(){});
+}
+async function loadHistoryFromCloud(){
+  if(!isAuth())return;
+  try{
+    var r=await fetch('/api/history',{headers:{'x-duellm-uid':AU.user_id}});
+    var cloud=await r.json();
+    if(!Array.isArray(cloud)||!cloud.length)return;
+    // Convert cloud entries to local format
+    H=cloud.map(function(e){
+      return {id:e.id,topic:e.topic,modelL:e.modelL,modelR:e.modelR,sysL:e.sysL||'',sysR:e.sysR||'',msgs:e.msgs||[],ts:new Date(e.created_at).getTime()};
+    }).sort(function(a,b){return b.ts-a.ts;});
+    if(H.length>30)H=H.slice(0,30);
+    // Mirror to localStorage as backup
+    localStorage.setItem('duellm_hist_local',JSON.stringify(H));
+    renderHistory();
+  }catch(e){}
+}
 
 // ── LANG ──
 function setLang(l){
@@ -230,6 +269,7 @@ function showAuthModal(mode){
       if(isLogin){AU={user_id:d.user_id,username:d.username,email:d.email,tier:d.tier||'user'};}
       else{AU={user_id:d.user_id||'',username:d.username||username,email:email,tier:'user'};}
       saveAuth();updateLoginBtn();updateLimitMsg();ov.remove();
+      if(isLogin)loadHistoryFromCloud();
       showToast(isLogin?'Welcome back, '+AU.username+'!':'Account created! Welcome, '+AU.username+'!');
     }).catch(function(e){
       errEl.textContent='Connection error. Try again.';errEl.style.display='block';
@@ -246,7 +286,7 @@ function rnd2mods(){
 var initMods=rnd2mods();
 var S={topic:'',modelL:initMods[0],modelR:initMods[1],sysL:'',sysR:'',msgData:[],chatTokens:0};
 var E={running:false,speaking:false,side:'L',abort:null,timer:null,chatPaused:false};
-var H=JSON.parse(localStorage.getItem('duellm_hist')||'[]');
+var H=JSON.parse(localStorage.getItem('duellm_hist_local')||'[]');
 
 // ── SAVE/LOAD ──
 function saveHistory(){
@@ -267,7 +307,8 @@ function saveHistory(){
   var entry={id:sid,topic:S.topic,modelL:S.modelL,modelR:S.modelR,sysL:S.sysL,sysR:S.sysR,msgs:msgs,ts:Date.now()};
   H=H.filter(function(h){return h.topic!==S.topic||!S.topic});
   H.unshift(entry);if(H.length>30)H.pop();
-  localStorage.setItem('duellm_hist',JSON.stringify(H));
+  localStorage.setItem('duellm_hist_local',JSON.stringify(H));
+  syncHistoryToCloud(entry);
   renderHistory();
 }
 function restoreSession(data){
@@ -378,14 +419,15 @@ function renderHistory(){
     wrap.addEventListener('touchstart',function(){pressTimer=setTimeout(function(){wrap.querySelector('.hist-del').classList.add('mobile-show')},500)});
     wrap.addEventListener('touchend',function(){clearTimeout(pressTimer)});
     wrap.addEventListener('touchmove',function(){clearTimeout(pressTimer)});
-    wrap.addEventListener('click',function(e){if(!e.target.closest('.hist-del')){stopAll();saveHistory();restoreSession(h);closeSidebar();}});
+    wrap.addEventListener('click',function(e){if(!e.target.closest('.hist-del')){stopAll();restoreSession(h);closeSidebar();}});
     c.appendChild(wrap);
   });
 }
 
 function deleteHistoryEntry(id){
   H=H.filter(function(h){return h.id!==id;});
-  localStorage.setItem('duellm_hist',JSON.stringify(H));
+  localStorage.setItem('duellm_hist_local',JSON.stringify(H));
+  syncDeleteFromCloud(id);
   renderHistory();
 }
 
