@@ -1,622 +1,622 @@
-     1|<!DOCTYPE html>
-     2|<html lang="en">
-     3|<head>
-     4|<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>duellm</title>
-     5|<link rel="icon" type="image/png" href="/logo.png">
-     6|<meta property="og:image" content="/logo.png">
-     7|<meta property="og:title" content="duellm — AI vs AI Debate">
-     8|<meta name="description" content="Two AI models debate live.">
-     9|<style>
-    10|*{box-sizing:border-box;margin:0;padding:0}::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:#1a1a1a}::-webkit-scrollbar-thumb{background:#3a3a3a;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#4a4a4a}/* Firefox */ *{scrollbar-width:thin;scrollbar-color:#3a3a3a #1a1a1a}
-    11|html,body{height:100%;background:#1a1a1a;color:#e0e0e0;overflow:hidden;font-family:system-ui,-apple-system,sans-serif}
-    12|input,textarea{font-size:16px!important}
-    13|#app{display:flex;height:100dvh;width:100%}
-    14|#sidebar{width:270px;background:#1a1a1a;border-right:1px solid #2d2d2d;display:flex;flex-direction:column;flex-shrink:0;z-index:30}
-    15|#sidebar.hidden{display:none}
-    16|@media(max-width:768px){#sidebar{position:fixed;left:0;top:0;height:100%;transform:translateX(-100%);transition:transform .2s;display:flex!important}#sidebar.open{transform:translateX(0)}#sidebar.hidden{display:flex!important}#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20}#overlay.open{display:block}}
-    17|#main{flex:1;display:flex;flex-direction:column;min-width:0;background:#1a1a1a}
-    18|#topbar{height:54px;border-bottom:1px solid #2d2d2d;display:flex;align-items:center;padding:0 12px;flex-shrink:0;position:relative}
-    19|#topright{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:2px}
-    20|#msgs{flex:1;overflow-y:auto;padding:20px 16px 4px}
-    21|#input-wrap{padding:12px 16px 24px}
-    22|#input-box{display:flex;align-items:flex-end;gap:8px;max-width:760px;margin:0 auto;background:#242424;border:1px solid #2d2d2d;border-radius:14px;padding:3px 10px}
-    23|#inp{flex:1;background:transparent;border:none;resize:none;font-size:16px;color:#e0e0e0;padding:8px 0;outline:none;font-family:inherit;line-height:1.4}
-    24|#sendBtn{flex-shrink:0;width:40px;height:40px;border-radius:9px;border:none;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .15s;background:#333;color:#777;cursor:default}
-    25|#sendBtn.on{background:#ccc;color:#111;cursor:pointer}
-    26|#sendBtn.stop{background:#c0392b;color:#fff;font-size:15px;font-weight:700}
-    27|#randBtn{flex-shrink:0;width:40px;height:40px;border-radius:9px;border:none;font-size:20px;display:flex;align-items:center;justify-content:center;background:transparent;color:#777;cursor:pointer}
-    28|#randBtn:hover{color:#e0e0e0;background:#333}
-    29|#randBtn.loading{opacity:.5;pointer-events:none}
-    30|.tip{position:relative}.tip::after{content:attr(tip);position:absolute;top:115%;left:50%;transform:translateX(-50%);background:#333;color:#aaa;font-size:10px;padding:2px 8px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:60}.tip:hover::after{opacity:1}
-    31|.hamburger{background:transparent;border:none;color:#888;cursor:pointer;font-size:20px;padding:4px 8px;margin-right:4px}
-    32|@keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-    33|.msg{animation:pop .2s ease-out}
-    34|@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-    35|.cursor{animation:blink .8s infinite}
-    36|.side-logo{display:flex;align-items:center;gap:12px;padding:16px 18px 10px;border-bottom:1px solid #2d2d2d}
-    37|.side-logo img{width:48px;height:48px;border-radius:8px}
-    38|.logo-t{font-size:20px;font-weight:700;background:linear-gradient(135deg,#4b8cf7 50%,#e84040 52%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    39|.sec-t{font-size:10px;color:#777;font-weight:600;text-transform:uppercase;padding:10px 16px;letter-spacing:.5px}
-    40|.hist-i{width:100%;text-align:left;padding:9px 16px;border-radius:8px;border:none;background:transparent;color:#999;font-size:12px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
-    41|.hist-i:hover{background:#242424}
-    42|.hist-i .hdate{font-size:9px;color:#555;display:block}
-    43|.m-row{display:flex;margin-bottom:10px}.m-row.end{justify-content:flex-end}.m-row.c{justify-content:center}
-    44|.m-user{padding:7px 14px;border-radius:10px;font-size:14px;word-break:break-word;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.18);color:#c4b5fd;max-width:85%}
-    45|.m-lab{font-size:10px;font-weight:700;margin-bottom:2px;letter-spacing:.3px}.m-lab.l{color:#4b8cf7}.m-lab.r{color:#e84040}
-    46|.bub{width:fit-content;max-width:85%;padding:8px 14px;border-radius:10px;font-size:14px;word-break:break-word;background:#242424;color:#e0e0e0;position:relative;line-height:1.5}.bub.l{border-left:3px solid #4b8cf7}.bub.r{border-right:3px solid #e84040}
-    47|.m-btn{background:transparent;border:none;font-size:12px;font-weight:600;cursor:pointer;padding:4px 6px;border-radius:6px;display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
-    48|.m-btn.blue{color:#4b8cf7}.m-btn.red{color:#e84040}.m-btn.none{color:#666}
-    49|.g-btn{background:transparent;border:none;cursor:pointer;font-size:12px;padding:3px 4px;border-radius:4px;color:#3a3a3a}
-    50|.dd{position:absolute;top:115%;margin-top:4px;width:210px;max-height:290px;overflow-y:auto;background:#242424;border:1px solid #333;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.7);z-index:50}
-    51|.dd-i{width:100%;text-align:left;padding:8px 14px;border:none;font-size:13px;cursor:pointer;color:#aaa;background:transparent;display:block}
-    52|.dd-i:hover{background:#333}.dd-i.sel{color:#fff;font-weight:600;background:#333}
-    53|.dd-none{border-bottom:1px solid #333;font-style:italic;color:#666}
-    54|.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100}
-    55|.modal{background:#242424;border:1px solid #333;border-radius:12px;width:92vw;max-width:420px;padding:20px}
-    56|.modal h3{font-weight:600;font-size:16px;margin-bottom:14px}
-    57|.modal label{font-size:12px;color:#888;display:block;margin-bottom:4px}
-    58|.modal input,.modal select{width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#e0e0e0;font-size:14px;margin-bottom:12px;outline:none}
-    59|.modal input:focus,.modal select:focus{border-color:#4b8cf7}
-    60|.modal .btn-primary{width:100%;padding:10px;border-radius:8px;border:none;color:#fff;font-size:14px;font-weight:600;cursor:pointer;background:#4b8cf7;margin-top:4px}
-    61|.modal .btn-primary:hover{background:#3a7de6}
-    62|.modal .btn-secondary{width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:transparent;color:#aaa;font-size:13px;cursor:pointer;margin-top:8px}
-    63|.modal .btn-secondary:hover{color:#e0e0e0;background:#333}
-    64|.modal .err{color:#e84040;font-size:11px;margin-bottom:8px;text-align:center}
-    65|.modal .sw{color:#888;font-size:11px;text-align:center;margin-top:10px}
-    66|.modal .sw a{color:#4b8cf7;cursor:pointer;text-decoration:underline}
-    67|.modal .sw a:hover{color:#6aa8ff}
-    68|.vs{font-size:10px;font-weight:700;color:#444}
-    69|.model-center{display:flex;align-items:center;gap:6px;flex:1;justify-content:center}
-    70|.pw{position:relative;display:flex;align-items:center;gap:3px}
-    71|.lang-btn{background:transparent;border:none;font-size:10px;font-weight:700;cursor:pointer;padding:2px 5px;border-radius:4px;color:#666;text-transform:uppercase}
-    72|.lang-btn.on{color:#e0e0e0;background:#333}
-    73|#shareBtn{background:transparent;border:none;color:#666;cursor:pointer;font-size:14px;padding:2px 3px;border-radius:4px;display:flex;align-items:center}
-    74|#shareBtn:hover{color:#e0e0e0;background:#333}
-    75|#shareBtn.done{color:#4ade80}
-    76|.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#333;color:#e0e0e0;padding:8px 18px;border-radius:8px;font-size:13px;z-index:200;animation:pop .2s ease-out;opacity:0;transition:opacity .3s}
-    77|.toast.show{opacity:1}
-    78|@media(max-width:420px){
-    79|  #topright{position:static;transform:none;margin-left:auto;gap:1px}
-    80|  #topright .lang-btn{font-size:8px;padding:2px 4px}
-    81|  #shareBtn{font-size:12px;padding:2px 3px}
-    82|  #topbar{padding:0 6px;gap:1px}
-    83|  .model-center{gap:2px}
-    84|  .m-btn{font-size:9px;padding:2px 3px}
-    85|  .vs{font-size:8px}
-    86|}
-    87|</style>
-    88|</head><body>
-    89|<div id="app">
-    90|<div id="overlay" onclick="closeSidebar()"></div>
-    91|<div id="sidebar" class="">
-    92|  <div class="side-logo"><img src="/logo.png" onerror="this.style.display='none'"><span class="logo-t">duellm</span></div>
-    93|  <div style="padding:10px 12px"><button id="newDebBtn" onclick="newDebate()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #333;background:transparent;color:#d1d5db;font-size:14px;font-weight:500;cursor:pointer">+ New Chat</button></div>
-    94|  <div style="flex:1;overflow-y:auto;padding:4px" id="histCont"><div class="sec-t">History</div><div id="histEmp" style="padding:8px 16px;font-size:12px;color:#666;font-style:italic">No history yet</div></div>
-    95|  <div style="padding:8px 12px 0"><button id="upgradeBtn" onclick="upgradePlan()" style="width:100%;text-align:left;padding:8px 14px;border-radius:8px;border:1px solid #3d3520;background:linear-gradient(135deg,#2a2416,#1f1a0e);color:#e2b24f;font-size:13px;cursor:pointer">⭐ Upgrade Plan</button></div>
-    96|  <div style="padding:10px 12px;border-top:1px solid #2d2d2d"><button id="loginBtn" onclick="handleAuthClick()" style="width:100%;text-align:left;padding:10px 14px;border-radius:8px;border:none;background:transparent;color:#999;font-size:13px;cursor:pointer"> Sign Up / Login</button></div>
-    97|</div>
-    98|<div id="main">
-    99|  <div id="topbar">
-   100|    <button class="hamburger" onclick="toggleSidebar()">☰</button>
-   101|    <div class="model-center">
-   102|      <div class="pw" id="pwL">
-   103|        <button class="m-btn blue tip" tip="Change Model" id="btnL" onclick="toggleDropdown(event,'L')">Gemini 3 Flash Preview ▼</button>
-   104|        <button class="g-btn tip" tip="Settings" id="gearL" onclick="openSettings('L')" style="display: inline-flex;">⚙</button>
-   105|      </div>
-   106|      <span class="vs" id="vsSpan">VS</span>
-   107|      <div class="pw" id="pwR">
-   108|        <button class="m-btn red tip" tip="Change Model" id="btnR" onclick="toggleDropdown(event,'R')">Gemma3 27b ▼</button>
-   109|        <button class="g-btn tip" tip="Settings" id="gearR" onclick="openSettings('R')" style="display: inline-flex;">⚙</button>
-   110|      </div>
-   111|    </div>
-   112|    <div id="topright">
-   113|      <button id="shareBtn" class="tip" tip="Share" onclick="shareChat()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></button>
-   114|      <button class="lang-btn on" id="lEN" onclick="setLang('en')">EN</button><button class="lang-btn" id="lTR" onclick="setLang('tr')">TR</button>
-   115|    </div>
-   116|  </div>
-   117|  <div id="msgs"></div>
-   118|  <div id="input-wrap"><div id="input-box">
-   119|    <button id="randBtn" class="tip" tip="Random topic" onclick="randomTopic()">?</button>
-   120|    <textarea id="inp" rows="1" placeholder="Send a message" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendOrStop()}"></textarea>
-   121|    <button id="sendBtn" onclick="sendOrStop()" class="">➤</button>
-   122|  </div><div id="limit-msg" style="display:none;text-align:center;padding-top:8px;font-size:12px;color:#ef4444;white-space:pre-wrap"></div></div>
-   123|</div>
-   124|</div>
-   125|<div id="toast" class="toast"></div>
-   126|
-   127|<script>
-   128|// ── MODELS ──
-   129|var MODELS=["cogito-2.1:671b","devstral-2:123b","devstral-small-2:24b","gemma3:12b","gemma3:27b","gpt-oss:120b","ministral-3:8b","ministral-3:14b","mistral-large-3:675b","qwen3-coder-next","qwen3-next:80b","qwen3-vl:235b","qwen3-vl:235b-instruct","rnj-1:8b"];
-   130|
-   131|// ── LIMITS ──
-   132|var LIMIT_GUEST=10000, LIMIT_USER=30000, LIMIT_PREMIUM=300000;
-   133|var MAX_CHAT_TOKENS=10000;
-   134|var MAX_RESPONSE_TOKENS=512;
-   135|
-   136|var RP_EN="Generate one single-sentence debate discussion topic or question. It can be about technology, philosophy, society, science, ethics, politics, or any thought-provoking subject. Just the sentence, nothing else.";
-   137|var RP_TR="Tek cümlelik bir tartışma konusu veya soru üret. Teknoloji, felsefe, toplum, bilim, etik, politika veya düşündürücü herhangi bir konu olabilir. Sadece cümle, başka bir şey yazma.";
-   138|
-   139|// ── TRANSLATIONS ──
-   140|var L='en';
-   141|var TX={
-   142|  en:{newDebate:'+ New Chat',history:'History',noHistory:'No history yet',loginIn:' Sign Up / Login',loginOut:' Sign Out',upgrade:'⭐ Upgrade Plan',upgradeWarn:'Please sign up / login first.',sendMsg:'Send a message',change:'Change Model',settings:'Settings',rand:'Random topic',none:'— None —',limitGuest:'Daily limit reached.\nSign up for more usage.',limitUser:'Daily limit reached.\nPlease upgrade plan for x10 more tokens.',limitPremium:'Daily limit reached.\nUpgrade for even more tokens.',limitChat:'Chat limit reached (10K tokens).\nSend a message to continue.',rp:RP_EN,vs:'VS',blue:'Blue',red:'Red',mdl:'Model',sp:'System Prompt',spPlace:'Instructions for this model...',save:'Save',share:'Share',shared:'Link copied! Share this link to show this conversation.',shareTooltip:'Share',signupTitle:'Create Account',loginTitle:'Sign In',email:'Email',password:'Password',username:'Username',signupBtn:'Create Account',loginBtn:'Sign In',switchSignup:'Already have an account? Sign in',switchLogin:"Don't have an account? Sign up",logout:'Sign Out',licenseTitle:'Activate Premium',licenseKey:'Order ID',licenseBtn:'Activate',licenseDesc:'Enter your Gumroad Order ID:',licenseLink:'Buy on Gumroad →',licenseSuccess:'Premium activated! You now have 300K tokens/day.',licenseFail:'Invalid Order ID. Please try again.',activated:'Premium ✓'},
-   143|  tr:{newDebate:'+ Yeni Sohbet',history:'Geçmiş',noHistory:'Henüz geçmiş yok',loginIn:' Kayıt Ol / Giriş Yap',loginOut:' Çıkış Yap',upgrade:'⭐ Planı Yükselt',upgradeWarn:'Lütfen önce kayıt olun / giriş yapın.',sendMsg:'Mesaj gönder',change:'Model Değiştir',settings:'Ayarlar',rand:'Rastgele konu',none:'— Boş —',limitGuest:'Günlük limit doldu.\nDaha fazla kullanım için kayıt olun.',limitUser:'Günlük limit doldu.\nx10 daha fazla token için planı yükseltin.',limitPremium:'Günlük limit doldu.\nDaha fazlası için yükseltin.',limitChat:'Sohbet limiti doldu (10K token).\nDevam etmek için mesaj gönder.',rp:RP_TR,vs:'VS',blue:'Mavi',red:'Kırmızı',mdl:'Model',sp:'Sistem Promptu',spPlace:'Bu model için talimatlar...',save:'Kaydet',share:'Paylaş',shared:'Link kopyalandı! Bu linkle sohbeti paylaşabilirsin.',shareTooltip:'Paylaş',signupTitle:'Hesap Oluştur',loginTitle:'Giriş Yap',email:'E-posta',password:'Şifre',username:'Kullanıcı Adı',signupBtn:'Hesap Oluştur',loginBtn:'Giriş Yap',switchSignup:'Zaten hesabın var mı? Giriş yap',switchLogin:'Hesabın yok mu? Kayıt ol',logout:'Çıkış Yap',licenseTitle:'Premium Aktifleştir',licenseKey:'Sipariş No',licenseBtn:'Aktifleştir',licenseDesc:'Gumroad Sipariş Numaranı gir:',licenseLink:'Gumroad\'dan Satın Al →',licenseSuccess:'Premium aktif! Artık günlük 300K token kullanabilirsin.',licenseFail:'Geçersiz Sipariş No. Tekrar dene.',activated:'Premium ✓'}
-   144|};
-   145|function t(k){return TX[L][k]||k}
-   146|
-   147|// ── AUTH STATE ──
-   148|var AU=null;
-   149|(function(){
-   150|  var s=localStorage.getItem('duellm_session');
-   151|  if(s){try{AU=JSON.parse(s)}catch(e){}}
-   152|})();
-   153|function saveAuth(){if(AU)localStorage.setItem('duellm_session',JSON.stringify(AU));else localStorage.removeItem('duellm_session')}
-   154|function isAuth(){return !!AU}
-   155|function userTier(){return AU?AU.tier:'guest'}
-   156|function userDailyLimit(){var t=userTier();return t==='premium'?LIMIT_PREMIUM:t==='user'?LIMIT_USER:LIMIT_GUEST}
-   157|
-   158|// ── LANG ──
-   159|function setLang(l){
-   160|  L=l;localStorage.setItem('dlang',l);
-   161|  document.getElementById('lEN').className='lang-btn'+(l==='en'?' on':'');
-   162|  document.getElementById('lTR').className='lang-btn'+(l==='tr'?' on':'');
-   163|  applyLang();
-   164|}
-   165|function applyLang(){
-   166|  document.getElementById('newDebBtn').textContent=t('newDebate');
-   167|  document.getElementById('upgradeBtn').textContent=t('upgrade');
-   168|  document.getElementById('inp').placeholder=t('sendMsg');
-   169|  document.getElementById('randBtn').setAttribute('tip',t('rand'));
-   170|  document.getElementById('shareBtn').setAttribute('tip',t('shareTooltip'));
-   171|  var bL=document.getElementById('btnL'),bR=document.getElementById('btnR');
-   172|  bL.setAttribute('tip',t('change'));bR.setAttribute('tip',t('change'));
-   173|  document.getElementById('gearL').setAttribute('tip',t('settings'));
-   174|  document.getElementById('gearR').setAttribute('tip',t('settings'));
-   175|  document.getElementById('vsSpan').textContent='VS';
-   176|  updateLoginBtn();
-   177|  renderHistory();
-   178|  updateLimitMsg();
-   179|}
-   180|(function(){
-   181|  var sl=localStorage.getItem('dlang')||'en';L=sl;
-   182|  document.getElementById('lEN').className='lang-btn'+(sl==='en'?' on':'');
-   183|  document.getElementById('lTR').className='lang-btn'+(sl==='tr'?' on':'');
-   184|})();
-   185|
-   186|// ── LOGIN UI ──
-   187|function updateLoginBtn(){
-   188|  var b=document.getElementById('loginBtn');
-   189|  if(isAuth()&&AU.tier==='premium'){b.textContent='🚪 '+AU.username+' — Premium ✓';return}
-   190|  b.textContent=isAuth()?('🚪 '+AU.username+' — '+t('logout')):t('loginIn');
-   191|}
-   192|function handleAuthClick(){
-   193|  if(isAuth()){AU=null;saveAuth();updateLoginBtn();updateLimitMsg();showToast(t('logout'));return}
-   194|  showAuthModal('signup');
-   195|}
-   196|function showAuthModal(mode){
-   197|  var existing=document.querySelector('.modal-overlay');if(existing)existing.remove();
-   198|  var ov=document.createElement('div');ov.className='modal-overlay';
-   199|  ov.onclick=function(e){if(e.target===ov)ov.remove()};
-   200|  var isLogin=mode==='login';
-   201|  ov.innerHTML='<div class="modal">'+
-   202|    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3>'+t(isLogin?'loginTitle':'signupTitle')+'</h3><button style="background:none;border:none;color:#777;font-size:22px;cursor:pointer" onclick="this.closest(\'.modal-overlay\').remove()">×</button></div>'+
-   203|    '<div class="err" id="authErr" style="display:none"></div>'+
-   204|    (!isLogin?'<label>'+t('username')+'</label><input id="authUser" placeholder="'+t('username')+'">':'')+
-   205|    '<label>'+t('email')+'</label><input id="authEmail" type="email" placeholder="'+t('email')+'">'+
-   206|    '<label>'+t('password')+'</label><input id="authPass" type="password" placeholder="'+t('password')+'" onkeydown="if(event.key===\'Enter\')document.getElementById(\'authSubmit\').click()">'+
-   207|    '<button class="btn-primary" id="authSubmit">'+t(isLogin?'loginBtn':'signupBtn')+'</button>'+
-   208|    '<div class="sw">'+t(isLogin?'switchLogin':'switchSignup').replace('Sign in','<a id="authSwitch">Sign in</a>').replace('Sign up','<a id="authSwitch">Sign up</a>').replace('sign in','<a id="authSwitch">sign in</a>').replace('sign up','<a id="authSwitch">sign up</a>').replace('Giriş yap','<a id="authSwitch">Giriş yap</a>').replace('Kayıt ol','<a id="authSwitch">Kayıt ol</a>').replace('giriş yap','<a id="authSwitch">giriş yap</a>').replace('kayıt ol','<a id="authSwitch">kayıt ol</a>')+'</div>'+
-   209|  '</div>';
-   210|  document.body.appendChild(ov);
-   211|  document.getElementById('authSwitch').onclick=function(){showAuthModal(isLogin?'signup':'login')};
-   212|  document.getElementById('authSubmit').onclick=function(){
-   213|    var email=document.getElementById('authEmail').value.trim();
-   214|    var password=document.getElementById('authPass').value.trim();
-   215|    var username=isLogin?'':document.getElementById('authUser').value.trim();
-   216|    var errEl=document.getElementById('authErr');
-   217|    if(!email||!password){errEl.textContent='Please fill all fields.';errEl.style.display='block';return}
-   218|    if(!isLogin&&!username){errEl.textContent='Please fill all fields.';errEl.style.display='block';return}
-   219|    errEl.style.display='none';
-   220|    var btn=document.getElementById('authSubmit');btn.textContent='...';btn.disabled=true;
-   221|    fetch('/api/chat/'+(isLogin?'login':'signup'),{
-   222|      method:'POST',headers:{'Content-Type':'application/json'},
-   223|      body:JSON.stringify({email:email,password:password,username:username})
-   224|    }).then(function(r){return r.json()}).then(function(d){
-   225|      if(d.error){errEl.textContent=d.error;errEl.style.display='block';btn.textContent=t(isLogin?'loginBtn':'signupBtn');btn.disabled=false;return}
-   226|      if(isLogin){AU={user_id:d.user_id,username:d.username,email:d.email,tier:d.tier||'user'};}
-   227|      else{AU={user_id:d.user_id||'',username:d.username||username,email:email,tier:'user'};}
-   228|      saveAuth();updateLoginBtn();updateLimitMsg();ov.remove();
-   229|      showToast(isLogin?'Welcome back, '+AU.username+'!':'Account created! Welcome, '+AU.username+'!');
-   230|    }).catch(function(e){
-   231|      errEl.textContent='Connection error. Try again.';errEl.style.display='block';
-   232|      btn.textContent=t(isLogin?'loginBtn':'signupBtn');btn.disabled=false;
-   233|    });
-   234|  };
-   235|}
-   236|
-   237|// ── STATE ──
-   238|function rnd2mods(){
-   239|  var a=MODELS.slice();var i1=Math.floor(Math.random()*a.length);var m1=a[i1];a.splice(i1,1);
-   240|  var m2=a[Math.floor(Math.random()*a.length)];return[m1,m2];
-   241|}
-   242|var initMods=rnd2mods();
-   243|var S={topic:'',modelL:initMods[0],modelR:initMods[1],sysL:'',sysR:'',msgData:[],chatTokens:0};
-   244|var E={running:false,speaking:false,side:'L',abort:null,timer:null,chatPaused:false};
-   245|var H=JSON.parse(localStorage.getItem('duellm_hist')||'[]');
-   246|
-   247|// ── SAVE/LOAD ──
-   248|function saveHistory(){
-   249|  var msgs=[],rows=document.getElementById('msgs').children;
-   250|  for(var i=0;i<rows.length;i++){
-   251|    var r=rows[i];if(!r.classList.contains('m-row'))continue;
-   252|    if(r.classList.contains('c')){msgs.push({side:'u',txt:r.querySelector('.m-user').textContent})}
-   253|    else{
-   254|      var sideL=r.classList.contains('end')?'R':'L';
-   255|      var lab=r.querySelector('.m-lab')?r.querySelector('.m-lab').textContent:'';
-   256|      var txt=r.querySelector('.bub')?r.querySelector('.bub').textContent:'';
-   257|      msgs.push({side:sideL,label:lab,txt:txt});
-   258|    }
-   259|  }
-   260|  S.msgData=msgs;
-   261|  var sid=Date.now().toString(36);
-   262|  var entry={id:sid,topic:S.topic,modelL:S.modelL,modelR:S.modelR,sysL:S.sysL,sysR:S.sysR,msgs:msgs,ts:Date.now()};
-   263|  H=H.filter(function(h){return h.topic!==S.topic||!S.topic});
-   264|  H.unshift(entry);if(H.length>30)H.pop();
-   265|  localStorage.setItem('duellm_hist',JSON.stringify(H));
-   266|  renderHistory();
-   267|}
-   268|function restoreSession(data){
-   269|  stopAll();
-   270|  S.topic=data.topic;S.modelL=data.modelL;S.modelR=data.modelR;S.sysL=data.sysL||'';S.sysR=data.sysR||'';S.chatTokens=0;E.chatPaused=false;
-   271|  refreshUI();document.getElementById('msgs').innerHTML='';
-   272|  (data.msgs||[]).forEach(function(m){
-   273|    if(m.side==='u'){addMsgEl('u',m.txt,'');return}
-   274|    var id=addMsgEl(m.side,'',null);
-   275|    document.getElementById(id).innerHTML=esc(m.txt);
-   276|    S.chatTokens+=Math.ceil(m.txt.length/4);
-   277|  });
-   278|  checkChatLimit();
-   279|}
-   280|
-   281|// Load from URL
-   282|(function(){
-   283|  var p=new URLSearchParams(location.search);var s=p.get('s');
-   284|  if(s){try{var d=JSON.parse(atob(decodeURIComponent(s)));restoreSession(d);history.replaceState(null,'','/');}catch(e){}}
-   285|})();
-   286|
-   287|// ── UTILS ──
-   288|function uid(){return Math.random().toString(36).slice(2,10)}
-   289|function fmt(n){return n?n.replace(/:(\w)(\w)/,(_,a,b)=>' '+a.toUpperCase()+b).replace(/:/,' ').replace(/\b\w/g,function(c){return c.toUpperCase()}).replace(/-/g,' '):''}
-   290|function tk(){return new Date().toISOString().split('T')[0]}
-   291|function GM(s){return s==='L'?S.modelL:S.modelR}
-   292|function GO(s){return s==='L'?S.modelR:S.modelL}
-   293|function GS(s){return s==='L'?S.sysL:S.sysR}
-   294|function bl(m){return m?fmt(m)+' ▼':t('none')+' ▼'}
-   295|function estTok(txt){return Math.ceil(txt.length/4)}
-   296|function totalUsedToday(){
-   297|  var k='dk_'+tk();return parseInt(localStorage.getItem(k)||'0');
-   298|}
-   299|
-   300|// ── UI ──
-   301|function refreshUI(){
-   302|  var bL=document.getElementById('btnL'),bR=document.getElementById('btnR');
-   303|  bL.innerHTML=bl(S.modelL);bL.className='m-btn '+(S.modelL?'blue':'none')+' tip';
-   304|  bR.innerHTML=bl(S.modelR);bR.className='m-btn '+(S.modelR?'red':'none')+' tip';
-   305|  document.getElementById('gearL').style.display=S.modelL?'inline-flex':'none';
-   306|  document.getElementById('gearR').style.display=S.modelR?'inline-flex':'none';
-   307|}
-   308|function updateLimitMsg(){
-   309|  var el=document.getElementById('limit-msg'),used=totalUsedToday(),lim=userDailyLimit();
-   310|  if(used>=lim){
-   311|    var tier=userTier();
-   312|    el.textContent=t(tier==='guest'?'limitGuest':tier==='user'?'limitUser':'limitPremium');
-   313|    el.style.display='block';
-   314|  }else if(E.chatPaused){
-   315|    el.textContent=t('limitChat');el.style.display='block';
-   316|  }else{el.style.display='none'}
-   317|}
-   318|function updateBtn(){
-   319|  var b=document.getElementById('sendBtn'),v=document.getElementById('inp').value.trim();
-   320|  var over=totalUsedToday()>=userDailyLimit()||E.chatPaused;
-   321|  b.textContent=E.speaking?'■':'➤';
-   322|  b.className=E.speaking?'stop':(over||!v?'':'on');
-   323|}
-   324|document.getElementById('inp').addEventListener('input',function(){updateBtn()});
-   325|
-   326|function trackLocal(tokenCount){
-   327|  var k='dk_'+tk();localStorage.setItem(k,(parseInt(localStorage.getItem(k)||'0'))+tokenCount);
-   328|  S.chatTokens+=tokenCount;
-   329|  checkChatLimit();
-   330|  updateBtn();updateLimitMsg();
-   331|}
-   332|function checkChatLimit(){
-   333|  if(S.chatTokens>=MAX_CHAT_TOKENS){E.chatPaused=true;E.running=false;stopAll();updateBtn();updateLimitMsg()}
-   334|}
-   335|
-   336|// ── SIDEBAR ──
-   337|var sidebarDesktop=true;
-   338|function toggleSidebar(){
-   339|  if(window.innerWidth<=768){
-   340|    // Mobile: use open class
-   341|    document.getElementById('sidebar').classList.toggle('open');
-   342|    document.getElementById('overlay').classList.toggle('open');
-   343|  }else{
-   344|    // Desktop: toggle visibility
-   345|    sidebarDesktop=!sidebarDesktop;
-   346|    if(sidebarDesktop){
-   347|      document.getElementById('sidebar').classList.remove('hidden');
-   348|    }else{
-   349|      document.getElementById('sidebar').classList.add('hidden');
-   350|    }
-   351|  }
-   352|}
-   353|function closeSidebar(){
-   354|  document.getElementById('sidebar').classList.remove('open');
-   355|  document.getElementById('overlay').classList.remove('open');
-   356|}
-   357|function newDebate(){
-   358|  stopAll();
-   359|  if(document.getElementById('msgs').children.length>0)saveHistory();
-   360|  var mods=rnd2mods();S.topic='';S.modelL=mods[0];S.modelR=mods[1];S.sysL='';S.sysR='';S.msgData=[];S.chatTokens=0;E.chatPaused=false;
-   361|  refreshUI();document.getElementById('msgs').innerHTML='';
-   362|  document.getElementById('limit-msg').style.display='none';updateBtn();
-   363|}
-   364|function renderHistory(){
-   365|  var c=document.getElementById('histCont');
-   366|  c.innerHTML='<div class="sec-t">'+t('history')+'</div>';
-   367|  if(!H.length){c.innerHTML+='<div id="histEmp" style="padding:8px 16px;font-size:12px;color:#666;font-style:italic">'+t('noHistory')+'</div>';return}
-   368|  H.forEach(function(h){
-   369|    var b=document.createElement('button');b.className='hist-i';
-   370|    var d=new Date(h.ts),time=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-   371|    b.innerHTML=(h.topic||'(untitled)').slice(0,45)+'<span class="hdate">'+time+'</span>';
-   372|    b.onclick=function(){stopAll();saveHistory();restoreSession(h);closeSidebar();};
-   373|    c.appendChild(b);
-   374|  });
-   375|}
-   376|
-   377|// ── MODEL PICKER ──
-   378|function toggleDropdown(e,side){
-   379|  e.stopPropagation();
-   380|  var ex=document.querySelector('.dd');if(ex)ex.remove();
-   381|  var cur=GM(side);var d=document.createElement('div');d.className='dd';
-   382|  var nb=document.createElement('button');nb.className='dd-i dd-none'+(cur?'':' sel');
-   383|  nb.textContent=t('none');nb.onclick=function(ev){ev.stopPropagation();pickModel(side,'');d.remove();};d.appendChild(nb);
-   384|  MODELS.forEach(function(m){
-   385|    var b=document.createElement('button');b.className='dd-i'+(m===cur?' sel':'');
-   386|    b.textContent=fmt(m);b.onclick=function(ev){ev.stopPropagation();pickModel(side,m);d.remove();};d.appendChild(b);
-   387|  });
-   388|  var pw=document.getElementById(side==='L'?'pwL':'pwR');pw.appendChild(d);
-   389|  setTimeout(function(){document.addEventListener('click',function(){if(d.parentNode)d.remove();},{once:true})},10);
-   390|}
-   391|function pickModel(side,m){
-   392|  if(side==='L'){S.modelL=m||''}else{S.modelR=m||''}
-   393|  refreshUI();
-   394|}
-   395|
-   396|// ── SETTINGS ──
-   397|function openSettings(side){
-   398|  if(!GM(side))return;var isL=side==='L';var model=GM(side),sys=GS(side);
-   399|  var ov=document.createElement('div');ov.className='modal-overlay';
-   400|  ov.onclick=function(e){if(e.target===ov)ov.remove();};
-   401|  var c=isL?'#4b8cf7':'#e84040';
-   402|  var nOpt='<option value="">'+t('none')+'</option>';
-   403|  MODELS.forEach(function(m){nOpt+='<option value="'+m+'"'+(m===model?' selected':'')+'>'+fmt(m)+'</option>';});
-   404|  ov.innerHTML='<div class="modal"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="color:'+c+'">'+t(isL?'blue':'red')+'</h3><button style="background:none;border:none;color:#777;font-size:22px;cursor:pointer" onclick="this.closest(\'.modal-overlay\').remove()">×</button></div>'+
-   405|    '<label>'+t('mdl')+'</label><select id="setModel">'+nOpt+'</select>'+
-   406|    '<label>'+t('sp')+'</label><textarea id="setSys" rows="4" style="width:100%;padding:8px;border-radius:6px;border:1px solid #333;background:#1a1a1a;color:#e0e0e0;font-size:14px;resize:vertical;font-family:inherit;margin-bottom:14px" placeholder="'+t('spPlace')+'">'+(sys||'')+'</textarea>'+
-   407|    '<button class="btn-primary" style="background:'+c+'!important" id="saveSet">'+t('save')+'</button></div>';
-   408|  document.body.appendChild(ov);
-   409|  document.getElementById('saveSet').onclick=function(){
-   410|    var m=document.getElementById('setModel').value,s2=document.getElementById('setSys').value;
-   411|    if(isL){S.modelL=m||'';S.sysL=s2}else{S.modelR=m||'';S.sysR=s2}
-   412|    refreshUI();ov.remove();
-   413|  };
-   414|}
-   415|
-   416|// ── SHARE ──
-   417|function shareChat(){
-   418|  saveHistory();
-   419|  var d={topic:S.topic,modelL:S.modelL,modelR:S.modelR,sysL:S.sysL,sysR:S.sysR,msgs:S.msgData};
-   420|  var str=encodeURIComponent(btoa(JSON.stringify(d)));
-   421|  var url=location.origin+'/?s='+str;
-   422|  if(navigator.clipboard){
-   423|    navigator.clipboard.writeText(url).then(function(){showToast(t('shared'));});
-   424|  }else{
-   425|    var ta=document.createElement('textarea');ta.value=url;ta.style.position='fixed';ta.style.opacity='0';
-   426|    document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
-   427|    showToast(t('shared'));
-   428|  }
-   429|}
-   430|function showToast(msg){
-   431|  var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
-   432|  setTimeout(function(){el.classList.remove('show');},2500);
-   433|}
-   434|
-   435|// ── RANDOM TOPIC (fixed: single click, retry different models) ──
-   436|var randLock=false;
-   437|async function randomTopic(){
-   438|  if(randLock)return;
-   439|  randLock=true;
-   440|  var btn=document.getElementById('randBtn');btn.classList.add('loading');
-   441|  // Shuffle models for retry diversity
-   442|  var shuffled=MODELS.slice().sort(function(){return Math.random()-.5;});
-   443|  for(var idx=0;idx<Math.min(shuffled.length,5);idx++){
-   444|    try{
-   445|      var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:shuffled[idx],messages:[{role:'user',content:TX[L].rp}],options:{num_predict:80,temperature:1.1,top_p:.95}})});
-   446|      var dd=await r.json();var txt=(dd.message?.content||'').trim();
-   447|      txt=txt.replace(/^[\"'`]|[\"'`]$/g,'').replace(/\*\*/g,'');
-   448|      if(txt.length>15&&txt.length<200){document.getElementById('inp').value=txt;updateBtn();break;}
-   449|    }catch(e){}
-   450|  }
-   451|  btn.classList.remove('loading');
-   452|  setTimeout(function(){randLock=false;},800);
-   453|}
-   454|
-   455|// ── MESSAGES ──
-   456|function addMsgEl(side,txt,model){
-   457|  var id='m_'+uid();var row=document.createElement('div');
-   458|  if(side==='u'){row.className='m-row c msg';row.innerHTML='<div class="m-user">'+esc(txt)+'</div>'}
-   459|  else{
-   460|    row.className='m-row'+(side==='R'?' end':'')+' msg';
-   461|    var label=model?fmt(model):t(side==='L'?'blue':'red');
-   462|    row.innerHTML='<div><div class="m-lab '+(side==='L'?'l':'r')+'">'+label+'</div><div class="bub '+(side==='L'?'l':'r')+'" id="'+id+'"></div></div>';
-   463|  }
-   464|  document.getElementById('msgs').appendChild(row);
-   465|  document.getElementById('msgs').scrollTop=document.getElementById('msgs').scrollHeight;
-   466|  return id;
-   467|}
-   468|function updateBub(id,txt,showCursor){
-   469|  var el=document.getElementById(id);if(!el)return;
-   470|  el.innerHTML=esc(txt)+(showCursor?'<span class="cursor">▌</span>':'');
-   471|  var ms=document.getElementById('msgs');
-   472|  if(ms.scrollHeight-ms.scrollTop-ms.clientHeight<60)ms.scrollTop=ms.scrollHeight;
-   473|}
-   474|function typewrite(id,full,cb){
-   475|  var i=0,spd=55,chunk=1;
-   476|  function step(){
-   477|    if(i>=full.length){updateBub(id,full,false);E.timer=null;if(cb)cb();return}
-   478|    i+=chunk;if(i>full.length)i=full.length;
-   479|    updateBub(id,full.slice(0,i),true);E.timer=setTimeout(step,spd);
-   480|  }
-   481|  updateBub(id,full.slice(0,1),true);E.timer=setTimeout(step,spd);
-   482|}
-   483|
-   484|// ── SEND / STOP ──
-   485|function sendOrStop(){
-   486|  if(E.speaking){stopAll();return}
-   487|  if(E.chatPaused){E.chatPaused=false;updateLimitMsg();updateBtn()}
-   488|  var msg=document.getElementById('inp').value.trim();if(!msg)return;
-   489|  if(totalUsedToday()>=userDailyLimit()){updateLimitMsg();return}
-   490|  stopAll();S.topic=msg;
-   491|  addMsgEl('u',msg,'');
-   492|  var userTok=estTok(msg);S.chatTokens+=userTok;
-   493|  document.getElementById('inp').value='';updateBtn();
-   494|  checkChatLimit();if(E.chatPaused){updateBtn();return}
-   495|  if(!S.modelL||!S.modelR){
-   496|    var sd=S.modelL?'L':(S.modelR?'R':null);if(!sd)return;
-   497|    E.running=true;E.side=sd;speakOnce(sd);
-   498|  }else{
-   499|    E.running=true;E.side='L';
-   500|    setTimeout(function(){speakDebate('L');},400);
-   501|  }
-   502|}
-   503|function stopAll(){
-   504|  if(E.abort){try{E.abort()}catch(e){}E.abort=null}
-   505|  if(E.timer){clearTimeout(E.timer);E.timer=null}
-   506|  E.speaking=false;E.running=false;
-   507|  var cursors=document.querySelectorAll('.cursor');
-   508|  for(var i=0;i<cursors.length;i++){cursors[i].remove();}
-   509|  updateBtn();
-   510|}
-   511|
-   512|// ── CHAT MODE ──
-   513|async function speakOnce(side){
-   514|  if(!E.running||E.speaking||E.chatPaused||totalUsedToday()>=userDailyLimit()){E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
-   515|  E.speaking=true;updateBtn();
-   516|  var mn=GM(side);if(!mn){E.speaking=false;updateBtn();return}
-   517|  var msgId=addMsgEl(side,'...',mn);
-   518|  var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
-   519|  var sys=GS(side);
-   520|  var sp='IMPORTANT: Reply in the same language as the user\'s message. If the user writes in Turkish, respond in Turkish. If English, respond in English.\n\nThe user said: "'+S.topic+'". Respond naturally — be thoughtful and engaging. 2-4 sentences. Plain text.'+(sys?'\n\n'+sys:'');
-   521|  try{
-   522|    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-duellm-uid':isAuth()?AU.user_id:'','x-duellm-tier':userTier()},body:JSON.stringify({model:mn,messages:[{role:'system',content:sp},{role:'user',content:S.topic}],options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
-   523|    var d=await r.json();
-   524|    if(d.error==='daily_limit'){updateBub(msgId,t('limitUser'),false);E.speaking=false;E.abort=null;E.running=false;updateBtn();updateLimitMsg();return}
-   525|    var txt=(d.message?.content||'').trim();
-   526|    if(!txt||txt.length<4){E.speaking=false;E.abort=null;E.running=false;updateBtn();return}
-   527|    E.abort=null;
-   528|    var respTok=estTok(txt)+estTok(sp)+estTok(S.topic);
-   529|    trackLocal(respTok);
-   530|    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+'...',false);E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
-   531|    typewrite(msgId,txt,function(){E.speaking=false;E.running=false;updateBtn();saveHistory();});
-   532|  }catch(e){if(e.name!=='AbortError')updateBub(msgId,'...',false);E.speaking=false;E.abort=null;E.running=false;updateBtn();}
-   533|}
-   534|
-   535|// ── DEBATE MODE ──
-   536|async function speakDebate(side){
-   537|  if(!E.running||E.speaking||E.chatPaused||!GM(side)||totalUsedToday()>=userDailyLimit()){E.speaking=false;updateBtn();updateLimitMsg();return}
-   538|  E.speaking=true;updateBtn();
-   539|  var mn=GM(side),op=GO(side);
-   540|  var msgId=addMsgEl(side,'...',mn);
-   541|  var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
-   542|  var sp='IMPORTANT: Reply in the same language as the discussion. If the topic is in Turkish, debate in Turkish. If English, debate in English.\n\nYou are discussing: "'+S.topic+'". The other person already shared their thoughts (shown below). Your goal: find gaps, challenge their logic, bring fresh perspectives, refute weak points. Agreeing is your LAST option — only if there\'s truly nothing to push back on. Debate freely, no rules. 2-3 sentences. Do NOT greet or address anyone by name — just dive into the point. Plain text.'+(GS(side)?'\n\n'+GS(side):'');
-   543|  var am=[{role:'system',content:sp}];
-   544|  var rows=document.getElementById('msgs').children;
-   545|  var ctxLen=0,ctxMax=10000;
-   546|  for(var i=rows.length-1;i>=0;i--){
-   547|    var r=rows[i];if(!r.classList.contains('m-row')||r.querySelector('.cursor'))continue;
-   548|    var entry;
-   549|    if(r.classList.contains('c')){
-   550|      entry={role:'user',content:'User message: '+r.querySelector('.m-user').textContent};
-   551|    }else{
-   552|      var isEnd=r.classList.contains('end');var mSide=isEnd?'R':'L';
-   553|      var mName=r.querySelector('.m-lab')?r.querySelector('.m-lab').textContent:'';
-   554|      var mTxt=r.querySelector('.bub')?r.querySelector('.bub').textContent:'';
-   555|      entry={role:mSide===side?'assistant':'user',content:mSide!==side?'Other participant: '+mTxt:mTxt};
-   556|    }
-   557|    ctxLen+=entry.content.length+10;
-   558|    if(ctxLen>ctxMax)break;
-   559|    am.splice(1,0,entry);
-   560|  }
-   561|  try{
-   562|    var rr=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-duellm-uid':isAuth()?AU.user_id:'','x-duellm-tier':userTier()},body:JSON.stringify({model:mn,messages:am,options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
-   563|    var dd=await rr.json();
-   564|    if(dd.error==='daily_limit'){updateBub(msgId,t('limitUser'),false);E.speaking=false;E.abort=null;E.running=false;updateBtn();updateLimitMsg();return}
-   565|    var txt=(dd.message?.content||'').trim();
-   566|    if(!txt||txt.length<4){E.speaking=false;E.abort=null;E.running=false;updateBtn();return}
-   567|    E.abort=null;
-   568|    var respTok=estTok(txt)+estTok(JSON.stringify(am));
-   569|    trackLocal(respTok);
-   570|    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+'...',false);E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
-   571|    typewrite(msgId,txt,function(){
-   572|      E.speaking=false;updateBtn();saveHistory();
-   573|      if(E.running&&!E.chatPaused){E.timer=setTimeout(function(){speakDebate(side==='L'?'R':'L');},4000);}
-   574|    });
-   575|  }catch(e){if(e.name!=='AbortError')updateBub(msgId,'...',false);E.speaking=false;E.abort=null;updateBtn();if(E.running&&!E.chatPaused){E.timer=setTimeout(function(){speakDebate(side==='L'?'R':'L');},4000);}}
-   576|}
-   577|
-   578|function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-   579|
-   580|// ── UPGRADE ──
-   581|function upgradePlan(){
-   582|  if(isAuth()){showLicenseModal();}
-   583|  else{showAuthModal('signup');}
-   584|}
-   585|function showLicenseModal(){
-   586|  var existing=document.querySelector('.modal-overlay');if(existing)existing.remove();
-   587|  var ov=document.createElement('div');ov.className='modal-overlay';
-   588|  ov.onclick=function(e){if(e.target===ov)ov.remove();};
-   589|  ov.innerHTML='<div class="modal">'+
-   590|    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3>'+t('licenseTitle')+'</h3><button style="background:none;border:none;color:#777;font-size:22px;cursor:pointer" onclick="this.closest(\'.modal-overlay\').remove()">×</button></div>'+
-   591|    '<div class="err" id="licErr" style="display:none"></div>'+
-   592|    '<p style="font-size:12px;color:#888;margin-bottom:10px">'+t('licenseDesc')+' <a href="https://turkplay.gumroad.com/l/duellm" target="_blank" style="color:#4b8cf7">'+t('licenseLink')+'</a></p>'+
-   593|    '<label>'+t('licenseKey')+'</label><input id="licKey" placeholder="ör: 1234567890" onkeydown="if(event.key===\'Enter\')document.getElementById(\'licSubmit\').click()">'+
-   594|    '<button class="btn-primary" id="licSubmit">'+t('licenseBtn')+'</button>'+
-   595|  '</div>';
-   596|  document.body.appendChild(ov);
-   597|  document.getElementById('licSubmit').onclick=function(){
-   598|    var key=document.getElementById('licKey').value.trim();
-   599|    var err=document.getElementById('licErr');
-   600|    if(!key){err.textContent='Please enter your Order ID.';err.style.display='block';return}
-   601|    err.style.display='none';
-   602|    var btn=document.getElementById('licSubmit');btn.textContent='...';btn.disabled=true;
-   603|    fetch('/api/chat/verify',{
-   604|      method:'POST',headers:{'Content-Type':'application/json'},
-   605|      body:JSON.stringify({user_id:AU.user_id,order_id:key})
-   606|    }).then(function(r){return r.json();}).then(function(d){
-   607|      if(d.error){err.textContent=t('licenseFail');err.style.display='block';btn.textContent=t('licenseBtn');btn.disabled=false;return}
-   608|      AU.tier='premium';saveAuth();updateLoginBtn();updateLimitMsg();ov.remove();
-   609|      showToast(t('licenseSuccess'));
-   610|    }).catch(function(){
-   611|      err.textContent='Connection error.';err.style.display='block';
-   612|      btn.textContent=t('licenseBtn');btn.disabled=false;
-   613|    });
-   614|  };
-   615|}
-   616|
-   617|// ── BOOT ──
-   618|refreshUI();applyLang();updateLoginBtn();updateBtn();
-   619|// Stop generation when tab closes
-   620|window.addEventListener('beforeunload',function(){stopAll();});
-   621|</script>
-   622|</body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>duellm</title>
+<link rel="icon" type="image/png" href="/logo.png">
+<meta property="og:image" content="/logo.png">
+<meta property="og:title" content="duellm — AI vs AI Debate">
+<meta name="description" content="Two AI models debate live.">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:#1a1a1a}::-webkit-scrollbar-thumb{background:#3a3a3a;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#4a4a4a}/* Firefox */ *{scrollbar-width:thin;scrollbar-color:#3a3a3a #1a1a1a}
+html,body{height:100%;background:#1a1a1a;color:#e0e0e0;overflow:hidden;font-family:system-ui,-apple-system,sans-serif}
+input,textarea{font-size:16px!important}
+#app{display:flex;height:100dvh;width:100%}
+#sidebar{width:270px;background:#1a1a1a;border-right:1px solid #2d2d2d;display:flex;flex-direction:column;flex-shrink:0;z-index:30}
+#sidebar.hidden{display:none}
+@media(max-width:768px){#sidebar{position:fixed;left:0;top:0;height:100%;transform:translateX(-100%);transition:transform .2s;display:flex!important}#sidebar.open{transform:translateX(0)}#sidebar.hidden{display:flex!important}#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20}#overlay.open{display:block}}
+#main{flex:1;display:flex;flex-direction:column;min-width:0;background:#1a1a1a}
+#topbar{height:54px;border-bottom:1px solid #2d2d2d;display:flex;align-items:center;padding:0 12px;flex-shrink:0;position:relative}
+#topright{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:2px}
+#msgs{flex:1;overflow-y:auto;padding:20px 16px 4px}
+#input-wrap{padding:12px 16px 24px}
+#input-box{display:flex;align-items:flex-end;gap:8px;max-width:760px;margin:0 auto;background:#242424;border:1px solid #2d2d2d;border-radius:14px;padding:3px 10px}
+#inp{flex:1;background:transparent;border:none;resize:none;font-size:16px;color:#e0e0e0;padding:8px 0;outline:none;font-family:inherit;line-height:1.4}
+#sendBtn{flex-shrink:0;width:40px;height:40px;border-radius:9px;border:none;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .15s;background:#333;color:#777;cursor:default}
+#sendBtn.on{background:#ccc;color:#111;cursor:pointer}
+#sendBtn.stop{background:#c0392b;color:#fff;font-size:15px;font-weight:700}
+#randBtn{flex-shrink:0;width:40px;height:40px;border-radius:9px;border:none;font-size:20px;display:flex;align-items:center;justify-content:center;background:transparent;color:#777;cursor:pointer}
+#randBtn:hover{color:#e0e0e0;background:#333}
+#randBtn.loading{opacity:.5;pointer-events:none}
+.tip{position:relative}.tip::after{content:attr(tip);position:absolute;top:115%;left:50%;transform:translateX(-50%);background:#333;color:#aaa;font-size:10px;padding:2px 8px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:60}.tip:hover::after{opacity:1}
+.hamburger{background:transparent;border:none;color:#888;cursor:pointer;font-size:20px;padding:4px 8px;margin-right:4px}
+@keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.msg{animation:pop .2s ease-out}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.cursor{animation:blink .8s infinite}
+.side-logo{display:flex;align-items:center;gap:12px;padding:16px 18px 10px;border-bottom:1px solid #2d2d2d}
+.side-logo img{width:48px;height:48px;border-radius:8px}
+.logo-t{font-size:20px;font-weight:700;background:linear-gradient(135deg,#4b8cf7 50%,#e84040 52%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sec-t{font-size:10px;color:#777;font-weight:600;text-transform:uppercase;padding:10px 16px;letter-spacing:.5px}
+.hist-i{width:100%;text-align:left;padding:9px 16px;border-radius:8px;border:none;background:transparent;color:#999;font-size:12px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.hist-i:hover{background:#242424}
+.hist-i .hdate{font-size:9px;color:#555;display:block}
+.m-row{display:flex;margin-bottom:10px}.m-row.end{justify-content:flex-end}.m-row.c{justify-content:center}
+.m-user{padding:7px 14px;border-radius:10px;font-size:14px;word-break:break-word;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.18);color:#c4b5fd;max-width:85%}
+.m-lab{font-size:10px;font-weight:700;margin-bottom:2px;letter-spacing:.3px}.m-lab.l{color:#4b8cf7}.m-lab.r{color:#e84040}
+.bub{width:fit-content;max-width:85%;padding:8px 14px;border-radius:10px;font-size:14px;word-break:break-word;background:#242424;color:#e0e0e0;position:relative;line-height:1.5}.bub.l{border-left:3px solid #4b8cf7}.bub.r{border-right:3px solid #e84040}
+.m-btn{background:transparent;border:none;font-size:12px;font-weight:600;cursor:pointer;padding:4px 6px;border-radius:6px;display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+.m-btn.blue{color:#4b8cf7}.m-btn.red{color:#e84040}.m-btn.none{color:#666}
+.g-btn{background:transparent;border:none;cursor:pointer;font-size:12px;padding:3px 4px;border-radius:4px;color:#3a3a3a}
+.dd{position:absolute;top:115%;margin-top:4px;width:210px;max-height:290px;overflow-y:auto;background:#242424;border:1px solid #333;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.7);z-index:50}
+.dd-i{width:100%;text-align:left;padding:8px 14px;border:none;font-size:13px;cursor:pointer;color:#aaa;background:transparent;display:block}
+.dd-i:hover{background:#333}.dd-i.sel{color:#fff;font-weight:600;background:#333}
+.dd-none{border-bottom:1px solid #333;font-style:italic;color:#666}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal{background:#242424;border:1px solid #333;border-radius:12px;width:92vw;max-width:420px;padding:20px}
+.modal h3{font-weight:600;font-size:16px;margin-bottom:14px}
+.modal label{font-size:12px;color:#888;display:block;margin-bottom:4px}
+.modal input,.modal select{width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#e0e0e0;font-size:14px;margin-bottom:12px;outline:none}
+.modal input:focus,.modal select:focus{border-color:#4b8cf7}
+.modal .btn-primary{width:100%;padding:10px;border-radius:8px;border:none;color:#fff;font-size:14px;font-weight:600;cursor:pointer;background:#4b8cf7;margin-top:4px}
+.modal .btn-primary:hover{background:#3a7de6}
+.modal .btn-secondary{width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:transparent;color:#aaa;font-size:13px;cursor:pointer;margin-top:8px}
+.modal .btn-secondary:hover{color:#e0e0e0;background:#333}
+.modal .err{color:#e84040;font-size:11px;margin-bottom:8px;text-align:center}
+.modal .sw{color:#888;font-size:11px;text-align:center;margin-top:10px}
+.modal .sw a{color:#4b8cf7;cursor:pointer;text-decoration:underline}
+.modal .sw a:hover{color:#6aa8ff}
+.vs{font-size:10px;font-weight:700;color:#444}
+.model-center{display:flex;align-items:center;gap:6px;flex:1;justify-content:center}
+.pw{position:relative;display:flex;align-items:center;gap:3px}
+.lang-btn{background:transparent;border:none;font-size:10px;font-weight:700;cursor:pointer;padding:2px 5px;border-radius:4px;color:#666;text-transform:uppercase}
+.lang-btn.on{color:#e0e0e0;background:#333}
+#shareBtn{background:transparent;border:none;color:#666;cursor:pointer;font-size:14px;padding:2px 3px;border-radius:4px;display:flex;align-items:center}
+#shareBtn:hover{color:#e0e0e0;background:#333}
+#shareBtn.done{color:#4ade80}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#333;color:#e0e0e0;padding:8px 18px;border-radius:8px;font-size:13px;z-index:200;animation:pop .2s ease-out;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+@media(max-width:420px){
+  #topright{position:static;transform:none;margin-left:auto;gap:1px}
+  #topright .lang-btn{font-size:8px;padding:2px 4px}
+  #shareBtn{font-size:12px;padding:2px 3px}
+  #topbar{padding:0 6px;gap:1px}
+  .model-center{gap:2px}
+  .m-btn{font-size:9px;padding:2px 3px}
+  .vs{font-size:8px}
+}
+</style>
+</head><body>
+<div id="app">
+<div id="overlay" onclick="closeSidebar()"></div>
+<div id="sidebar" class="">
+  <div class="side-logo"><img src="/logo.png" onerror="this.style.display='none'"><span class="logo-t">duellm</span></div>
+  <div style="padding:10px 12px"><button id="newDebBtn" onclick="newDebate()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #333;background:transparent;color:#d1d5db;font-size:14px;font-weight:500;cursor:pointer">+ New Chat</button></div>
+  <div style="flex:1;overflow-y:auto;padding:4px" id="histCont"><div class="sec-t">History</div><div id="histEmp" style="padding:8px 16px;font-size:12px;color:#666;font-style:italic">No history yet</div></div>
+  <div style="padding:8px 12px 0"><button id="upgradeBtn" onclick="upgradePlan()" style="width:100%;text-align:left;padding:8px 14px;border-radius:8px;border:1px solid #3d3520;background:linear-gradient(135deg,#2a2416,#1f1a0e);color:#e2b24f;font-size:13px;cursor:pointer">⭐ Upgrade Plan</button></div>
+  <div style="padding:10px 12px;border-top:1px solid #2d2d2d"><button id="loginBtn" onclick="handleAuthClick()" style="width:100%;text-align:left;padding:10px 14px;border-radius:8px;border:none;background:transparent;color:#999;font-size:13px;cursor:pointer"> Sign Up / Login</button></div>
+</div>
+<div id="main">
+  <div id="topbar">
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    <div class="model-center">
+      <div class="pw" id="pwL">
+        <button class="m-btn blue tip" tip="Change Model" id="btnL" onclick="toggleDropdown(event,'L')">Gemini 3 Flash Preview ▼</button>
+        <button class="g-btn tip" tip="Settings" id="gearL" onclick="openSettings('L')" style="display: inline-flex;">⚙</button>
+      </div>
+      <span class="vs" id="vsSpan">VS</span>
+      <div class="pw" id="pwR">
+        <button class="m-btn red tip" tip="Change Model" id="btnR" onclick="toggleDropdown(event,'R')">Gemma3 27b ▼</button>
+        <button class="g-btn tip" tip="Settings" id="gearR" onclick="openSettings('R')" style="display: inline-flex;">⚙</button>
+      </div>
+    </div>
+    <div id="topright">
+      <button id="shareBtn" class="tip" tip="Share" onclick="shareChat()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></button>
+      <button class="lang-btn on" id="lEN" onclick="setLang('en')">EN</button><button class="lang-btn" id="lTR" onclick="setLang('tr')">TR</button>
+    </div>
+  </div>
+  <div id="msgs"></div>
+  <div id="input-wrap"><div id="input-box">
+    <button id="randBtn" class="tip" tip="Random topic" onclick="randomTopic()">?</button>
+    <textarea id="inp" rows="1" placeholder="Send a message" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendOrStop()}"></textarea>
+    <button id="sendBtn" onclick="sendOrStop()" class="">➤</button>
+  </div><div id="limit-msg" style="display:none;text-align:center;padding-top:8px;font-size:12px;color:#ef4444;white-space:pre-wrap"></div></div>
+</div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+// ── MODELS ──
+var MODELS=["cogito-2.1:671b","devstral-2:123b","devstral-small-2:24b","gemma3:12b","gemma3:27b","gpt-oss:120b","ministral-3:8b","ministral-3:14b","mistral-large-3:675b","qwen3-coder-next","qwen3-next:80b","qwen3-vl:235b","qwen3-vl:235b-instruct","rnj-1:8b"];
+
+// ── LIMITS ──
+var LIMIT_GUEST=10000, LIMIT_USER=30000, LIMIT_PREMIUM=300000;
+var MAX_CHAT_TOKENS=10000;
+var MAX_RESPONSE_TOKENS=512;
+
+var RP_EN="Generate one single-sentence debate discussion topic or question. It can be about technology, philosophy, society, science, ethics, politics, or any thought-provoking subject. Just the sentence, nothing else.";
+var RP_TR="Tek cümlelik bir tartışma konusu veya soru üret. Teknoloji, felsefe, toplum, bilim, etik, politika veya düşündürücü herhangi bir konu olabilir. Sadece cümle, başka bir şey yazma.";
+
+// ── TRANSLATIONS ──
+var L='en';
+var TX={
+  en:{newDebate:'+ New Chat',history:'History',noHistory:'No history yet',loginIn:' Sign Up / Login',loginOut:' Sign Out',upgrade:'⭐ Upgrade Plan',upgradeWarn:'Please sign up / login first.',sendMsg:'Send a message',change:'Change Model',settings:'Settings',rand:'Random topic',none:'— None —',limitGuest:'Daily limit reached.\nSign up for more usage.',limitUser:'Daily limit reached.\nPlease upgrade plan for x10 more tokens.',limitPremium:'Daily limit reached.\nUpgrade for even more tokens.',limitChat:'Chat limit reached (10K tokens).\nSend a message to continue.',rp:RP_EN,vs:'VS',blue:'Blue',red:'Red',mdl:'Model',sp:'System Prompt',spPlace:'Instructions for this model...',save:'Save',share:'Share',shared:'Link copied! Share this link to show this conversation.',shareTooltip:'Share',signupTitle:'Create Account',loginTitle:'Sign In',email:'Email',password:'Password',username:'Username',signupBtn:'Create Account',loginBtn:'Sign In',switchSignup:'Already have an account? Sign in',switchLogin:"Don't have an account? Sign up",logout:'Sign Out',licenseTitle:'Activate Premium',licenseKey:'Order ID',licenseBtn:'Activate',licenseDesc:'Enter your Gumroad Order ID:',licenseLink:'Buy on Gumroad →',licenseSuccess:'Premium activated! You now have 300K tokens/day.',licenseFail:'Invalid Order ID. Please try again.',activated:'Premium ✓'},
+  tr:{newDebate:'+ Yeni Sohbet',history:'Geçmiş',noHistory:'Henüz geçmiş yok',loginIn:' Kayıt Ol / Giriş Yap',loginOut:' Çıkış Yap',upgrade:'⭐ Planı Yükselt',upgradeWarn:'Lütfen önce kayıt olun / giriş yapın.',sendMsg:'Mesaj gönder',change:'Model Değiştir',settings:'Ayarlar',rand:'Rastgele konu',none:'— Boş —',limitGuest:'Günlük limit doldu.\nDaha fazla kullanım için kayıt olun.',limitUser:'Günlük limit doldu.\nx10 daha fazla token için planı yükseltin.',limitPremium:'Günlük limit doldu.\nDaha fazlası için yükseltin.',limitChat:'Sohbet limiti doldu (10K token).\nDevam etmek için mesaj gönder.',rp:RP_TR,vs:'VS',blue:'Mavi',red:'Kırmızı',mdl:'Model',sp:'Sistem Promptu',spPlace:'Bu model için talimatlar...',save:'Kaydet',share:'Paylaş',shared:'Link kopyalandı! Bu linkle sohbeti paylaşabilirsin.',shareTooltip:'Paylaş',signupTitle:'Hesap Oluştur',loginTitle:'Giriş Yap',email:'E-posta',password:'Şifre',username:'Kullanıcı Adı',signupBtn:'Hesap Oluştur',loginBtn:'Giriş Yap',switchSignup:'Zaten hesabın var mı? Giriş yap',switchLogin:'Hesabın yok mu? Kayıt ol',logout:'Çıkış Yap',licenseTitle:'Premium Aktifleştir',licenseKey:'Sipariş No',licenseBtn:'Aktifleştir',licenseDesc:'Gumroad Sipariş Numaranı gir:',licenseLink:'Gumroad\'dan Satın Al →',licenseSuccess:'Premium aktif! Artık günlük 300K token kullanabilirsin.',licenseFail:'Geçersiz Sipariş No. Tekrar dene.',activated:'Premium ✓'}
+};
+function t(k){return TX[L][k]||k}
+
+// ── AUTH STATE ──
+var AU=null;
+(function(){
+  var s=localStorage.getItem('duellm_session');
+  if(s){try{AU=JSON.parse(s)}catch(e){}}
+})();
+function saveAuth(){if(AU)localStorage.setItem('duellm_session',JSON.stringify(AU));else localStorage.removeItem('duellm_session')}
+function isAuth(){return !!AU}
+function userTier(){return AU?AU.tier:'guest'}
+function userDailyLimit(){var t=userTier();return t==='premium'?LIMIT_PREMIUM:t==='user'?LIMIT_USER:LIMIT_GUEST}
+
+// ── LANG ──
+function setLang(l){
+  L=l;localStorage.setItem('dlang',l);
+  document.getElementById('lEN').className='lang-btn'+(l==='en'?' on':'');
+  document.getElementById('lTR').className='lang-btn'+(l==='tr'?' on':'');
+  applyLang();
+}
+function applyLang(){
+  document.getElementById('newDebBtn').textContent=t('newDebate');
+  document.getElementById('upgradeBtn').textContent=t('upgrade');
+  document.getElementById('inp').placeholder=t('sendMsg');
+  document.getElementById('randBtn').setAttribute('tip',t('rand'));
+  document.getElementById('shareBtn').setAttribute('tip',t('shareTooltip'));
+  var bL=document.getElementById('btnL'),bR=document.getElementById('btnR');
+  bL.setAttribute('tip',t('change'));bR.setAttribute('tip',t('change'));
+  document.getElementById('gearL').setAttribute('tip',t('settings'));
+  document.getElementById('gearR').setAttribute('tip',t('settings'));
+  document.getElementById('vsSpan').textContent='VS';
+  updateLoginBtn();
+  renderHistory();
+  updateLimitMsg();
+}
+(function(){
+  var sl=localStorage.getItem('dlang')||'en';L=sl;
+  document.getElementById('lEN').className='lang-btn'+(sl==='en'?' on':'');
+  document.getElementById('lTR').className='lang-btn'+(sl==='tr'?' on':'');
+})();
+
+// ── LOGIN UI ──
+function updateLoginBtn(){
+  var b=document.getElementById('loginBtn');
+  if(isAuth()&&AU.tier==='premium'){b.textContent='🚪 '+AU.username+' — Premium ✓';return}
+  b.textContent=isAuth()?('🚪 '+AU.username+' — '+t('logout')):t('loginIn');
+}
+function handleAuthClick(){
+  if(isAuth()){AU=null;saveAuth();updateLoginBtn();updateLimitMsg();showToast(t('logout'));return}
+  showAuthModal('signup');
+}
+function showAuthModal(mode){
+  var existing=document.querySelector('.modal-overlay');if(existing)existing.remove();
+  var ov=document.createElement('div');ov.className='modal-overlay';
+  ov.onclick=function(e){if(e.target===ov)ov.remove()};
+  var isLogin=mode==='login';
+  ov.innerHTML='<div class="modal">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h3>'+t(isLogin?'loginTitle':'signupTitle')+'</h3><button style="background:none;border:none;color:#777;font-size:22px;cursor:pointer" onclick="this.closest(\'.modal-overlay\').remove()">×</button></div>'+
+    '<div class="err" id="authErr" style="display:none"></div>'+
+    (!isLogin?'<label>'+t('username')+'</label><input id="authUser" placeholder="'+t('username')+'">':'')+
+    '<label>'+t('email')+'</label><input id="authEmail" type="email" placeholder="'+t('email')+'">'+
+    '<label>'+t('password')+'</label><input id="authPass" type="password" placeholder="'+t('password')+'" onkeydown="if(event.key===\'Enter\')document.getElementById(\'authSubmit\').click()">'+
+    '<button class="btn-primary" id="authSubmit">'+t(isLogin?'loginBtn':'signupBtn')+'</button>'+
+    '<div class="sw">'+t(isLogin?'switchLogin':'switchSignup').replace('Sign in','<a id="authSwitch">Sign in</a>').replace('Sign up','<a id="authSwitch">Sign up</a>').replace('sign in','<a id="authSwitch">sign in</a>').replace('sign up','<a id="authSwitch">sign up</a>').replace('Giriş yap','<a id="authSwitch">Giriş yap</a>').replace('Kayıt ol','<a id="authSwitch">Kayıt ol</a>').replace('giriş yap','<a id="authSwitch">giriş yap</a>').replace('kayıt ol','<a id="authSwitch">kayıt ol</a>')+'</div>'+
+  '</div>';
+  document.body.appendChild(ov);
+  document.getElementById('authSwitch').onclick=function(){showAuthModal(isLogin?'signup':'login')};
+  document.getElementById('authSubmit').onclick=function(){
+    var email=document.getElementById('authEmail').value.trim();
+    var password=document.getElementById('authPass').value.trim();
+    var username=isLogin?'':document.getElementById('authUser').value.trim();
+    var errEl=document.getElementById('authErr');
+    if(!email||!password){errEl.textContent='Please fill all fields.';errEl.style.display='block';return}
+    if(!isLogin&&!username){errEl.textContent='Please fill all fields.';errEl.style.display='block';return}
+    errEl.style.display='none';
+    var btn=document.getElementById('authSubmit');btn.textContent='...';btn.disabled=true;
+    fetch('/api/chat/'+(isLogin?'login':'signup'),{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:email,password:password,username:username})
+    }).then(function(r){return r.json()}).then(function(d){
+      if(d.error){errEl.textContent=d.error;errEl.style.display='block';btn.textContent=t(isLogin?'loginBtn':'signupBtn');btn.disabled=false;return}
+      if(isLogin){AU={user_id:d.user_id,username:d.username,email:d.email,tier:d.tier||'user'};}
+      else{AU={user_id:d.user_id||'',username:d.username||username,email:email,tier:'user'};}
+      saveAuth();updateLoginBtn();updateLimitMsg();ov.remove();
+      showToast(isLogin?'Welcome back, '+AU.username+'!':'Account created! Welcome, '+AU.username+'!');
+    }).catch(function(e){
+      errEl.textContent='Connection error. Try again.';errEl.style.display='block';
+      btn.textContent=t(isLogin?'loginBtn':'signupBtn');btn.disabled=false;
+    });
+  };
+}
+
+// ── STATE ──
+function rnd2mods(){
+  var a=MODELS.slice();var i1=Math.floor(Math.random()*a.length);var m1=a[i1];a.splice(i1,1);
+  var m2=a[Math.floor(Math.random()*a.length)];return[m1,m2];
+}
+var initMods=rnd2mods();
+var S={topic:'',modelL:initMods[0],modelR:initMods[1],sysL:'',sysR:'',msgData:[],chatTokens:0};
+var E={running:false,speaking:false,side:'L',abort:null,timer:null,chatPaused:false};
+var H=JSON.parse(localStorage.getItem('duellm_hist')||'[]');
+
+// ── SAVE/LOAD ──
+function saveHistory(){
+  var msgs=[],rows=document.getElementById('msgs').children;
+  for(var i=0;i<rows.length;i++){
+    var r=rows[i];if(!r.classList.contains('m-row'))continue;
+    if(r.classList.contains('c')){msgs.push({side:'u',txt:r.querySelector('.m-user').textContent})}
+    else{
+      var sideL=r.classList.contains('end')?'R':'L';
+      var lab=r.querySelector('.m-lab')?r.querySelector('.m-lab').textContent:'';
+      var txt=r.querySelector('.bub')?r.querySelector('.bub').textContent:'';
+      msgs.push({side:sideL,label:lab,txt:txt});
+    }
+  }
+  S.msgData=msgs;
+  var sid=Date.now().toString(36);
+  var entry={id:sid,topic:S.topic,modelL:S.modelL,modelR:S.modelR,sysL:S.sysL,sysR:S.sysR,msgs:msgs,ts:Date.now()};
+  H=H.filter(function(h){return h.topic!==S.topic||!S.topic});
+  H.unshift(entry);if(H.length>30)H.pop();
+  localStorage.setItem('duellm_hist',JSON.stringify(H));
+  renderHistory();
+}
+function restoreSession(data){
+  stopAll();
+  S.topic=data.topic;S.modelL=data.modelL;S.modelR=data.modelR;S.sysL=data.sysL||'';S.sysR=data.sysR||'';S.chatTokens=0;E.chatPaused=false;
+  refreshUI();document.getElementById('msgs').innerHTML='';
+  (data.msgs||[]).forEach(function(m){
+    if(m.side==='u'){addMsgEl('u',m.txt,'');return}
+    var id=addMsgEl(m.side,'',null);
+    document.getElementById(id).innerHTML=esc(m.txt);
+    S.chatTokens+=Math.ceil(m.txt.length/4);
+  });
+  checkChatLimit();
+}
+
+// Load from URL
+(function(){
+  var p=new URLSearchParams(location.search);var s=p.get('s');
+  if(s){try{var d=JSON.parse(atob(decodeURIComponent(s)));restoreSession(d);history.replaceState(null,'','/');}catch(e){}}
+})();
+
+// ── UTILS ──
+function uid(){return Math.random().toString(36).slice(2,10)}
+function fmt(n){return n?n.replace(/:(\w)(\w)/,(_,a,b)=>' '+a.toUpperCase()+b).replace(/:/,' ').replace(/\b\w/g,function(c){return c.toUpperCase()}).replace(/-/g,' '):''}
+function tk(){return new Date().toISOString().split('T')[0]}
+function GM(s){return s==='L'?S.modelL:S.modelR}
+function GO(s){return s==='L'?S.modelR:S.modelL}
+function GS(s){return s==='L'?S.sysL:S.sysR}
+function bl(m){return m?fmt(m)+' ▼':t('none')+' ▼'}
+function estTok(txt){return Math.ceil(txt.length/4)}
+function totalUsedToday(){
+  var k='dk_'+tk();return parseInt(localStorage.getItem(k)||'0');
+}
+
+// ── UI ──
+function refreshUI(){
+  var bL=document.getElementById('btnL'),bR=document.getElementById('btnR');
+  bL.innerHTML=bl(S.modelL);bL.className='m-btn '+(S.modelL?'blue':'none')+' tip';
+  bR.innerHTML=bl(S.modelR);bR.className='m-btn '+(S.modelR?'red':'none')+' tip';
+  document.getElementById('gearL').style.display=S.modelL?'inline-flex':'none';
+  document.getElementById('gearR').style.display=S.modelR?'inline-flex':'none';
+}
+function updateLimitMsg(){
+  var el=document.getElementById('limit-msg'),used=totalUsedToday(),lim=userDailyLimit();
+  if(used>=lim){
+    var tier=userTier();
+    el.textContent=t(tier==='guest'?'limitGuest':tier==='user'?'limitUser':'limitPremium');
+    el.style.display='block';
+  }else if(E.chatPaused){
+    el.textContent=t('limitChat');el.style.display='block';
+  }else{el.style.display='none'}
+}
+function updateBtn(){
+  var b=document.getElementById('sendBtn'),v=document.getElementById('inp').value.trim();
+  var over=totalUsedToday()>=userDailyLimit()||E.chatPaused;
+  b.textContent=E.speaking?'■':'➤';
+  b.className=E.speaking?'stop':(over||!v?'':'on');
+}
+document.getElementById('inp').addEventListener('input',function(){updateBtn()});
+
+function trackLocal(tokenCount){
+  var k='dk_'+tk();localStorage.setItem(k,(parseInt(localStorage.getItem(k)||'0'))+tokenCount);
+  S.chatTokens+=tokenCount;
+  checkChatLimit();
+  updateBtn();updateLimitMsg();
+}
+function checkChatLimit(){
+  if(S.chatTokens>=MAX_CHAT_TOKENS){E.chatPaused=true;E.running=false;stopAll();updateBtn();updateLimitMsg()}
+}
+
+// ── SIDEBAR ──
+var sidebarDesktop=true;
+function toggleSidebar(){
+  if(window.innerWidth<=768){
+    // Mobile: use open class
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+  }else{
+    // Desktop: toggle visibility
+    sidebarDesktop=!sidebarDesktop;
+    if(sidebarDesktop){
+      document.getElementById('sidebar').classList.remove('hidden');
+    }else{
+      document.getElementById('sidebar').classList.add('hidden');
+    }
+  }
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+function newDebate(){
+  stopAll();
+  if(document.getElementById('msgs').children.length>0)saveHistory();
+  var mods=rnd2mods();S.topic='';S.modelL=mods[0];S.modelR=mods[1];S.sysL='';S.sysR='';S.msgData=[];S.chatTokens=0;E.chatPaused=false;
+  refreshUI();document.getElementById('msgs').innerHTML='';
+  document.getElementById('limit-msg').style.display='none';updateBtn();
+}
+function renderHistory(){
+  var c=document.getElementById('histCont');
+  c.innerHTML='<div class="sec-t">'+t('history')+'</div>';
+  if(!H.length){c.innerHTML+='<div id="histEmp" style="padding:8px 16px;font-size:12px;color:#666;font-style:italic">'+t('noHistory')+'</div>';return}
+  H.forEach(function(h){
+    var b=document.createElement('button');b.className='hist-i';
+    var d=new Date(h.ts),time=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    b.innerHTML=(h.topic||'(untitled)').slice(0,45)+'<span class="hdate">'+time+'</span>';
+    b.onclick=function(){stopAll();saveHistory();restoreSession(h);closeSidebar();};
+    c.appendChild(b);
+  });
+}
+
+// ── MODEL PICKER ──
+function toggleDropdown(e,side){
+  e.stopPropagation();
+  var ex=document.querySelector('.dd');if(ex)ex.remove();
+  var cur=GM(side);var d=document.createElement('div');d.className='dd';
+  var nb=document.createElement('button');nb.className='dd-i dd-none'+(cur?'':' sel');
+  nb.textContent=t('none');nb.onclick=function(ev){ev.stopPropagation();pickModel(side,'');d.remove();};d.appendChild(nb);
+  MODELS.forEach(function(m){
+    var b=document.createElement('button');b.className='dd-i'+(m===cur?' sel':'');
+    b.textContent=fmt(m);b.onclick=function(ev){ev.stopPropagation();pickModel(side,m);d.remove();};d.appendChild(b);
+  });
+  var pw=document.getElementById(side==='L'?'pwL':'pwR');pw.appendChild(d);
+  setTimeout(function(){document.addEventListener('click',function(){if(d.parentNode)d.remove();},{once:true})},10);
+}
+function pickModel(side,m){
+  if(side==='L'){S.modelL=m||''}else{S.modelR=m||''}
+  refreshUI();
+}
+
+// ── SETTINGS ──
+function openSettings(side){
+  if(!GM(side))return;var isL=side==='L';var model=GM(side),sys=GS(side);
+  var ov=document.createElement('div');ov.className='modal-overlay';
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+  var c=isL?'#4b8cf7':'#e84040';
+  var nOpt='<option value="">'+t('none')+'</option>';
+  MODELS.forEach(function(m){nOpt+='<option value="'+m+'"'+(m===model?' selected':'')+'>'+fmt(m)+'</option>';});
+  ov.innerHTML='<div class="modal"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="color:'+c+'">'+t(isL?'blue':'red')+'</h3><button style="background:none;border:none;color:#777;font-size:22px;cursor:pointer" onclick="this.closest(\'.modal-overlay\').remove()">×</button></div>'+
+    '<label>'+t('mdl')+'</label><select id="setModel">'+nOpt+'</select>'+
+    '<label>'+t('sp')+'</label><textarea id="setSys" rows="4" style="width:100%;padding:8px;border-radius:6px;border:1px solid #333;background:#1a1a1a;color:#e0e0e0;font-size:14px;resize:vertical;font-family:inherit;margin-bottom:14px" placeholder="'+t('spPlace')+'">'+(sys||'')+'</textarea>'+
+    '<button class="btn-primary" style="background:'+c+'!important" id="saveSet">'+t('save')+'</button></div>';
+  document.body.appendChild(ov);
+  document.getElementById('saveSet').onclick=function(){
+    var m=document.getElementById('setModel').value,s2=document.getElementById('setSys').value;
+    if(isL){S.modelL=m||'';S.sysL=s2}else{S.modelR=m||'';S.sysR=s2}
+    refreshUI();ov.remove();
+  };
+}
+
+// ── SHARE ──
+function shareChat(){
+  saveHistory();
+  var d={topic:S.topic,modelL:S.modelL,modelR:S.modelR,sysL:S.sysL,sysR:S.sysR,msgs:S.msgData};
+  var str=encodeURIComponent(btoa(JSON.stringify(d)));
+  var url=location.origin+'/?s='+str;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(url).then(function(){showToast(t('shared'));});
+  }else{
+    var ta=document.createElement('textarea');ta.value=url;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    showToast(t('shared'));
+  }
+}
+function showToast(msg){
+  var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  setTimeout(function(){el.classList.remove('show');},2500);
+}
+
+// ── RANDOM TOPIC (fixed: single click, retry different models) ──
+var randLock=false;
+async function randomTopic(){
+  if(randLock)return;
+  randLock=true;
+  var btn=document.getElementById('randBtn');btn.classList.add('loading');
+  // Shuffle models for retry diversity
+  var shuffled=MODELS.slice().sort(function(){return Math.random()-.5;});
+  for(var idx=0;idx<Math.min(shuffled.length,5);idx++){
+    try{
+      var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:shuffled[idx],messages:[{role:'user',content:TX[L].rp}],options:{num_predict:80,temperature:1.1,top_p:.95}})});
+      var dd=await r.json();var txt=(dd.message?.content||'').trim();
+      txt=txt.replace(/^[\"'`]|[\"'`]$/g,'').replace(/\*\*/g,'');
+      if(txt.length>15&&txt.length<200){document.getElementById('inp').value=txt;updateBtn();break;}
+    }catch(e){}
+  }
+  btn.classList.remove('loading');
+  setTimeout(function(){randLock=false;},800);
+}
+
+// ── MESSAGES ──
+function addMsgEl(side,txt,model){
+  var id='m_'+uid();var row=document.createElement('div');
+  if(side==='u'){row.className='m-row c msg';row.innerHTML='<div class="m-user">'+esc(txt)+'</div>'}
+  else{
+    row.className='m-row'+(side==='R'?' end':'')+' msg';
+    var label=model?fmt(model):t(side==='L'?'blue':'red');
+    row.innerHTML='<div><div class="m-lab '+(side==='L'?'l':'r')+'">'+label+'</div><div class="bub '+(side==='L'?'l':'r')+'" id="'+id+'"></div></div>';
+  }
+  document.getElementById('msgs').appendChild(row);
+  document.getElementById('msgs').scrollTop=document.getElementById('msgs').scrollHeight;
+  return id;
+}
+function updateBub(id,txt,showCursor){
+  var el=document.getElementById(id);if(!el)return;
+  el.innerHTML=esc(txt)+(showCursor?'<span class="cursor">▌</span>':'');
+  var ms=document.getElementById('msgs');
+  if(ms.scrollHeight-ms.scrollTop-ms.clientHeight<60)ms.scrollTop=ms.scrollHeight;
+}
+function typewrite(id,full,cb){
+  var i=0,spd=55,chunk=1;
+  function step(){
+    if(i>=full.length){updateBub(id,full,false);E.timer=null;if(cb)cb();return}
+    i+=chunk;if(i>full.length)i=full.length;
+    updateBub(id,full.slice(0,i),true);E.timer=setTimeout(step,spd);
+  }
+  updateBub(id,full.slice(0,1),true);E.timer=setTimeout(step,spd);
+}
+
+// ── SEND / STOP ──
+function sendOrStop(){
+  if(E.speaking){stopAll();return}
+  if(E.chatPaused){E.chatPaused=false;updateLimitMsg();updateBtn()}
+  var msg=document.getElementById('inp').value.trim();if(!msg)return;
+  if(totalUsedToday()>=userDailyLimit()){updateLimitMsg();return}
+  stopAll();S.topic=msg;
+  addMsgEl('u',msg,'');
+  var userTok=estTok(msg);S.chatTokens+=userTok;
+  document.getElementById('inp').value='';updateBtn();
+  checkChatLimit();if(E.chatPaused){updateBtn();return}
+  if(!S.modelL||!S.modelR){
+    var sd=S.modelL?'L':(S.modelR?'R':null);if(!sd)return;
+    E.running=true;E.side=sd;speakOnce(sd);
+  }else{
+    E.running=true;E.side='L';
+    setTimeout(function(){speakDebate('L');},400);
+  }
+}
+function stopAll(){
+  if(E.abort){try{E.abort()}catch(e){}E.abort=null}
+  if(E.timer){clearTimeout(E.timer);E.timer=null}
+  E.speaking=false;E.running=false;
+  var cursors=document.querySelectorAll('.cursor');
+  for(var i=0;i<cursors.length;i++){cursors[i].remove();}
+  updateBtn();
+}
+
+// ── CHAT MODE ──
+async function speakOnce(side){
+  if(!E.running||E.speaking||E.chatPaused||totalUsedToday()>=userDailyLimit()){E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
+  E.speaking=true;updateBtn();
+  var mn=GM(side);if(!mn){E.speaking=false;updateBtn();return}
+  var msgId=addMsgEl(side,'...',mn);
+  var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
+  var sys=GS(side);
+  var sp='IMPORTANT: Reply in the same language as the user\'s message. If the user writes in Turkish, respond in Turkish. If English, respond in English.\n\nThe user said: "'+S.topic+'". Respond naturally — be thoughtful and engaging. 2-4 sentences. Plain text.'+(sys?'\n\n'+sys:'');
+  try{
+    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-duellm-uid':isAuth()?AU.user_id:'','x-duellm-tier':userTier()},body:JSON.stringify({model:mn,messages:[{role:'system',content:sp},{role:'user',content:S.topic}],options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
+    var d=await r.json();
+    if(d.error==='daily_limit'){updateBub(msgId,t('limitUser'),false);E.speaking=false;E.abort=null;E.running=false;updateBtn();updateLimitMsg();return}
+    var txt=(d.message?.content||'').trim();
+    if(!txt||txt.length<4){E.speaking=false;E.abort=null;E.running=false;updateBtn();return}
+    E.abort=null;
+    var respTok=estTok(txt)+estTok(sp)+estTok(S.topic);
+    trackLocal(respTok);
+    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+'...',false);E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
+    typewrite(msgId,txt,function(){E.speaking=false;E.running=false;updateBtn();saveHistory();});
+  }catch(e){if(e.name!=='AbortError')updateBub(msgId,'...',false);E.speaking=false;E.abort=null;E.running=false;updateBtn();}
+}
+
+// ── DEBATE MODE ──
+async function speakDebate(side){
+  if(!E.running||E.speaking||E.chatPaused||!GM(side)||totalUsedToday()>=userDailyLimit()){E.speaking=false;updateBtn();updateLimitMsg();return}
+  E.speaking=true;updateBtn();
+  var mn=GM(side),op=GO(side);
+  var msgId=addMsgEl(side,'...',mn);
+  var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
+  var sp='IMPORTANT: Reply in the same language as the discussion. If the topic is in Turkish, debate in Turkish. If English, debate in English.\n\nYou are discussing: "'+S.topic+'". The other person already shared their thoughts (shown below). Your goal: find gaps, challenge their logic, bring fresh perspectives, refute weak points. Agreeing is your LAST option — only if there\'s truly nothing to push back on. Debate freely, no rules. 2-3 sentences. Do NOT greet or address anyone by name — just dive into the point. Plain text.'+(GS(side)?'\n\n'+GS(side):'');
+  var am=[{role:'system',content:sp}];
+  var rows=document.getElementById('msgs').children;
+  var ctxLen=0,ctxMax=10000;
+  for(var i=rows.length-1;i>=0;i--){
+    var r=rows[i];if(!r.classList.contains('m-row')||r.querySelector('.cursor'))continue;
+    var entry;
+    if(r.classList.contains('c')){
+      entry={role:'user',content:'User message: '+r.querySelector('.m-user').textContent};
+    }else{
+      var isEnd=r.classList.contains('end');var mSide=isEnd?'R':'L';
+      var mName=r.querySelector('.m-lab')?r.querySelector('.m-lab').textContent:'';
+      var mTxt=r.querySelector('.bub')?r.querySelector('.bub').textContent:'';
+      entry={role:mSide===side?'assistant':'user',content:mSide!==side?'Other participant: '+mTxt:mTxt};
+    }
+    ctxLen+=entry.content.length+10;
+    if(ctxLen>ctxMax)break;
+    am.splice(1,0,entry);
+  }
+  try{
+    var rr=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-duellm-uid':isAuth()?AU.user_id:'','x-duellm-tier':userTier()},body:JSON.stringify({model:mn,messages:am,options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
+    var dd=await rr.json();
+    if(dd.error==='daily_limit'){updateBub(msgId,t('limitUser'),false);E.speaking=false;E.abort=null;E.running=false;updateBtn();updateLimitMsg();return}
+    var txt=(dd.message?.content||'').trim();
+    if(!txt||txt.length<4){E.speaking=false;E.abort=null;E.running=false;updateBtn();return}
+    E.abort=null;
+    var respTok=estTok(txt)+estTok(JSON.stringify(am));
+    trackLocal(respTok);
+    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+'...',false);E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
+    typewrite(msgId,txt,function(){
+      E.speaking=false;updateBtn();saveHistory();
+      if(E.running&&!E.chatPaused){E.timer=setTimeout(function(){speakDebate(side==='L'?'R':'L');},4000);}
+    });
+  }catch(e){if(e.name!=='AbortError')updateBub(msgId,'...',false);E.speaking=false;E.abort=null;updateBtn();if(E.running&&!E.chatPaused){E.timer=setTimeout(function(){speakDebate(side==='L'?'R':'L');},4000);}}
+}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ── UPGRADE ──
+function upgradePlan(){
+  if(isAuth()){showLicenseModal();}
+  else{showAuthModal('signup');}
+}
+function showLicenseModal(){
+  var existing=document.querySelector('.modal-overlay');if(existing)existing.remove();
+  var ov=document.createElement('div');ov.className='modal-overlay';
+  ov.onclick=function(e){if(e.target===ov)ov.remove();};
+  ov.innerHTML='<div class="modal">'+
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3>'+t('licenseTitle')+'</h3><button style="background:none;border:none;color:#777;font-size:22px;cursor:pointer" onclick="this.closest(\'.modal-overlay\').remove()">×</button></div>'+
+    '<div class="err" id="licErr" style="display:none"></div>'+
+    '<p style="font-size:12px;color:#888;margin-bottom:10px">'+t('licenseDesc')+' <a href="https://turkplay.gumroad.com/l/duellm" target="_blank" style="color:#4b8cf7">'+t('licenseLink')+'</a></p>'+
+    '<label>'+t('licenseKey')+'</label><input id="licKey" placeholder="ör: 1234567890" onkeydown="if(event.key===\'Enter\')document.getElementById(\'licSubmit\').click()">'+
+    '<button class="btn-primary" id="licSubmit">'+t('licenseBtn')+'</button>'+
+  '</div>';
+  document.body.appendChild(ov);
+  document.getElementById('licSubmit').onclick=function(){
+    var key=document.getElementById('licKey').value.trim();
+    var err=document.getElementById('licErr');
+    if(!key){err.textContent='Please enter your Order ID.';err.style.display='block';return}
+    err.style.display='none';
+    var btn=document.getElementById('licSubmit');btn.textContent='...';btn.disabled=true;
+    fetch('/api/chat/verify',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({user_id:AU.user_id,order_id:key})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.error){err.textContent=t('licenseFail');err.style.display='block';btn.textContent=t('licenseBtn');btn.disabled=false;return}
+      AU.tier='premium';saveAuth();updateLoginBtn();updateLimitMsg();ov.remove();
+      showToast(t('licenseSuccess'));
+    }).catch(function(){
+      err.textContent='Connection error.';err.style.display='block';
+      btn.textContent=t('licenseBtn');btn.disabled=false;
+    });
+  };
+}
+
+// ── BOOT ──
+refreshUI();applyLang();updateLoginBtn();updateBtn();
+// Stop generation when tab closes
+window.addEventListener('beforeunload',function(){stopAll();});
+</script>
+</body></html>
