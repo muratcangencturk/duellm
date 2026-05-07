@@ -7,7 +7,7 @@
 <meta property="og:title" content="duellm — AI vs AI Debate">
 <meta name="description" content="Two AI models debate live.">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0}::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:#1a1a1a}::-webkit-scrollbar-thumb{background:#3a3a3a;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#4a4a4a}/* Firefox */ *{scrollbar-width:thin;scrollbar-color:#3a3a3a #1a1a1a}
 html,body{height:100%;background:#1a1a1a;color:#e0e0e0;overflow:hidden;font-family:system-ui,-apple-system,sans-serif}
 input,textarea{font-size:16px!important}
 #app{display:flex;height:100dvh;width:100%}
@@ -27,7 +27,7 @@ input,textarea{font-size:16px!important}
 #randBtn{flex-shrink:0;width:40px;height:40px;border-radius:9px;border:none;font-size:20px;display:flex;align-items:center;justify-content:center;background:transparent;color:#777;cursor:pointer}
 #randBtn:hover{color:#e0e0e0;background:#333}
 #randBtn.loading{opacity:.5;pointer-events:none}
-.tip{position:relative}.tip::after{content:attr(tip);position:absolute;top:115%;left:50%;transform:translateX(-50%);background:#333;color:#aaa;font-size:11px;padding:3px 9px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:60}.tip:hover::after{opacity:1}
+.tip{position:relative}.tip::after{content:attr(tip);position:absolute;top:115%;left:50%;transform:translateX(-50%);background:#333;color:#aaa;font-size:10px;padding:2px 8px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:60}.tip:hover::after{opacity:1}
 .hamburger{background:transparent;border:none;color:#888;cursor:pointer;font-size:20px;padding:4px 8px;margin-right:4px}
 @keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .msg{animation:pop .2s ease-out}
@@ -40,17 +40,13 @@ input,textarea{font-size:16px!important}
 .hist-i{width:100%;text-align:left;padding:9px 16px;border-radius:8px;border:none;background:transparent;color:#999;font-size:12px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
 .hist-i:hover{background:#242424}
 .hist-i .hdate{font-size:9px;color:#555;display:block}
-.hist-del{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:#555;cursor:pointer;font-size:12px;padding:2px 4px;border-radius:4px;display:none;line-height:1;z-index:5}
-.hist-i:hover .hist-del{display:block}
-.hist-del:hover{color:#e84040;background:#333}
-@media(hover:none){.hist-i .hist-del.mobile-show{display:block}}
 .m-row{display:flex;margin-bottom:10px}.m-row.end{justify-content:flex-end}.m-row.c{justify-content:center}
 .m-user{padding:7px 14px;border-radius:10px;font-size:14px;word-break:break-word;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.18);color:#c4b5fd;max-width:85%}
 .m-lab{font-size:10px;font-weight:700;margin-bottom:2px;letter-spacing:.3px}.m-lab.l{color:#4b8cf7}.m-lab.r{color:#e84040}
-.bub{width:fit-content;max-width:85%;padding:8px 14px;border-radius:10px;font-size:14px;word-break:break-word;background:#242424;color:#e0e0e0;position:relative;line-height:1.5}.bub.l{border-left:3px solid #4b8cf7}.bub.r{border-left:3px solid #e84040}
-.m-btn{background:transparent;border:none;font-size:13px;font-weight:600;cursor:pointer;padding:4px 6px;border-radius:6px;display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
+.bub{width:fit-content;max-width:85%;padding:8px 14px;border-radius:10px;font-size:14px;word-break:break-word;background:#242424;color:#e0e0e0;position:relative;line-height:1.5}.bub.l{border-left:3px solid #4b8cf7}.bub.r{border-right:3px solid #e84040}
+.m-btn{background:transparent;border:none;font-size:12px;font-weight:600;cursor:pointer;padding:4px 6px;border-radius:6px;display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
 .m-btn.blue{color:#4b8cf7}.m-btn.red{color:#e84040}.m-btn.none{color:#666}
-.g-btn{background:transparent;border:none;cursor:pointer;font-size:14px;padding:3px 4px;border-radius:4px;color:#3a3a3a}
+.g-btn{background:transparent;border:none;cursor:pointer;font-size:12px;padding:3px 4px;border-radius:4px;color:#3a3a3a}
 .dd{position:absolute;top:115%;margin-top:4px;width:210px;max-height:290px;overflow-y:auto;background:#242424;border:1px solid #333;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.7);z-index:50}
 .dd-i{width:100%;text-align:left;padding:8px 14px;border:none;font-size:13px;cursor:pointer;color:#aaa;background:transparent;display:block}
 .dd-i:hover{background:#333}.dd-i.sel{color:#fff;font-weight:600;background:#333}
@@ -69,16 +65,16 @@ input,textarea{font-size:16px!important}
 .modal .sw{color:#888;font-size:11px;text-align:center;margin-top:10px}
 .modal .sw a{color:#4b8cf7;cursor:pointer;text-decoration:underline}
 .modal .sw a:hover{color:#6aa8ff}
-.vs{font-size:11px;font-weight:700;color:#444}
+.vs{font-size:10px;font-weight:700;color:#444}
 .model-center{display:flex;align-items:center;gap:6px;flex:1;justify-content:center}
 .pw{position:relative;display:flex;align-items:center;gap:3px}
-.lang-btn{background:transparent;border:none;font-size:11px;font-weight:700;cursor:pointer;padding:3px 6px;border-radius:4px;color:#666;text-transform:uppercase}
+.lang-btn{background:transparent;border:none;font-size:10px;font-weight:700;cursor:pointer;padding:2px 5px;border-radius:4px;color:#666;text-transform:uppercase}
 .lang-btn.on{color:#e0e0e0;background:#333}
-#shareBtn{background:transparent;border:none;color:#666;cursor:pointer;font-size:16px;padding:3px 4px;border-radius:4px;display:flex;align-items:center}
+#shareBtn{background:transparent;border:none;color:#666;cursor:pointer;font-size:14px;padding:2px 3px;border-radius:4px;display:flex;align-items:center}
 #shareBtn:hover{color:#e0e0e0;background:#333}
 #shareBtn.done{color:#4ade80}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#333;color:#e0e0e0;padding:8px 18px;border-radius:8px;font-size:13px;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s}
-.toast.show{opacity:1;pointer-events:auto}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#333;color:#e0e0e0;padding:8px 18px;border-radius:8px;font-size:13px;z-index:200;animation:pop .2s ease-out;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
 @media(max-width:420px){
   #topright{position:static;transform:none;margin-left:auto;gap:1px}
   #topright .lang-btn{font-size:8px;padding:2px 4px}
@@ -109,8 +105,8 @@ input,textarea{font-size:16px!important}
       </div>
       <span class="vs" id="vsSpan">VS</span>
       <div class="pw" id="pwR">
+        <button class="m-btn red tip" tip="Change Model" id="btnR" onclick="toggleDropdown(event,'R')">Gemma3 27b ▼</button>
         <button class="g-btn tip" tip="Settings" id="gearR" onclick="openSettings('R')" style="display: inline-flex;">⚙</button>
-        <button class="m-btn red tip" tip="Change Model" id="btnR" onclick="toggleDropdown(event,'R')">▼ Gemma3 27b</button>
       </div>
     </div>
     <div id="topright">
@@ -130,12 +126,12 @@ input,textarea{font-size:16px!important}
 
 <script>
 // ── MODELS ──
-var MODELS=["gemma4:31b","cogito-2.1:671b","qwen3-next:80b","qwen3-coder-next","deepseek-v3.1:671b","qwen3-vl:235b-instruct","qwen3-vl:235b","gpt-oss:120b","ministral-3:8b","gemma3:27b","ministral-3:14b","gemma3:12b","mistral-large-3:675b","gemini-3-flash-preview","deepseek-v4-pro","deepseek-v4-flash","deepseek-v3.2","qwen3.5:397b","qwen3-coder:480b","glm-5.1","glm-5","glm-4.6","glm-4.7","gpt-oss:20b","devstral-2:123b","devstral-small-2:24b","minimax-m2","minimax-m2.1","minimax-m2.5","minimax-m2.7","gemma3:4b","ministral-3:3b","rnj-1:8b"];
+var MODELS=["cogito-2.1:671b","devstral-2:123b","devstral-small-2:24b","gemma3:12b","gemma3:27b","gpt-oss:120b","ministral-3:8b","ministral-3:14b","mistral-large-3:675b","qwen3-coder-next","qwen3-next:80b","qwen3-vl:235b","qwen3-vl:235b-instruct","rnj-1:8b"];
 
 // ── LIMITS ──
 var LIMIT_GUEST=10000, LIMIT_USER=30000, LIMIT_PREMIUM=300000;
-var MAX_CHAT_TOKENS=10000;
-var MAX_RESPONSE_TOKENS=256;
+var MAX_CHAT_TOKENS=***
+var MAX_RESPONSE_TOKENS=***
 
 var RP_EN="Generate one single-sentence debate discussion topic or question. It can be about technology, philosophy, society, science, ethics, politics, or any thought-provoking subject. Just the sentence, nothing else.";
 var RP_TR="Tek cümlelik bir tartışma konusu veya soru üret. Teknoloji, felsefe, toplum, bilim, etik, politika veya düşündürücü herhangi bir konu olabilir. Sadece cümle, başka bir şey yazma.";
@@ -143,8 +139,8 @@ var RP_TR="Tek cümlelik bir tartışma konusu veya soru üret. Teknoloji, felse
 // ── TRANSLATIONS ──
 var L='en';
 var TX={
-  en:{newDebate:'+ New Chat',history:'History',noHistory:'No history yet',loginIn:' Sign Up / Login',loginOut:' Sign Out',upgrade:'⭐ Upgrade Plan',upgradeWarn:'Please sign up / login first.',sendMsg:'Send a message',change:'Change Model',settings:'Settings',rand:'Random topic',none:'— None —',limitGuest:'Daily limit reached.\nSign up for more usage.',limitUser:'Daily limit reached.\nPlease upgrade plan for x10 more tokens.',limitPremium:'Daily limit reached.\nUpgrade for even more tokens.',limitChat:'Chat limit reached (10K tokens).\nSend a message to continue.',ef:'Interesting — can you tell me more?',df:'I think this is a really interesting topic. What are you thinking?',rp:RP_EN,vs:'VS',blue:'Blue',red:'Red',mdl:'Model',sp:'System Prompt',spPlace:'Instructions for this model...',save:'Save',share:'Share',shared:'Link copied! Share this link to show this conversation.',shareTooltip:'Share',signupTitle:'Create Account',loginTitle:'Sign In',email:'Email',password:'Password',username:'Username',signupBtn:'Create Account',loginBtn:'Sign In',switchSignup:'Already have an account? Sign in',switchLogin:"Don't have an account? Sign up",logout:'Sign Out',licenseTitle:'Activate Premium',licenseKey:'Order ID',licenseBtn:'Activate',licenseDesc:'Enter your Gumroad Order ID:',licenseLink:'Buy on Gumroad →',licenseSuccess:'Premium activated! You now have 300K tokens/day.',licenseFail:'Invalid Order ID. Please try again.',activated:'Premium ✓'},
-  tr:{newDebate:'+ Yeni Sohbet',history:'Geçmiş',noHistory:'Henüz geçmiş yok',loginIn:' Kayıt Ol / Giriş Yap',loginOut:' Çıkış Yap',upgrade:'⭐ Planı Yükselt',upgradeWarn:'Lütfen önce kayıt olun / giriş yapın.',sendMsg:'Mesaj gönder',change:'Model Değiştir',settings:'Ayarlar',rand:'Rastgele konu',none:'— Boş —',limitGuest:'Günlük limit doldu.\nDaha fazla kullanım için kayıt olun.',limitUser:'Günlük limit doldu.\nx10 daha fazla token için planı yükseltin.',limitPremium:'Günlük limit doldu.\nDaha fazlası için yükseltin.',limitChat:'Sohbet limiti doldu (10K token).\nDevam etmek için mesaj gönder.',ef:'İlginç — biraz daha anlatır mısın?',df:'Bence bu gerçekten ilginç bir konu. Sen ne düşünüyorsun?',rp:RP_TR,vs:'VS',blue:'Mavi',red:'Kırmızı',mdl:'Model',sp:'Sistem Promptu',spPlace:'Bu model için talimatlar...',save:'Kaydet',share:'Paylaş',shared:'Link kopyalandı! Bu linkle sohbeti paylaşabilirsin.',shareTooltip:'Paylaş',signupTitle:'Hesap Oluştur',loginTitle:'Giriş Yap',email:'E-posta',password:'Şifre',username:'Kullanıcı Adı',signupBtn:'Hesap Oluştur',loginBtn:'Giriş Yap',switchSignup:'Zaten hesabın var mı? Giriş yap',switchLogin:'Hesabın yok mu? Kayıt ol',logout:'Çıkış Yap',licenseTitle:'Premium Aktifleştir',licenseKey:'Sipariş No',licenseBtn:'Aktifleştir',licenseDesc:'Gumroad Sipariş Numaranı gir:',licenseLink:'Gumroad\'dan Satın Al →',licenseSuccess:'Premium aktif! Artık günlük 300K token kullanabilirsin.',licenseFail:'Geçersiz Sipariş No. Tekrar dene.',activated:'Premium ✓'}
+  en:{newDebate:'+ New Chat',history:'History',noHistory:'No history yet',loginIn:' Sign Up / Login',loginOut:' Sign Out',upgrade:'⭐ Upgrade Plan',upgradeWarn:'Please sign up / login first.',sendMsg:'Send a message',change:'Change Model',settings:'Settings',rand:'Random topic',none:'— None —',limitGuest:'Daily limit reached.\nSign up for more usage.',limitUser:'Daily limit reached.\nPlease upgrade plan for x10 more tokens.',limitPremium:'Daily limit reached.\nUpgrade for even more tokens.',limitChat:'Chat limit reached (10K tokens).\nSend a message to continue.',rp:RP_EN,vs:'VS',blue:'Blue',red:'Red',mdl:'Model',sp:'System Prompt',spPlace:'Instructions for this model...',save:'Save',share:'Share',shared:'Link copied! Share this link to show this conversation.',shareTooltip:'Share',signupTitle:'Create Account',loginTitle:'Sign In',email:'Email',password:'Password',username:'Username',signupBtn:'Create Account',loginBtn:'Sign In',switchSignup:'Already have an account? Sign in',switchLogin:"Don't have an account? Sign up",logout:'Sign Out',licenseTitle:'Activate Premium',licenseKey:'Order ID',licenseBtn:'Activate',licenseDesc:'Enter your Gumroad Order ID:',licenseLink:'Buy on Gumroad →',licenseSuccess:'Premium activated! You now have 300K tokens/day.',licenseFail:'Invalid Order ID. Please try again.',activated:'Premium ✓'},
+  tr:{newDebate:'+ Yeni Sohbet',history:'Geçmiş',noHistory:'Henüz geçmiş yok',loginIn:' Kayıt Ol / Giriş Yap',loginOut:' Çıkış Yap',upgrade:'⭐ Planı Yükselt',upgradeWarn:'Lütfen önce kayıt olun / giriş yapın.',sendMsg:'Mesaj gönder',change:'Model Değiştir',settings:'Ayarlar',rand:'Rastgele konu',none:'— Boş —',limitGuest:'Günlük limit doldu.\nDaha fazla kullanım için kayıt olun.',limitUser:'Günlük limit doldu.\nx10 daha fazla token için planı yükseltin.',limitPremium:'Günlük limit doldu.\nDaha fazlası için yükseltin.',limitChat:'Sohbet limiti doldu (10K token).\nDevam etmek için mesaj gönder.',rp:RP_TR,vs:'VS',blue:'Mavi',red:'Kırmızı',mdl:'Model',sp:'Sistem Promptu',spPlace:'Bu model için talimatlar...',save:'Kaydet',share:'Paylaş',shared:'Link kopyalandı! Bu linkle sohbeti paylaşabilirsin.',shareTooltip:'Paylaş',signupTitle:'Hesap Oluştur',loginTitle:'Giriş Yap',email:'E-posta',password:'Şifre',username:'Kullanıcı Adı',signupBtn:'Hesap Oluştur',loginBtn:'Giriş Yap',switchSignup:'Zaten hesabın var mı? Giriş yap',switchLogin:'Hesabın yok mu? Kayıt ol',logout:'Çıkış Yap',licenseTitle:'Premium Aktifleştir',licenseKey:'Sipariş No',licenseBtn:'Aktifleştir',licenseDesc:'Gumroad Sipariş Numaranı gir:',licenseLink:'Gumroad\'dan Satın Al →',licenseSuccess:'Premium aktif! Artık günlük 300K token kullanabilirsin.',licenseFail:'Geçersiz Sipariş No. Tekrar dene.',activated:'Premium ✓'}
 };
 function t(k){return TX[L][k]||k}
 
@@ -295,7 +291,7 @@ function tk(){return new Date().toISOString().split('T')[0]}
 function GM(s){return s==='L'?S.modelL:S.modelR}
 function GO(s){return s==='L'?S.modelR:S.modelL}
 function GS(s){return s==='L'?S.sysL:S.sysR}
-function bl(m,s){var label=m?fmt(m):t('none');return s==='R'?'▼ '+label:label+' ▼'}
+function bl(m){return m?fmt(m)+' ▼':t('none')+' ▼'}
 function estTok(txt){return Math.ceil(txt.length/4)}
 function totalUsedToday(){
   var k='dk_'+tk();return parseInt(localStorage.getItem(k)||'0');
@@ -304,8 +300,8 @@ function totalUsedToday(){
 // ── UI ──
 function refreshUI(){
   var bL=document.getElementById('btnL'),bR=document.getElementById('btnR');
-  bL.innerHTML=bl(S.modelL,'L');bL.className='m-btn '+(S.modelL?'blue':'none')+' tip';
-  bR.innerHTML=bl(S.modelR,'R');bR.className='m-btn '+(S.modelR?'red':'none')+' tip';
+  bL.innerHTML=bl(S.modelL);bL.className='m-btn '+(S.modelL?'blue':'none')+' tip';
+  bR.innerHTML=bl(S.modelR);bR.className='m-btn '+(S.modelR?'red':'none')+' tip';
   document.getElementById('gearL').style.display=S.modelL?'inline-flex':'none';
   document.getElementById('gearR').style.display=S.modelR?'inline-flex':'none';
 }
@@ -370,16 +366,11 @@ function renderHistory(){
   c.innerHTML='<div class="sec-t">'+t('history')+'</div>';
   if(!H.length){c.innerHTML+='<div id="histEmp" style="padding:8px 16px;font-size:12px;color:#666;font-style:italic">'+t('noHistory')+'</div>';return}
   H.forEach(function(h){
-    var wrap=document.createElement('div');wrap.className='hist-i';wrap.style.position='relative';
+    var b=document.createElement('button');b.className='hist-i';
     var d=new Date(h.ts),time=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    wrap.innerHTML=(h.topic||'(untitled)').slice(0,35)+'<span class="hdate">'+time+'</span><button class="hist-del" onclick="event.stopPropagation();deleteHistoryEntry(\''+h.id+'\')" title="Delete"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></button>';
-    // Long-press on mobile to show delete
-    var pressTimer;
-    wrap.addEventListener('touchstart',function(){pressTimer=setTimeout(function(){wrap.querySelector('.hist-del').classList.add('mobile-show')},500)});
-    wrap.addEventListener('touchend',function(){clearTimeout(pressTimer)});
-    wrap.addEventListener('touchmove',function(){clearTimeout(pressTimer)});
-    wrap.addEventListener('click',function(e){if(!e.target.closest('.hist-del')){stopAll();saveHistory();restoreSession(h);closeSidebar();}});
-    c.appendChild(wrap);
+    b.innerHTML=(h.topic||'(untitled)').slice(0,45)+'<span class="hdate">'+time+'</span>';
+    b.onclick=function(){stopAll();saveHistory();restoreSession(h);closeSidebar();};
+    c.appendChild(b);
   });
 }
 
@@ -429,12 +420,10 @@ function shareChat(){
   var str=encodeURIComponent(btoa(JSON.stringify(d)));
   var url=location.origin+'/?s='+str;
   if(navigator.clipboard){
-    navigator.clipboard.writeText(url).then(function(){showToast(t('shared'));}).catch(function(){showToast(t('shared'));});
+    navigator.clipboard.writeText(url).then(function(){showToast(t('shared'));});
   }else{
     var ta=document.createElement('textarea');ta.value=url;ta.style.position='fixed';ta.style.opacity='0';
-    document.body.appendChild(ta);ta.select();
-    try{document.execCommand('copy')}catch(e){}
-    document.body.removeChild(ta);
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
     showToast(t('shared'));
   }
 }
@@ -469,7 +458,7 @@ function addMsgEl(side,txt,model){
   if(side==='u'){row.className='m-row c msg';row.innerHTML='<div class="m-user">'+esc(txt)+'</div>'}
   else{
     row.className='m-row'+(side==='R'?' end':'')+' msg';
-    var label=model?fmt(model):'???';
+    var label=model?fmt(model):t(side==='L'?'blue':'red');
     row.innerHTML='<div><div class="m-lab '+(side==='L'?'l':'r')+'">'+label+'</div><div class="bub '+(side==='L'?'l':'r')+'" id="'+id+'"></div></div>';
   }
   document.getElementById('msgs').appendChild(row);
@@ -483,13 +472,13 @@ function updateBub(id,txt,showCursor){
   if(ms.scrollHeight-ms.scrollTop-ms.clientHeight<60)ms.scrollTop=ms.scrollHeight;
 }
 function typewrite(id,full,cb){
-  var i=0,spd=120; // 0.25x speed — ~8 chars/sec, readable, single char
+  var i=0,spd=55,chunk=1;
   function step(){
     if(i>=full.length){updateBub(id,full,false);E.timer=null;if(cb)cb();return}
-    i++;if(i>full.length)i=full.length;
+    i+=chunk;if(i>full.length)i=full.length;
     updateBub(id,full.slice(0,i),true);E.timer=setTimeout(step,spd);
   }
-  updateBub(id,'',true);E.timer=setTimeout(step,spd);
+  updateBub(id,full.slice(0,1),true);E.timer=setTimeout(step,spd);
 }
 
 // ── SEND / STOP ──
@@ -528,13 +517,13 @@ async function speakOnce(side){
   var msgId=addMsgEl(side,'...',mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
   var sys=GS(side);
-  var sp='You are in a natural ongoing discussion. DO NOT introduce yourself or say your name. DO NOT roleplay, DO NOT use markdown, DO NOT write actions or stage directions. DO NOT label who is speaking. Just respond naturally in 2-4 sentences as if you are continuing a conversation. Plain text only. The topic is: "'+S.topic+'".'+(sys?'\n\n'+sys:'');
+  var sp='IMPORTANT: Reply in the same language as the user\'s message. If the user writes in Turkish, respond in Turkish. If English, respond in English.\n\nThe user said: "'+S.topic+'". Respond naturally — be thoughtful and engaging. 2-4 sentences. Plain text.'+(sys?'\n\n'+sys:'');
   try{
     var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-duellm-uid':isAuth()?AU.user_id:'','x-duellm-tier':userTier()},body:JSON.stringify({model:mn,messages:[{role:'system',content:sp},{role:'user',content:S.topic}],options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
     var d=await r.json();
     if(d.error==='daily_limit'){updateBub(msgId,t('limitUser'),false);E.speaking=false;E.abort=null;E.running=false;updateBtn();updateLimitMsg();return}
     var txt=(d.message?.content||'').trim();
-    if(!txt||txt.length<3)txt=t('ef');
+    if(!txt||txt.length<4){E.speaking=false;E.abort=null;E.running=false;updateBtn();return}
     E.abort=null;
     var respTok=estTok(txt)+estTok(sp)+estTok(S.topic);
     trackLocal(respTok);
@@ -550,7 +539,7 @@ async function speakDebate(side){
   var mn=GM(side),op=GO(side);
   var msgId=addMsgEl(side,'...',mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
-  var sp='You are in a group discussion. DO NOT introduce yourself or say your name. DO NOT roleplay, DO NOT use markdown, DO NOT write stage directions. DO NOT say "User:" or label others. Just respond naturally in 2-3 sentences as if talking to friends. Plain text only. Topic: "'+S.topic+'".'+(GS(side)?'\n\n'+GS(side):'');
+  var sp='IMPORTANT: Reply in the same language as the discussion. If the topic is in Turkish, debate in Turkish. If English, debate in English.\n\nYou are discussing: "'+S.topic+'". The other person already shared their thoughts (shown below). Your goal: find gaps, challenge their logic, bring fresh perspectives, refute weak points. Agreeing is your LAST option — only if there\'s truly nothing to push back on. Debate freely, no rules. 2-3 sentences. Do NOT greet or address anyone by name — just dive into the point. Plain text.'+(GS(side)?'\n\n'+GS(side):'');
   var am=[{role:'system',content:sp}];
   var rows=document.getElementById('msgs').children;
   var ctxLen=0,ctxMax=10000;
@@ -558,12 +547,12 @@ async function speakDebate(side){
     var r=rows[i];if(!r.classList.contains('m-row')||r.querySelector('.cursor'))continue;
     var entry;
     if(r.classList.contains('c')){
-      entry={role:'user',content:'[User]: '+r.querySelector('.m-user').textContent};
+      entry={role:'user',content:'User message: '+r.querySelector('.m-user').textContent};
     }else{
       var isEnd=r.classList.contains('end');var mSide=isEnd?'R':'L';
       var mName=r.querySelector('.m-lab')?r.querySelector('.m-lab').textContent:'';
       var mTxt=r.querySelector('.bub')?r.querySelector('.bub').textContent:'';
-      entry={role:mSide===side?'assistant':'user',content:mSide!==side?'['+mName+']: '+mTxt:mTxt};
+      entry={role:mSide===side?'assistant':'user',content:mSide!==side?'Other participant: '+mTxt:mTxt};
     }
     ctxLen+=entry.content.length+10;
     if(ctxLen>ctxMax)break;
@@ -574,7 +563,7 @@ async function speakDebate(side){
     var dd=await rr.json();
     if(dd.error==='daily_limit'){updateBub(msgId,t('limitUser'),false);E.speaking=false;E.abort=null;E.running=false;updateBtn();updateLimitMsg();return}
     var txt=(dd.message?.content||'').trim();
-    if(!txt||txt.length<3)txt=t('df');
+    if(!txt||txt.length<4){E.speaking=false;E.abort=null;E.running=false;updateBtn();return}
     E.abort=null;
     var respTok=estTok(txt)+estTok(JSON.stringify(am));
     trackLocal(respTok);
@@ -587,11 +576,6 @@ async function speakDebate(side){
 }
 
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function deleteHistoryEntry(id){
-  H=H.filter(function(h){return h.id!==id;});
-  localStorage.setItem('duellm_hist',JSON.stringify(H));
-  renderHistory();
-}
 
 // ── UPGRADE ──
 function upgradePlan(){
@@ -632,5 +616,7 @@ function showLicenseModal(){
 
 // ── BOOT ──
 refreshUI();applyLang();updateLoginBtn();updateBtn();
+// Stop generation when tab closes
+window.addEventListener('beforeunload',function(){stopAll();});
 </script>
 </body></html>

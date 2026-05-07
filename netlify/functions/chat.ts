@@ -116,7 +116,7 @@ const handler: Handler = async (event) => {
     });
     const data = await res.json();
     let content = clean(data.message?.content || "");
-    if (!content || content.length < 3) content = "Interesting — tell me more.";
+    if (!content || content.length < 3) content = "";
 
     if (uid) {
       const key = dk(uid);
