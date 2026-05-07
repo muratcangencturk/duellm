@@ -1,9 +1,9 @@
 [build]
-  command = "cp index.html dist/ && cp logo.png dist/ && cd netlify/functions && npm init -y > /dev/null 2>&1 && npm install @supabase/supabase-js"
+  command = "mkdir -p dist && cp index.html dist/ && cp logo.png dist/ && cd netlify/functions && npm init -y > /dev/null 2>&1 && npm install @supabase/supabase-js"
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
 
 [functions]
   directory = "netlify/functions"
