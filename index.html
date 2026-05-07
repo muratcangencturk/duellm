@@ -261,6 +261,7 @@ function saveHistory(){
       msgs.push({side:sideL,label:lab,txt:txt});
     }
   }
+  if(msgs.length===0)return;
   S.msgData=msgs;
   var sid=Date.now().toString(36);
   var entry={id:sid,topic:S.topic,modelL:S.modelL,modelR:S.modelR,sysL:S.sysL,sysR:S.sysR,msgs:msgs,ts:Date.now()};
