@@ -560,7 +560,7 @@ function updateBub(id,txt,showCursor){
   if(ms.scrollHeight-ms.scrollTop-ms.clientHeight<60)ms.scrollTop=ms.scrollHeight;
 }
 function typewrite(id,full,cb){
-  var i=0,spd=55,chunk=1;
+  var i=0,spd=35,chunk=1;
   function step(){
     if(i>=full.length){updateBub(id,full,false);E.timer=null;if(cb)cb();return}
     i+=chunk;if(i>full.length)i=full.length;
@@ -605,7 +605,7 @@ async function speakOnce(side){
   var msgId=addMsgEl(side,'...',mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
   var sys=GS(side);
-  var sp='CRITICAL: Reply in the EXACT same language the user wrote. Turkish in, Turkish out. English in, English out. Never switch.\\n\\nUSER SAID: "'+S.topic+'"\\n\\nRespond ONLY to what the user ACTUALLY said. Do not invent or put words in their mouth.\\n\\nKeep it CONCISE — 2-4 sentences unless the question genuinely demands more. Short and punchy reads better.\\n\\nUse emojis naturally where they fit 🎯🔥💡. No markdown formatting, no asterisk or dash bullets. Just plain conversational text.'+(sys?'\\n\\nStyle: '+sys:'');
+  var sp='CRITICAL: Reply in the EXACT same language the user wrote. Never switch.\n\nUSER SAID: "'+S.topic+'"\n\nRespond ONLY to what the user ACTUALLY said. Do not put words in their mouth.\n\nSTYLE: Talk like a real person — casual, direct, no formal distance. Short and punchy (2-4 sentences unless question demands more).\n\nEmojis where natural 🎯🔥💡. No markdown. No bullets. Just plain text.'+(sys?'\n\nStyle: '+sys:'');
   try{
     var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-duellm-uid':isAuth()?AU.user_id:'','x-duellm-tier':userTier()},body:JSON.stringify({model:mn,messages:[{role:'system',content:sp},{role:'user',content:S.topic}],options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
     var d=await r.json();
@@ -627,7 +627,7 @@ async function speakDebate(side){
   var mn=GM(side),op=GO(side);
   var msgId=addMsgEl(side,'...',mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
-  var sp='LANGUAGE: Debate in the EXACT same language as the topic. Never switch.\\n\\nTOPIC: "'+S.topic+'"\\n\\nYOU ARE IN AN AI vs AI DEBATE. Your opponent literally just spoke — respond to what they ACTUALLY said, not what you imagine they said. Never fabricate their argument.\\n\\nKEEP IT SHORT. 2-4 punchy sentences per turn. Only go longer if the debate truly demands depth. Short exchanges keep the debate alive and readable.\\n\\nTONE IS YOUR CALL. You decide how to engage based on the topic and your opponent. Be respectful, sarcastic, aggressive, clinical, playful — whatever fits. You are intelligent enough to judge.\\n\\nFOUR WAYS TO RESPOND — pick what works:\\n1. BUILD on their point — develop it further\\n2. Find the GAP — what did they miss?\\n3. Offer an ALTERNATIVE — different angle, fresh perspective\\n4. REFUTE — prove them wrong with logic\\n\\nUse emojis for flavor and emphasis 🔥💡🎯. No markdown formatting. No asterisk or dash bullets. Just plain sharp text.'+(GS(side)?'\\n\\nStyle: '+GS(side):'')
+  var sp='LANGUAGE: Debate in the EXACT same language as the topic. Never switch.\n\nTOPIC: "'+S.topic+'"\n\nAI vs AI DEBATE — respond to what your opponent ACTUALLY said. Do not fabricate or imagine their argument.\n\nSTYLE: Talk like a real person. No formal \"siz/you\" distance — address your opponent by their color or model name (Kırmızı/Mavi, Gemma/Cogito etc). Be casual and direct.\n\nTONE IS FREE — sarcastic, aggressive, funny, clinical, respectful. Whatever the topic and flow demands. You are human-like, not a robot.\n\nKEEP IT SHORT — 2-4 punchy sentences. Only go longer if truly needed.\n\nFOUR MOVES — pick what fits:\n1. BUILD on their point\n2. Find the GAP\n3. Offer ALTERNATIVE angle\n4. REFUTE with logic\n\nEmojis for flavor 🔥💡🎯. No markdown. No bullets. Just raw sharp text.'+(GS(side)?'\n\nStyle: '+GS(side):'')
   var am=[{role:'system',content:sp}];
   var rows=document.getElementById('msgs').children;
   var ctxLen=0,ctxMax=10000;
