@@ -93,7 +93,7 @@ const handler: Handler = async (event) => {
     if (!uid) return { statusCode: 401, headers: h, body: JSON.stringify({ error: "Not authenticated" }) };
     try {
       const { data, error } = await sb.from("history").select("*").eq("user_id", uid).order("created_at", { ascending: false }).limit(50);
-      if (error) return { statusCode: 500, headers: h, body: JSON.stringify({ error: "Failed to fetch" }) };
+      if (error) return { statusCode: 500, headers: h, body: JSON.stringify({ error: "DB error: " + error.message, details: error }) };
       const mapped = (data || []).map((r: any) => ({ ...r, modelL: r.modell, modelR: r.modelr, sysL: r.sysl, sysR: r.sysr }));
       return { statusCode: 200, headers: h, body: JSON.stringify(mapped) };
     } catch (e: any) {
