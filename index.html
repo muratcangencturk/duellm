@@ -137,8 +137,8 @@ input,textarea{font-size:16px!important}
       </div>
       <span class="vs" id="vsSpan">VS</span>
       <div class="pw" id="pwR">
-        <button class="m-btn red tip" tip="Change Model" id="btnR" onclick="toggleDropdown(event,'R')">Gemma3 27b ▼</button>
         <button class="g-btn tip" tip="Settings" id="gearR" onclick="openSettings('R')" style="display: inline-flex;">⚙</button>
+        <button class="m-btn red tip" tip="Change Model" id="btnR" onclick="toggleDropdown(event,'R')">▼ Gemma3 27b</button>
       </div>
     </div>
     <div id="topright">
@@ -312,7 +312,7 @@ function rnd2mods(){
   var m2=a[Math.floor(Math.random()*a.length)];return[m1,m2];
 }
 var initMods=rnd2mods();
-var S={topic:'',modelL:initMods[0],modelR:initMods[1],sysL:'',sysR:'',msgData:[],chatTokens:0};
+var S={topic:'',modelL:initMods[0],modelR:initMods[1],sysL:'',sysR:'',msgData:[],chatTokens:0,aggression:5};
 var E={running:false,speaking:false,side:'L',abort:null,timer:null,chatPaused:false};
 var H=JSON.parse(localStorage.getItem('duellm_hist_local')||'[]');
 
@@ -365,13 +365,20 @@ function tk(){return new Date().toISOString().split('T')[0]}
 function GM(s){return s==='L'?S.modelL:S.modelR}
 function GO(s){return s==='L'?S.modelR:S.modelL}
 function GS(s){return s==='L'?S.sysL:S.sysR}
-function bl(m){return m?fmt(m)+' ▼':t('none')+' ▼'}
-function estTok(txt){return Math.ceil(txt.length/4)}
+function bl(m,side){var label=fmt(m);return label+' ▼'}function estTok(txt){return Math.ceil(txt.length/4)}
 function totalUsedToday(){
   var k='dk_'+tk();return parseInt(localStorage.getItem(k)||'0');
 }
 
 // ── UI ──
+
+function updateAggrLabel(){
+  var v=S.aggression||5;
+  var labels=['😇 Sakin','🙂 Ilımlı','😐 Normal','😏 Gergin','⚡ Orta','😤 Sert','😠 Agresif','🤬 Acımasız','💀 Savaş','🔥 Cehennem'];
+  document.getElementById('aggrLabel').textContent=labels[v-1];
+  document.getElementById('aggrSlider').value=v;
+}
+
 function refreshUI(){
   var bL=document.getElementById('btnL'),bR=document.getElementById('btnR');
   bL.innerHTML=bl(S.modelL);bL.className='m-btn '+(S.modelL?'blue':'none')+' tip';
@@ -392,7 +399,7 @@ function updateLimitMsg(){
 function updateBtn(){
   var b=document.getElementById('sendBtn'),v=document.getElementById('inp').value.trim();
   var over=totalUsedToday()>=userDailyLimit()||E.chatPaused;
-  if(v){b.textContent='✈';b.className='on';return} // text varsa her zaman ✈️
+  if(v){b.textContent='➤';b.className='on';return}
   b.textContent=E.speaking?'■':'➤';
   b.className=E.speaking?'stop':(over?'':'');
 }
@@ -480,6 +487,37 @@ function pickModel(side,m){
 }
 
 // ── SETTINGS ──
+
+var SUGG_CACHE={L:[],R:[]};
+function genSuggestionsHTML(isL){
+  var side=isL?'L':'R';
+  var suggestions=SUGG_CACHE[side]||['+esprili','+soğuk','+analitik','+samimi'];
+  return '<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">'+suggestions.map(function(s){
+    return '<button onclick="var sp=document.getElementById(\'sp'+side+'\');sp.value=sp.value+(sp.value?\' \':\'')+\''+s+'\';updateSuggestions(\''+side+'\')" style="background:#2a2a2a;border:1px solid #444;color:#aaa;padding:3px 10px;border-radius:12px;cursor:pointer;font-size:11px;transition:all .15s" onmouseover="this.style.borderColor=\'#888\';this.style.color=\'#ddd\'" onmouseout="this.style.borderColor=\'#444\';this.style.color=\'#aaa\'">'+s+'</button>';
+  }).join('')+'</div>';
+}
+
+async function regenSuggestions(isL){
+  try{
+    var side=isL?'L':'R';
+    var sp=document.getElementById('sp'+side).value;
+    var prompt='Generate exactly 4 short personality/style tags in Turkish for an AI debater. Format: comma-separated with + prefix. Example: +esprili,+sert,+analitik,+genZ. Current style: '+(sp||'none');
+    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-duellm-uid':isAuth()?AU.user_id:'','x-duellm-tier':userTier()},body:JSON.stringify({model:'gemma3:27b',messages:[{role:'user',content:prompt}],options:{num_predict:80,temperature:1.2,top_p:.95}})});
+    var d=await r.json();
+    var tags=(d.message?.content||'+esprili,+zeki,+dogrudan,+samimi').split(',').map(function(t){return t.trim()}).filter(function(t){return t.startsWith('+')}).slice(0,4);
+    SUGG_CACHE[side]=tags;
+    if(tags.length<4)while(tags.length<4)tags.push('+sakin');
+    // Rebuild suggestions HTML  
+    var container=document.querySelector('#sp'+side).closest('.modal').querySelector('div:last-child').previousElementSibling;
+    if(!container)return;
+    container.innerHTML=genSuggestionsHTML(isL);
+  }catch(e){}
+}
+
+function updateSuggestions(side){
+  // No-op for now - suggestions are inline added to textarea
+}
+
 function openSettings(side){
   if(!GM(side))return;var isL=side==='L';var model=GM(side),sys=GS(side);
   var ov=document.createElement('div');ov.className='modal-overlay';
@@ -605,7 +643,7 @@ async function speakOnce(side){
   var msgId=addMsgEl(side,'...',mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
   var sys=GS(side);
-  var sp='CRITICAL: Reply in the EXACT same language the user wrote. Never switch.\n\nUSER SAID: "'+S.topic+'"\n\nRespond ONLY to what the user ACTUALLY said. Do not put words in their mouth.\n\nSTYLE: Talk like a real person — casual, direct, no formal distance. Short and punchy (2-4 sentences unless question demands more).\n\nEmojis where natural 🎯🔥💡. No markdown. No bullets. Just plain text.'+(sys?'\n\nStyle: '+sys:'');
+  var sp='LANGUAGE: Reply in the EXACT same language as the user. Never switch.\n\nUSER SAID: "'+S.topic+'"\n\nRespond ONLY to what was ACTUALLY asked. Do not invent context.\n\nBe human — casual, direct, sharp. 2-4 sentences unless more is genuinely needed.\n\nEmojis where natural 🎯🔥💡. No markdown. No bullets. Plain text.'+(sys?'\n\n'+sys:'');
   try{
     var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-duellm-uid':isAuth()?AU.user_id:'','x-duellm-tier':userTier()},body:JSON.stringify({model:mn,messages:[{role:'system',content:sp},{role:'user',content:S.topic}],options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
     var d=await r.json();
@@ -627,7 +665,7 @@ async function speakDebate(side){
   var mn=GM(side),op=GO(side);
   var msgId=addMsgEl(side,'...',mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
-  var sp='LANGUAGE: Debate in the EXACT same language as the topic. Never switch.\n\nTOPIC: "'+S.topic+'"\n\nAI vs AI DEBATE — respond to what your opponent ACTUALLY said. Do not fabricate or imagine their argument.\n\nSTYLE: Talk like a real person. No formal \"siz/you\" distance — address your opponent by their color or model name (Kırmızı/Mavi, Gemma/Cogito etc). Be casual and direct.\n\nTONE IS FREE — sarcastic, aggressive, funny, clinical, respectful. Whatever the topic and flow demands. You are human-like, not a robot.\n\nKEEP IT SHORT — 2-4 punchy sentences. Only go longer if truly needed.\n\nFOUR MOVES — pick what fits:\n1. BUILD on their point\n2. Find the GAP\n3. Offer ALTERNATIVE angle\n4. REFUTE with logic\n\nEmojis for flavor 🔥💡🎯. No markdown. No bullets. Just raw sharp text.'+(GS(side)?'\n\nStyle: '+GS(side):'')
+  var sp='AGGRESSION LEVEL: '+((S.aggression||5)+'/10')+'. Match this intensity.\\n\\nLANGUAGE: Debate in the EXACT same language as the topic. Never switch.\n\nTOPIC: "'+S.topic+'"\n\nDEBATE: Respond ONLY to what your opponent ACTUALLY said. Do not fabricate arguments.\n\nTALK LIKE A HUMAN — casual, direct, sharp. No formal distance. Do NOT repeatedly address your opponent by name/color every sentence. Only name them when it actually matters — otherwise just debate naturally.\n\nTONE — your choice. Sarcastic, aggressive, funny, clinical. Whatever fits the topic and flow.\n\nKEEP IT SHORT — 2-4 punchy sentences. Only longer if truly needed.\n\nMOVES: BUILD / GAP / ALTERNATIVE / REFUTE — pick what works.\n\nEmojis for flavor 🔥💡🎯. No markdown. No bullets. Plain sharp text.'+(GS(side)?'\n\n'+GS(side):'')
   var am=[{role:'system',content:sp}];
   var rows=document.getElementById('msgs').children;
   var ctxLen=0,ctxMax=10000;
@@ -704,6 +742,10 @@ function showLicenseModal(){
 
 // ── BOOT ──
 refreshUI();applyLang();updateLoginBtn();updateBtn();
+// Share link restore
+var ps=new URLSearchParams(location.search);var sd=ps.get('s');
+if(sd){try{restoreSession(JSON.parse(atob(decodeURIComponent(sd))));history.replaceState(null,'','/')}catch(e){}}
+// Cloud history
 if(isAuth())loadHistoryFromCloud();
 // Stop generation when tab closes
 window.addEventListener('beforeunload',function(){stopAll();});
