@@ -493,7 +493,8 @@ function genSuggestionsHTML(isL){
   var side=isL?'L':'R';
   var suggestions=SUGG_CACHE[side]||['+esprili','+soğuk','+analitik','+samimi'];
   return '<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">'+suggestions.map(function(s){
-    return '<button onclick="var sp=document.getElementById(\'sp'+side+'\');sp.value=sp.value+(sp.value?\' \':\'')+\''+s+'\';updateSuggestions(\''+side+'\')" style="background:#2a2a2a;border:1px solid #444;color:#aaa;padding:3px 10px;border-radius:12px;cursor:pointer;font-size:11px;transition:all .15s" onmouseover="this.style.borderColor=\'#888\';this.style.color=\'#ddd\'" onmouseout="this.style.borderColor=\'#444\';this.style.color=\'#aaa\'">'+s+'</button>';
+    var oc='var sp=document.getElementById("sp'+side+'");sp.value=sp.value+(sp.value?" ":"")+"'+s+'";updateSuggestions("'+side+'")';
+return '<button onclick="'+oc+'" style="background:#2a2a2a;border:1px solid #444;color:#aaa;padding:3px 10px;border-radius:12px;cursor:pointer;font-size:11px;transition:all .15s" onmouseover="this.style.borderColor=\'#888\';this.style.color=\'#ddd\'" onmouseout="this.style.borderColor=\'#444\';this.style.color=\'#aaa\'">'+s+'</button>';
   }).join('')+'</div>';
 }
 
