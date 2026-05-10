@@ -104,7 +104,7 @@ input,textarea{font-size:16px!important}
     <button class="hamburger" onclick="toggleSidebar()">☰</button>
     <div class="model-center">
       <div class="pw" id="pwL">
-        <button class="m-btn blue tip" tip="Change Model" id="btnL" onclick="toggleDropdown(event,'L')">Gemini 3 Flash Preview ▼</button>
+        <button class="m-btn blue tip" tip="Change Model" id="btnL" onclick="toggleDropdown(event,'L')">Cogito 2.1 671b ▼</button>
         <button class="g-btn tip" tip="Settings" id="gearL" onclick="openSettings('L')" style="display: inline-flex;">⚙</button>
       </div>
       <span class="vs" id="vsSpan">VS</span>
@@ -130,7 +130,7 @@ input,textarea{font-size:16px!important}
 
 <script>
 // ── MODELS ──
-var MODELS=["cogito-2.1:671b","devstral-2:123b","devstral-small-2:24b","gemma3:12b","gemma3:27b","gpt-oss:120b","ministral-3:8b","ministral-3:14b","mistral-large-3:675b","qwen3-coder-next","qwen3-next:80b","qwen3-vl:235b","qwen3-vl:235b-instruct","rnj-1:8b"];
+var MODELS=["cogito-2.1:671b","gemma3:12b","gemma3:27b","qwen3-vl:235b-instruct"];
 
 // ── LIMITS ──
 var LIMIT_GUEST=10000, LIMIT_USER=30000, LIMIT_PREMIUM=300000;
@@ -576,7 +576,7 @@ async function speakOnce(side){
   var msgId=addMsgEl(side,'...',mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
   var sys=GS(side);
-  var sp='IMPORTANT: Reply in the same language as the user\'s message. If the user writes in Turkish, respond in Turkish. If English, respond in English.\n\nThe user said: "'+S.topic+'". Respond naturally — be thoughtful and engaging. 2-4 sentences. Plain text.'+(sys?'\n\n'+sys:'');
+  var sp='Reply in the same language as the user.\n\nUser: "'+S.topic+'"\n\nSpeak like a sharp, articulate human — not an academic paper. No word salads, no empty fluff. ChatGPT/Claude quality: natural, direct, conversational. Structure for readability — use dashes for lists, break paragraphs, add emojis where they feel natural. No asterisk bullets (*). Absolutely no roleplay — no stage directions in parentheses, no self-introductions. Just a clear, well-formatted answer.'+(sys?'\n\nContext: '+sys:'');
   try{
     var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-duellm-uid':isAuth()?AU.user_id:'','x-duellm-tier':userTier()},body:JSON.stringify({model:mn,messages:[{role:'system',content:sp},{role:'user',content:S.topic}],options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
     var d=await r.json();
@@ -598,7 +598,7 @@ async function speakDebate(side){
   var mn=GM(side),op=GO(side);
   var msgId=addMsgEl(side,'...',mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
-  var sp='IMPORTANT: Reply in the same language as the discussion. If the topic is in Turkish, debate in Turkish. If English, debate in English.\n\nYou are discussing: "'+S.topic+'". The other person already shared their thoughts (shown below). Your goal: find gaps, challenge their logic, bring fresh perspectives, refute weak points. Agreeing is your LAST option — only if there\'s truly nothing to push back on. Debate freely, no rules. 2-3 sentences. Do NOT greet or address anyone by name — just dive into the point. Plain text.'+(GS(side)?'\n\n'+GS(side):'');
+  var sp='Debate in the same language as the topic.\n\nTopic: "'+S.topic+'"\n\nYou are in an AI vs AI debate arena. Your opponent just spoke — read their argument and push back. Find gaps, challenge weak logic, bring counterpoints, develop the thought further. If they are wrong, refute. If they have a point but missed something, build on it. Agreeing is your last option — only when there is genuinely nothing to contest.\n\nSpeak like a sharp, quick-witted debater — not an academic paper. No fluff, no filler, no word salads. Be direct, punchy, human.\n\nFormat clearly: use dashes for lists, break text into readable chunks, add emojis for emphasis. No asterisk bullets (*). Absolutely no roleplay — no stage directions, no self-introductions.'+(GS(side)?'\n\nStyle: '+GS(side):'');
   var am=[{role:'system',content:sp}];
   var rows=document.getElementById('msgs').children;
   var ctxLen=0,ctxMax=10000;

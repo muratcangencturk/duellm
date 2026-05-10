@@ -70,7 +70,8 @@ const handler: Handler = async (event) => {
     const { user_id, order_id } = JSON.parse(event.body || "{}");
     if (!user_id || !order_id) return { statusCode: 400, headers: h, body: JSON.stringify({ error: "Missing params" }) };
     try {
-      const r = await fetch("https://api.gumroad.com/v2/sales/" + encodeURIComponent(order_id));
+const GUMROAD_TOKEN = "ic0_wsrZJKdFr3ztBvBTQ_a3mn2iim3jR_5j3aXcrYI";
+      const r = await fetch("https://api.gumroad.com/v2/sales/" + encodeURIComponent(order_id), { headers: { Authorization: "Bearer " + GUMROAD_TOKEN } });
       const d = await r.json();
       if (!d.success || !d.sale) return { statusCode: 400, headers: h, body: JSON.stringify({ error: "Invalid Order ID" }) };
       if (!d.sale.product_name.toLowerCase().includes("duellm")) return { statusCode: 400, headers: h, body: JSON.stringify({ error: "Not a duellm order" }) };
@@ -93,7 +94,8 @@ const handler: Handler = async (event) => {
     try {
       const { data, error } = await sb.from("history").select("*").eq("user_id", uid).order("created_at", { ascending: false }).limit(50);
       if (error) return { statusCode: 500, headers: h, body: JSON.stringify({ error: "Failed to fetch" }) };
-      return { statusCode: 200, headers: h, body: JSON.stringify(data || []) };
+      const mapped = (data || []).map((r: any) => ({ ...r, modelL: r.modell, modelR: r.modelr, sysL: r.sysl, sysR: r.sysr }));
+      return { statusCode: 200, headers: h, body: JSON.stringify(mapped) };
     } catch (e: any) {
       return { statusCode: 500, headers: h, body: JSON.stringify({ error: e.message }) };
     }
@@ -107,9 +109,9 @@ const handler: Handler = async (event) => {
       if (!id) return { statusCode: 400, headers: h, body: JSON.stringify({ error: "Missing id" }) };
       const { data: ex } = await sb.from("history").select("id").eq("user_id", uid).eq("id", id).maybeSingle();
       if (ex) {
-        await sb.from("history").update({ topic, modelL, modelR, sysL, sysR, msgs, updated_at: new Date().toISOString() }).eq("user_id", uid).eq("id", id);
+        await sb.from("history").update({ topic, modell: modelL, modelr: modelR, sysl: sysL, sysr: sysR, msgs, updated_at: new Date().toISOString() }).eq("user_id", uid).eq("id", id);
       } else {
-        await sb.from("history").insert({ id, user_id: uid, topic, modelL, modelR, sysL, sysR, msgs });
+        await sb.from("history").insert({ id, user_id: uid, topic, modell: modelL, modelr: modelR, sysl: sysL, sysr: sysR, msgs });
       }
       return { statusCode: 200, headers: h, body: JSON.stringify({ success: true }) };
     } catch (e: any) {
