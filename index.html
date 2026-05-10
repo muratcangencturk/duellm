@@ -116,6 +116,12 @@ input,textarea{font-size:16px!important}
   .m-btn{font-size:9px;padding:2px 3px}
   .vs{font-size:8px}
 }
+
+#suggestions-bar{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 8px;max-width:760px;margin:0 auto;justify-content:center}
+.sug-pill{background:#2a2a2a;border:1px solid #3a3a3a;color:#bbb;padding:5px 12px;border-radius:16px;cursor:pointer;font-size:12px;transition:all .15s;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sug-pill:hover{background:#333;border-color:#555;color:#ddd}
+.sug-pill.char{background:rgba(139,92,246,.12);border-color:rgba(139,92,246,.25);color:#c4b5fd}
+.sug-pill.char:hover{background:rgba(139,92,246,.2);border-color:rgba(139,92,246,.4)}
 </style>
 </head><body>
 <div id="app">
@@ -147,6 +153,7 @@ input,textarea{font-size:16px!important}
     </div>
   </div>
   <div id="msgs"></div>
+  <div id="suggestions-bar" style="display:none"></div>
   <div id="input-wrap"><div id="input-box">
     <button id="randBtn" class="tip" tip="Random topic" onclick="randomTopic()">?</button>
     <textarea id="inp" rows="1" placeholder="Send a message" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendOrStop()}"></textarea>
@@ -167,12 +174,15 @@ var MAX_RESPONSE_TOKENS=512;
 
 var RP_EN="Generate one single-sentence debate discussion topic or question. It can be about technology, philosophy, society, science, ethics, politics, or any thought-provoking subject. Just the sentence, nothing else.";
 var RP_TR="Tek cümlelik bir tartışma konusu veya soru üret. Teknoloji, felsefe, toplum, bilim, etik, politika veya düşündürücü herhangi bir konu olabilir. Sadece cümle, başka bir şey yazma.";
+var RP_CHAR_EN="Generate a creative, fictional character or persona for an AI debate. It could be a real or imaginary person, profession, archetype, or personality. Examples: 'Retired boxer turned poet', 'Alien anthropologist studying humans', 'Time-traveling Ottoman chef', 'Napoleon but he's a TikTok influencer'. Be surprising, funny, or thought-provoking. ONE short phrase, nothing else.";
+var RP_CHAR_TR="Yapay zeka tartismasi icin yaratici, kurgusal bir karakter veya kisi kisilik uret. Gercek veya hayali bir insan, meslek, arketip veya karakter olabilir. Ornekler: 'Emekli boksorden saire donusmus', 'Insanlari inceleyen uzayli antropolog', 'Zaman yolcusu Osmanli ascisi', 'TikTok fenomeni olmus Napoleon'. Sasirtici, komik veya dusundurucu olsun. TEK kisa bir ifade, baska bir sey yazma.";
+
 
 // ── TRANSLATIONS ──
 var L='en';
 var TX={
-  en:{newDebate:'+ New Chat',history:'History',noHistory:'No history yet',loginIn:' Sign Up / Login',loginOut:' Sign Out',upgrade:'⭐ Upgrade Plan',upgradeWarn:'Please sign up / login first.',sendMsg:'Send a message',change:'Change Model',settings:'Settings',rand:'Random topic',none:'— None —',limitGuest:'Daily limit reached.\nSign up for more usage.',limitUser:'Daily limit reached.\nPlease upgrade plan for x10 more tokens.',limitPremium:'Daily limit reached.\nUpgrade for even more tokens.',limitChat:'Chat limit reached (10K tokens).\nSend a message to continue.',rp:RP_EN,vs:'VS',blue:'Blue',red:'Red',mdl:'Model',sp:'System Prompt',spPlace:'Instructions for this model...',save:'Save',share:'Share',shared:'Link copied! Share this link to show this conversation.',shareTooltip:'Share',signupTitle:'Create Account',loginTitle:'Sign In',email:'Email',password:'Password',username:'Username',signupBtn:'Create Account',loginBtn:'Sign In',switchSignup:'Already have an account? Sign in',switchLogin:"Don't have an account? Sign up",logout:'Sign Out',licenseTitle:'Activate Premium',licenseKey:'Order ID',licenseBtn:'Activate',licenseDesc:'Enter your Gumroad Order ID:',licenseLink:'Buy on Gumroad →',licenseSuccess:'Premium activated! You now have 300K tokens/day.',licenseFail:'Invalid Order ID. Please try again.',activated:'Premium ✓'},
-  tr:{newDebate:'+ Yeni Sohbet',history:'Geçmiş',noHistory:'Henüz geçmiş yok',loginIn:' Kayıt Ol / Giriş Yap',loginOut:' Çıkış Yap',upgrade:'⭐ Planı Yükselt',upgradeWarn:'Lütfen önce kayıt olun / giriş yapın.',sendMsg:'Mesaj gönder',change:'Model Değiştir',settings:'Ayarlar',rand:'Rastgele konu',none:'— Boş —',limitGuest:'Günlük limit doldu.\nDaha fazla kullanım için kayıt olun.',limitUser:'Günlük limit doldu.\nx10 daha fazla token için planı yükseltin.',limitPremium:'Günlük limit doldu.\nDaha fazlası için yükseltin.',limitChat:'Sohbet limiti doldu (10K token).\nDevam etmek için mesaj gönder.',rp:RP_TR,vs:'VS',blue:'Mavi',red:'Kırmızı',mdl:'Model',sp:'Sistem Promptu',spPlace:'Bu model için talimatlar...',save:'Kaydet',share:'Paylaş',shared:'Link kopyalandı! Bu linkle sohbeti paylaşabilirsin.',shareTooltip:'Paylaş',signupTitle:'Hesap Oluştur',loginTitle:'Giriş Yap',email:'E-posta',password:'Şifre',username:'Kullanıcı Adı',signupBtn:'Hesap Oluştur',loginBtn:'Giriş Yap',switchSignup:'Zaten hesabın var mı? Giriş yap',switchLogin:'Hesabın yok mu? Kayıt ol',logout:'Çıkış Yap',licenseTitle:'Premium Aktifleştir',licenseKey:'Sipariş No',licenseBtn:'Aktifleştir',licenseDesc:'Gumroad Sipariş Numaranı gir:',licenseLink:'Gumroad\'dan Satın Al →',licenseSuccess:'Premium aktif! Artık günlük 300K token kullanabilirsin.',licenseFail:'Geçersiz Sipariş No. Tekrar dene.',activated:'Premium ✓'}
+  en:{newDebate:'+ New Chat',history:'History',noHistory:'No history yet',loginIn:' Sign Up / Login',loginOut:' Sign Out',upgrade:'⭐ Upgrade Plan',upgradeWarn:'Please sign up / login first.',sendMsg:'Send a message',change:'Change Model',settings:'Settings',rand:'Random topic',none:'— None —',limitGuest:'Daily limit reached.\nSign up for more usage.',limitUser:'Daily limit reached.\nPlease upgrade plan for x10 more tokens.',limitPremium:'Daily limit reached.\nUpgrade for even more tokens.',limitChat:'Chat limit reached (10K tokens).\nSend a message to continue.',rp:RP_EN,rpChar:RP_CHAR_EN,vs:'VS',blue:'Blue',red:'Red',mdl:'Model',sp:'System Prompt',spPlace:'Instructions for this model...',save:'Save',share:'Share',shared:'Link copied! Share this link to show this conversation.',shareTooltip:'Share',signupTitle:'Create Account',loginTitle:'Sign In',email:'Email',password:'Password',username:'Username',signupBtn:'Create Account',loginBtn:'Sign In',switchSignup:'Already have an account? Sign in',switchLogin:"Don't have an account? Sign up",logout:'Sign Out',licenseTitle:'Activate Premium',licenseKey:'Order ID',licenseBtn:'Activate',licenseDesc:'Enter your Gumroad Order ID:',licenseLink:'Buy on Gumroad →',licenseSuccess:'Premium activated! You now have 300K tokens/day.',licenseFail:'Invalid Order ID. Please try again.',activated:'Premium ✓'},
+  tr:{newDebate:'+ Yeni Sohbet',history:'Geçmiş',noHistory:'Henüz geçmiş yok',loginIn:' Kayıt Ol / Giriş Yap',loginOut:' Çıkış Yap',upgrade:'⭐ Planı Yükselt',upgradeWarn:'Lütfen önce kayıt olun / giriş yapın.',sendMsg:'Mesaj gönder',change:'Model Değiştir',settings:'Ayarlar',rand:'Rastgele konu',none:'— Boş —',limitGuest:'Günlük limit doldu.\nDaha fazla kullanım için kayıt olun.',limitUser:'Günlük limit doldu.\nx10 daha fazla token için planı yükseltin.',limitPremium:'Günlük limit doldu.\nDaha fazlası için yükseltin.',limitChat:'Sohbet limiti doldu (10K token).\nDevam etmek için mesaj gönder.',rp:RP_TR,rpChar:RP_CHAR_TR,vs:'VS',blue:'Mavi',red:'Kırmızı',mdl:'Model',sp:'Sistem Promptu',spPlace:'Bu model için talimatlar...',save:'Kaydet',share:'Paylaş',shared:'Link kopyalandı! Bu linkle sohbeti paylaşabilirsin.',shareTooltip:'Paylaş',signupTitle:'Hesap Oluştur',loginTitle:'Giriş Yap',email:'E-posta',password:'Şifre',username:'Kullanıcı Adı',signupBtn:'Hesap Oluştur',loginBtn:'Giriş Yap',switchSignup:'Zaten hesabın var mı? Giriş yap',switchLogin:'Hesabın yok mu? Kayıt ol',logout:'Çıkış Yap',licenseTitle:'Premium Aktifleştir',licenseKey:'Sipariş No',licenseBtn:'Aktifleştir',licenseDesc:'Gumroad Sipariş Numaranı gir:',licenseLink:'Gumroad\'dan Satın Al →',licenseSuccess:'Premium aktif! Artık günlük 300K token kullanabilirsin.',licenseFail:'Geçersiz Sipariş No. Tekrar dene.',activated:'Premium ✓'}
 };
 function t(k){return TX[L][k]||k}
 
@@ -561,22 +571,54 @@ function showToast(msg){
 
 // ── RANDOM TOPIC (fixed: single click, retry different models) ──
 var randLock=false;
+var sugTopics=[],sugGenIdx=0;
 async function randomTopic(){
   if(randLock)return;
   randLock=true;
   var btn=document.getElementById('randBtn');btn.classList.add('loading');
-  // Shuffle models for retry diversity
-  var shuffled=MODELS.slice().sort(function(){return Math.random()-.5;});
-  for(var idx=0;idx<Math.min(shuffled.length,5);idx++){
-    try{
-      var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:shuffled[idx],messages:[{role:'user',content:TX[L].rp}],options:{num_predict:80,temperature:1.1,top_p:.95}})});
-      var dd=await r.json();var txt=(dd.message?.content||'').trim();
-      txt=txt.replace(/^[\"'`]|[\"'`]$/g,'').replace(/\*\*/g,'');
-      if(txt.length>15&&txt.length<200){document.getElementById('inp').value=txt;updateBtn();break;}
-    }catch(e){}
-  }
+  var bar=document.getElementById('suggestions-bar');
+  sugTopics=[];sugGenIdx=0;
+  bar.innerHTML='';bar.style.display='flex';
+  // Generate 4 suggestions in parallel: 3 topics + 1 character
+  var tasks=[];
+  for(var i=0;i<3;i++)tasks.push(fetchSuggestion(TX[L].rp,false));
+  tasks.push(fetchSuggestion(TX[L].rpChar,true));
+  var results=await Promise.all(tasks);
+  results.forEach(function(r){if(r)sugTopics.push(r);});
+  if(sugTopics.length===0){btn.classList.remove('loading');randLock=false;bar.style.display='none';return}
+  renderSugPills();
   btn.classList.remove('loading');
   setTimeout(function(){randLock=false;},800);
+}
+async function fetchSuggestion(prompt,isChar){
+  var shuffled=MODELS.slice().sort(function(){return Math.random()-.5;});
+  for(var idx=0;idx<Math.min(shuffled.length,3);idx++){
+    try{
+      var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:shuffled[idx],messages:[{role:'user',content:prompt}],options:{num_predict:60,temperature:1.2,top_p:.95}})});
+      var dd=await r.json();var txt=(dd.message?.content||'').trim();
+      txt=txt.replace(/^[\"'`]|[\"'`]$/g,'').replace(/\*\*/g,'').replace(/^\d+[\.\)]\s*/,'');
+      if(txt.length>8&&txt.length<120)return {txt:txt,isChar:isChar};
+    }catch(e){}
+  }
+  return null;
+}
+function renderSugPills(){
+  var bar=document.getElementById('suggestions-bar');
+  bar.innerHTML=sugTopics.map(function(s,i){
+    return '<span class="sug-pill'+(s.isChar?' char':'')+'" onclick="pickSuggestion('+i+')">'+
+      (s.isChar?'\u{1f3ad} ':'')+esc(s.txt)+'</span>';
+  }).join('');
+}
+async function pickSuggestion(i){
+  var s=sugTopics[i];
+  document.getElementById('inp').value=s.txt;updateBtn();
+  // Replace this slot with a new one
+  var bar=document.getElementById('suggestions-bar');
+  var pill=bar.children[i];pill.style.opacity='0.4';pill.style.pointerEvents='none';
+  var newS=await fetchSuggestion(s.isChar?TX[L].rpChar:TX[L].rp,s.isChar);
+  if(newS){sugTopics[i]=newS;renderSugPills();}
+  else{sugTopics.splice(i,1);renderSugPills();}
+  if(sugTopics.length===0)bar.style.display='none';
 }
 
 // ── MESSAGES ──
