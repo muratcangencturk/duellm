@@ -303,7 +303,7 @@ function saveHistory(){
   }
   if(msgs.length===0)return;
   S.msgData=msgs;
-  var sid=Date.now().toString(36);
+  var sid=S.ssid||Date.now().toString(36);S.ssid=sid;
   var entry={id:sid,topic:S.topic,modelL:S.modelL,modelR:S.modelR,sysL:S.sysL,sysR:S.sysR,msgs:msgs,ts:Date.now()};
   H=H.filter(function(h){return h.topic!==S.topic||!S.topic});
   H.unshift(entry);if(H.length>30)H.pop();
@@ -313,7 +313,7 @@ function saveHistory(){
 }
 function restoreSession(data){
   stopAll();
-  S.topic=data.topic;S.modelL=data.modelL;S.modelR=data.modelR;S.sysL=data.sysL||'';S.sysR=data.sysR||'';S.chatTokens=0;E.chatPaused=false;
+  S.topic=data.topic;S.modelL=data.modelL;S.modelR=data.modelR;S.sysL=data.sysL||'';S.sysR=data.sysR||'';S.chatTokens=0;E.chatPaused=false;if(data.id)S.ssid=data.id;
   refreshUI();document.getElementById('msgs').innerHTML='';
   (data.msgs||[]).forEach(function(m){
     if(m.side==='u'){addMsgEl('u',m.txt,'');return}
@@ -403,7 +403,7 @@ function closeSidebar(){
 function newDebate(){
   stopAll();
   if(document.getElementById('msgs').children.length>0)saveHistory();
-  var mods=rnd2mods();S.topic='';S.modelL=mods[0];S.modelR=mods[1];S.sysL='';S.sysR='';S.msgData=[];S.chatTokens=0;E.chatPaused=false;
+  var mods=rnd2mods();S.topic='';S.modelL=mods[0];S.modelR=mods[1];S.sysL='';S.sysR='';S.msgData=[];S.chatTokens=0;E.chatPaused=false;S.ssid=null;
   refreshUI();document.getElementById('msgs').innerHTML='';
   document.getElementById('limit-msg').style.display='none';updateBtn();
 }
@@ -576,7 +576,7 @@ async function speakOnce(side){
   var msgId=addMsgEl(side,'...',mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
   var sys=GS(side);
-  var sp='Reply in the same language as the user.\n\nUser: "'+S.topic+'"\n\nSpeak like a sharp, articulate human — not an academic paper. No word salads, no empty fluff. ChatGPT/Claude quality: natural, direct, conversational. Structure for readability — use dashes for lists, break paragraphs, add emojis where they feel natural. No asterisk bullets (*). Absolutely no roleplay — no stage directions in parentheses, no self-introductions. Just a clear, well-formatted answer.'+(sys?'\n\nContext: '+sys:'');
+  var sp='CRITICAL LANGUAGE RULE: Reply STRICTLY in the SAME LANGUAGE the user wrote. If user wrote Turkish, reply ONLY in Turkish. If English, reply ONLY in English. NEVER switch languages.\n\nNO META-COMMENTARY: Do not think out loud. Do not say things like "Okay, let us unpack this" or "Let me think." Just answer directly without narrating your thought process.\n\nUser: "'+S.topic+'"\n\nSpeak like a sharp, articulate human — not an academic paper. No word salads, no empty fluff. ChatGPT/Claude quality: natural, direct, conversational. Structure for readability — use dashes for lists, break paragraphs, add emojis where they feel natural. No asterisk bullets (*). Absolutely no roleplay — no stage directions in parentheses, no self-introductions. Just a clear, well-formatted answer.'+(sys?'\n\nContext: '+sys:'');
   try{
     var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-duellm-uid':isAuth()?AU.user_id:'','x-duellm-tier':userTier()},body:JSON.stringify({model:mn,messages:[{role:'system',content:sp},{role:'user',content:S.topic}],options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
     var d=await r.json();
@@ -598,7 +598,7 @@ async function speakDebate(side){
   var mn=GM(side),op=GO(side);
   var msgId=addMsgEl(side,'...',mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
-  var sp='Debate in the same language as the topic.\n\nTopic: "'+S.topic+'"\n\nYou are in an AI vs AI debate arena. Your opponent just spoke — read their argument and push back. Find gaps, challenge weak logic, bring counterpoints, develop the thought further. If they are wrong, refute. If they have a point but missed something, build on it. Agreeing is your last option — only when there is genuinely nothing to contest.\n\nSpeak like a sharp, quick-witted debater — not an academic paper. No fluff, no filler, no word salads. Be direct, punchy, human.\n\nFormat clearly: use dashes for lists, break text into readable chunks, add emojis for emphasis. No asterisk bullets (*). Absolutely no roleplay — no stage directions, no self-introductions.'+(GS(side)?'\n\nStyle: '+GS(side):'');
+  var sp='CRITICAL LANGUAGE RULE: Debate STRICTLY in the SAME LANGUAGE as the topic. If topic is Turkish, debate ONLY in Turkish. If English, debate ONLY in English. NEVER switch languages.\n\nNO META-COMMENTARY: Do not think out loud. Do not say things like \"Okay, let us unpack this\" or \"Let me think.\" Just debate directly without narrating your thought process.\n\nTopic: \"'+S.topic+'\"\n\nYou are in an AI vs AI debate arena. Your opponent just spoke - push back. Find gaps, challenge logic, bring counterpoints. If wrong, refute. If they missed something, build on it. Agreeing is last option.\n\nSpeak like a sharp, quick-witted debater. No fluff, no filler. Be direct, punchy, human.\n\nFormat: dashes for lists, emojis for emphasis. No asterisk bullets (*). Absolutely no roleplay, no stage directions, no self-introductions.'+(GS(side)?'\n\nStyle: '+GS(side):'');
   var am=[{role:'system',content:sp}];
   var rows=document.getElementById('msgs').children;
   var ctxLen=0,ctxMax=10000;
@@ -675,6 +675,7 @@ function showLicenseModal(){
 
 // ── BOOT ──
 refreshUI();applyLang();updateLoginBtn();updateBtn();
+if(isAuth())loadHistoryFromCloud();
 // Stop generation when tab closes
 window.addEventListener('beforeunload',function(){stopAll();});
 </script>
