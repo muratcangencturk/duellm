@@ -597,7 +597,7 @@ async function fetchSuggestion(prompt,isChar){
       var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:shuffled[idx],messages:[{role:'user',content:prompt}],options:{num_predict:60,temperature:1.2,top_p:.95}})});
       var dd=await r.json();var txt=(dd.message?.content||'').trim();
       txt=txt.replace(/^[\"'`]|[\"'`]$/g,'').replace(/\*\*/g,'').replace(/^\d+[\.\)]\s*/,'');
-      if(txt.length>8&&txt.length<120)return {txt:txt,isChar:isChar};
+      if(txt.length>10&&txt.length<200)return {txt:txt,isChar:isChar};
     }catch(e){}
   }
   return null;
