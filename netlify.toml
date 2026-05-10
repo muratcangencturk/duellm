@@ -9,6 +9,12 @@
   directory = "netlify/functions"
   external_node_modules = ["@supabase/supabase-js"]
 
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/chat/:splat"
