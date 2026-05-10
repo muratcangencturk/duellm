@@ -643,7 +643,7 @@ async function speakOnce(side){
   var msgId=addMsgEl(side,'...',mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
   var sys=GS(side);
-  var sp='LANGUAGE: Reply in the EXACT same language as the user. Never switch.\n\nUSER SAID: "'+S.topic+'"\n\nRespond ONLY to what was ACTUALLY asked. Do not invent context.\n\nBe human — casual, direct, sharp. 2-4 sentences unless more is genuinely needed.\n\nEmojis where natural 🎯🔥💡. No markdown. No bullets. Plain text.'+(sys?'\n\n'+sys:'');
+  var sp='CRITICAL LANGUAGE RULE: Reply STRICTLY in the SAME LANGUAGE the user wrote. If user wrote Turkish, reply ONLY in Turkish. If English, reply ONLY in English. NEVER mix or switch.\\n\\nNO FORMATTING: Do NOT use asterisks *, dashes -, hash #, backticks, or any markdown. Write plain text only.\\n\\nNO POETRY OR STORYTELLING: Do not write like a poem, story, or essay. No flowery dramatic language. Be casual, direct, like texting a friend.\\n\\nUser: "'+S.topic+'"\\n\\nRespond naturally. One straightforward reply. No intros, no conclusions.'+(sys?'\\n\\nContext: '+sys:'')
   try{
     var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-duellm-uid':isAuth()?AU.user_id:'','x-duellm-tier':userTier()},body:JSON.stringify({model:mn,messages:[{role:'system',content:sp},{role:'user',content:S.topic}],options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
     var d=await r.json();
@@ -664,9 +664,7 @@ async function speakDebate(side){
   E.speaking=true;updateBtn();
   var mn=GM(side),op=GO(side);
   var msgId=addMsgEl(side,'...',mn);
-  var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
-  var sp='AGGRESSION LEVEL: '+((S.aggression||5)+'/10')+'. Match this intensity.\\n\\nLANGUAGE: Debate in the EXACT same language as the topic. Never switch.\n\nTOPIC: "'+S.topic+'"\n\nDEBATE: Respond ONLY to what your opponent ACTUALLY said. Do not fabricate arguments.\n\nTALK LIKE A HUMAN — casual, direct, sharp. No formal distance. Do NOT repeatedly address your opponent by name/color every sentence. Only name them when it actually matters — otherwise just debate naturally.\n\nTONE — your choice. Sarcastic, aggressive, funny, clinical. Whatever fits the topic and flow.\n\nKEEP IT SHORT — 2-4 punchy sentences. Only longer if truly needed.\n\nMOVES: BUILD / GAP / ALTERNATIVE / REFUTE — pick what works.\n\nEmojis for flavor 🔥💡🎯. No markdown. No bullets. Plain sharp text.'+(GS(side)?'\n\n'+GS(side):'')
-  var am=[{role:'system',content:sp}];
+  var ctrl=new AbortController();E.absp='CRITICAL LANGUAGE RULE: Debate STRICTLY in the SAME LANGUAGE as the topic. If topic is Turkish, debate ONLY in Turkish. If English, debate ONLY in English. NEVER mix or switch.\\n\\nNO FORMATTING: Do NOT use asterisks *, dashes -, hash #, backticks, or any markdown. Write plain text only.\\n\\nNO POETRY OR STORYTELLING: No dramatic language, no essay style. Debate like a real person — sharp, casual, direct.\\n\\nTopic: "'+S.topic+'"\\n\\nYour opponent just spoke. Challenge them. Find flaws, bring facts, push back. Be punchy and real. No intros, no sign-offs.'+(GS(side)?'\\n\\nStyle: '+GS(side):'')
   var rows=document.getElementById('msgs').children;
   var ctxLen=0,ctxMax=10000;
   for(var i=rows.length-1;i>=0;i--){
