@@ -7,13 +7,13 @@ const LIMITS: Record<string, number> = { guest: 10000, user: 30000, premium: 300
 
 const sb = createClient(
   "https://snsyrkukdmjpovxrsrcw.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNuc3lya3VrZG1qcG92eHJzcmN3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NjM2NTQxMywiZXhwIjoyMDYxOTQxNDEzfQ.P1V4G8h4RqP9nNl7QpL1GcJ8e3zNxO5XWqHq1VrMhYs"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNuc3lya3VrZG1qcG92eHJzcmN3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NzgxNDk1NiwiZXhwIjoyMDkzMzkwOTU2fQ.UODAA6Jgiir1BnMNofUL2gMsja8bw5bRTYBwsacIYsQ"
 );
 
 const clean = (t: string) => {
   let txt = t;
-  while (/<\s*think\s*>[\s\S]*?<\s*\/\s*think\s*>/gi.test(txt)) {
-    txt = txt.replace(/<\s*think\s*>[\s\S]*?<\s*\/\s*think\s*>/gi, "");
+  while (/<\s*think\s*>[\s\S]*?<\/\s*think\s*>/gi.test(txt)) {
+    txt = txt.replace(/<\s*think\s*>[\s\S]*?<\/\s*think\s*>/gi, "");
   }
   txt = txt.replace(/<\s*think\s*\/\s*>/gi, "");
   return txt.trim();
@@ -70,7 +70,7 @@ const handler: Handler = async (event) => {
     const { user_id, order_id } = JSON.parse(event.body || "{}");
     if (!user_id || !order_id) return { statusCode: 400, headers: h, body: JSON.stringify({ error: "Missing params" }) };
     try {
-const GUMROAD_TOKEN = "ic0_wsrZJKdFr3ztBvBTQ_a3mn2iim3jR_5j3aXcrYI";
+      const GUMROAD_TOKEN = "ic0_wsrZJKdFr3ztBvBTQ_a3mn2iim3jR_5j3aXcrYI";
       const r = await fetch("https://api.gumroad.com/v2/sales/" + encodeURIComponent(order_id), { headers: { Authorization: "Bearer " + GUMROAD_TOKEN } });
       const d = await r.json();
       if (!d.success || !d.sale) return { statusCode: 400, headers: h, body: JSON.stringify({ error: "Invalid Order ID" }) };
