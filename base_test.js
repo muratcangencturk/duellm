@@ -1,136 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>duellm</title>
-<link rel="icon" type="image/png" href="/logo.png">
-<meta property="og:image" content="/logo.png">
-<meta property="og:title" content="duellm — AI vs AI Debate">
-<meta name="description" content="Two AI models debate live.">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:#1a1a1a}::-webkit-scrollbar-thumb{background:#3a3a3a;border-radius:3px}::-webkit-scrollbar-thumb:hover{background:#4a4a4a}/* Firefox */ *{scrollbar-width:thin;scrollbar-color:#3a3a3a #1a1a1a}
-html,body{height:100%;background:#1a1a1a;color:#e0e0e0;overflow:hidden;font-family:system-ui,-apple-system,sans-serif}
-input,textarea{font-size:16px!important}
-#app{display:flex;height:100dvh;width:100%}
-#sidebar{width:270px;background:#1a1a1a;border-right:1px solid #2d2d2d;display:flex;flex-direction:column;flex-shrink:0;z-index:30}
-#sidebar.hidden{display:none}
-@media(max-width:768px){#sidebar{position:fixed;left:0;top:0;height:100%;transform:translateX(-100%);transition:transform .2s;display:flex!important}#sidebar.open{transform:translateX(0)}#sidebar.hidden{display:flex!important}#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20}#overlay.open{display:block}}
-#main{flex:1;display:flex;flex-direction:column;min-width:0;background:#1a1a1a}
-#topbar{height:54px;border-bottom:1px solid #2d2d2d;display:flex;align-items:center;padding:0 12px;flex-shrink:0;position:relative}
-#topright{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:2px}
-#msgs{flex:1;overflow-y:auto;padding:20px 16px 4px}
-#input-wrap{padding:12px 16px 24px}
-#input-box{display:flex;align-items:flex-end;gap:8px;max-width:760px;margin:0 auto;background:#242424;border:1px solid #2d2d2d;border-radius:14px;padding:3px 10px}
-#inp{flex:1;background:transparent;border:none;resize:none;font-size:16px;color:#e0e0e0;padding:8px 0;outline:none;font-family:inherit;line-height:1.4}
-#sendBtn{flex-shrink:0;width:40px;height:40px;border-radius:9px;border:none;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .15s;background:#333;color:#777;cursor:default}
-#sendBtn.on{background:#ccc;color:#111;cursor:pointer}
-#sendBtn.stop{background:#c0392b;color:#fff;font-size:15px;font-weight:700}
-#randBtn{flex-shrink:0;width:40px;height:40px;border-radius:9px;border:none;font-size:20px;display:flex;align-items:center;justify-content:center;background:transparent;color:#777;cursor:pointer}
-#randBtn:hover{color:#e0e0e0;background:#333}
-#randBtn.loading{opacity:.5;pointer-events:none}
-.tip{position:relative}.tip::after{content:attr(tip);position:absolute;top:115%;left:50%;transform:translateX(-50%);background:#333;color:#aaa;font-size:10px;padding:2px 8px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:60}.tip:hover::after{opacity:1}
-.hamburger{background:transparent;border:none;color:#888;cursor:pointer;font-size:20px;padding:4px 8px;margin-right:4px}
-@keyframes pop{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-.msg{animation:pop .2s ease-out}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-.cursor{animation:blink .8s infinite}
-.side-logo{display:flex;align-items:center;gap:12px;padding:16px 18px 10px;border-bottom:1px solid #2d2d2d}
-.side-logo img{width:48px;height:48px;border-radius:8px}
-.logo-t{font-size:20px;font-weight:700;background:linear-gradient(135deg,#4b8cf7 50%,#e84040 52%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.sec-t{font-size:10px;color:#777;font-weight:600;text-transform:uppercase;padding:10px 16px;letter-spacing:.5px}
-.hist-i{width:100%;text-align:left;padding:9px 16px;border-radius:8px;border:none;background:transparent;color:#999;font-size:12px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
-.hist-i:hover{background:#242424}
-.hist-i .hdate{font-size:9px;color:#555;display:block}
-.hist-del{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:#555;cursor:pointer;font-size:12px;padding:2px 4px;border-radius:4px;display:none;line-height:1;z-index:5}
-.hist-i:hover .hist-del{display:block}
-.hist-del:hover{color:#e84040;background:#333}
-@media(hover:none){.hist-i .hist-del.mobile-show{display:block}}
-.m-row{display:flex;margin-bottom:10px}.m-row.end{justify-content:flex-end}.m-row.c{justify-content:center}
-.m-user{padding:7px 14px;border-radius:10px;font-size:14px;word-break:break-word;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.18);color:#c4b5fd;max-width:85%}
-.m-lab{font-size:10px;font-weight:700;margin-bottom:2px;letter-spacing:.3px}.m-lab.l{color:#4b8cf7}.m-lab.r{color:#e84040}
-.bub{width:fit-content;max-width:85%;padding:8px 14px;border-radius:10px;font-size:14px;word-break:break-word;background:#242424;color:#e0e0e0;position:relative;line-height:1.5}.bub.l{border-left:3px solid #4b8cf7}.bub.r{border-right:3px solid #e84040}
-.m-btn{background:transparent;border:none;font-size:12px;font-weight:600;cursor:pointer;padding:4px 6px;border-radius:6px;display:inline-flex;align-items:center;gap:3px;white-space:nowrap}
-.m-btn.blue{color:#4b8cf7}.m-btn.red{color:#e84040}.m-btn.none{color:#666}
-.g-btn{background:transparent;border:none;cursor:pointer;font-size:12px;padding:3px 4px;border-radius:4px;color:#3a3a3a}
-.dd{position:absolute;top:115%;margin-top:4px;width:210px;max-height:290px;overflow-y:auto;background:#242424;border:1px solid #333;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.7);z-index:50}
-.dd-i{width:100%;text-align:left;padding:8px 14px;border:none;font-size:13px;cursor:pointer;color:#aaa;background:transparent;display:block}
-.dd-i:hover{background:#333}.dd-i.sel{color:#fff;font-weight:600;background:#333}
-.dd-none{border-bottom:1px solid #333;font-style:italic;color:#666}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100}
-.modal{background:#242424;border:1px solid #333;border-radius:12px;width:92vw;max-width:420px;padding:20px}
-.modal h3{font-weight:600;font-size:16px;margin-bottom:14px}
-.modal label{font-size:12px;color:#888;display:block;margin-bottom:4px}
-.modal input,.modal select{width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#1a1a1a;color:#e0e0e0;font-size:14px;margin-bottom:12px;outline:none}
-.modal input:focus,.modal select:focus{border-color:#4b8cf7}
-.modal .btn-primary{width:100%;padding:10px;border-radius:8px;border:none;color:#fff;font-size:14px;font-weight:600;cursor:pointer;background:#4b8cf7;margin-top:4px}
-.modal .btn-primary:hover{background:#3a7de6}
-.modal .btn-secondary{width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:transparent;color:#aaa;font-size:13px;cursor:pointer;margin-top:8px}
-.modal .btn-secondary:hover{color:#e0e0e0;background:#333}
-.modal .err{color:#e84040;font-size:11px;margin-bottom:8px;text-align:center}
-.modal .sw{color:#888;font-size:11px;text-align:center;margin-top:10px}
-.modal .sw a{color:#4b8cf7;cursor:pointer;text-decoration:underline}
-.modal .sw a:hover{color:#6aa8ff}
-.vs{font-size:10px;font-weight:700;color:#444}
-.model-center{display:flex;align-items:center;gap:6px;flex:1;justify-content:center}
-.pw{position:relative;display:flex;align-items:center;gap:3px}
-.lang-btn{background:transparent;border:none;font-size:10px;font-weight:700;cursor:pointer;padding:2px 5px;border-radius:4px;color:#666;text-transform:uppercase}
-.lang-btn.on{color:#e0e0e0;background:#333}
-#shareBtn{background:transparent;border:none;color:#666;cursor:pointer;font-size:14px;padding:2px 3px;border-radius:4px;display:flex;align-items:center}
-#shareBtn:hover{color:#e0e0e0;background:#333}
-#shareBtn.done{color:#4ade80}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#333;color:#e0e0e0;padding:8px 18px;border-radius:8px;font-size:13px;z-index:200;animation:pop .2s ease-out;opacity:0;transition:opacity .3s}
-.toast.show{opacity:1}
-@media(max-width:420px){
-  #topright{position:static;transform:none;margin-left:auto;gap:1px}
-  #topright .lang-btn{font-size:8px;padding:2px 4px}
-  #shareBtn{font-size:12px;padding:2px 3px}
-  #topbar{padding:0 6px;gap:1px}
-  .model-center{gap:2px}
-  .m-btn{font-size:9px;padding:2px 3px}
-  .vs{font-size:8px}
-}
 
-</style>
-</head><body>
-<div id="app">
-<div id="overlay" onclick="closeSidebar()"></div>
-<div id="sidebar" class="">
-  <div class="side-logo"><img src="/logo.png" onerror="this.style.display='none'"><span class="logo-t">duellm</span></div>
-  <div style="padding:10px 12px"><button id="newDebBtn" onclick="newDebate()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #333;background:transparent;color:#d1d5db;font-size:14px;font-weight:500;cursor:pointer">+ New Chat</button></div>
-  <div style="flex:1;overflow-y:auto;padding:4px" id="histCont"><div class="sec-t">History</div><div id="histEmp" style="padding:8px 16px;font-size:12px;color:#666;font-style:italic">No history yet</div></div>
-  <div style="padding:8px 12px 0"><button id="upgradeBtn" onclick="upgradePlan()" style="width:100%;text-align:left;padding:8px 14px;border-radius:8px;border:1px solid #3d3520;background:linear-gradient(135deg,#2a2416,#1f1a0e);color:#e2b24f;font-size:13px;cursor:pointer">⭐ Upgrade Plan</button></div>
-  <div style="padding:10px 12px;border-top:1px solid #2d2d2d"><button id="loginBtn" onclick="handleAuthClick()" style="width:100%;text-align:left;padding:10px 14px;border-radius:8px;border:none;background:transparent;color:#999;font-size:13px;cursor:pointer"> Sign Up / Login</button></div>
-</div>
-<div id="main">
-  <div id="topbar">
-    <button class="hamburger" onclick="toggleSidebar()">☰</button>
-    <div class="model-center">
-      <div class="pw" id="pwL">
-        <button class="m-btn blue tip" tip="Change Model" id="btnL" onclick="toggleDropdown(event,'L')">Cogito 2.1 671b ▼</button>
-        <button class="g-btn tip" tip="Settings" id="gearL" onclick="openSettings('L')" style="display: inline-flex;">⚙</button>
-      </div>
-      <span class="vs" id="vsSpan">VS</span>
-      <div class="pw" id="pwR">
-        <button class="g-btn tip" tip="Settings" id="gearR" onclick="openSettings('R')" style="display: inline-flex;">⚙</button>
-        <button class="m-btn red tip" tip="Change Model" id="btnR" onclick="toggleDropdown(event,'R')">▼ Gemma3 27b</button>
-      </div>
-    </div>
-    <div id="topright">
-      <button id="shareBtn" class="tip" tip="Share" onclick="shareChat()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg></button>
-      <button class="lang-btn on" id="lEN" onclick="setLang('en')">EN</button><button class="lang-btn" id="lTR" onclick="setLang('tr')">TR</button>
-    </div>
-  </div>
-  
-  <div id="msgs"></div>
-  <div id="input-wrap"><div id="input-box">
-    <button id="randBtn" class="tip" tip="Random topic" onclick="randomTopic()">?</button>
-    <textarea id="inp" rows="1" placeholder="Send a message" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendOrStop()}"></textarea>
-    <button id="sendBtn" onclick="sendOrStop()" class="">↑</button>
-  </div><div id="limit-msg" style="display:none;text-align:center;padding-top:8px;font-size:12px;color:#ef4444;white-space:pre-wrap"></div></div>
-</div>
-</div>
-<div id="toast" class="toast"></div>
-
-<script>
 // ── MODELS ──
 var MODELS=["cogito-2.1:671b","gemma3:12b","gemma3:27b","qwen3-vl:235b-instruct"];
 
@@ -339,7 +207,7 @@ function tk(){return new Date().toISOString().split('T')[0]}
 function GM(s){return s==='L'?S.modelL:S.modelR}
 function GO(s){return s==='L'?S.modelR:S.modelL}
 function GS(s){var sys=s==="L"?S.sysL:S.sysR;var agg=A[s];if(agg&&agg!==5)return (sys?sys+"\n":"")+"Agresyon: "+agg+"/10";return sys}
-function bl(m,s){var label=m?fmt(m):t('none');return s==='R'?'▼ '+label:label+' ▼'}
+function bl(m){return m?fmt(m)+' ▼':t('none')+' ▼'}
 function estTok(txt){return Math.ceil(txt.length/4)}
 function totalUsedToday(){
   var k='dk_'+tk();return parseInt(localStorage.getItem(k)||'0');
@@ -348,8 +216,8 @@ function totalUsedToday(){
 // ── UI ──
 function refreshUI(){
   var bL=document.getElementById('btnL'),bR=document.getElementById('btnR');
-  bL.innerHTML=bl(S.modelL,'L');bL.className='m-btn '+(S.modelL?'blue':'none')+' tip';
-  bR.innerHTML=bl(S.modelR,'R');bR.className='m-btn '+(S.modelR?'red':'none')+' tip';
+  bL.innerHTML=bl(S.modelL);bL.className='m-btn '+(S.modelL?'blue':'none')+' tip';
+  bR.innerHTML=bl(S.modelR);bR.className='m-btn '+(S.modelR?'red':'none')+' tip';
   document.getElementById('gearL').style.display=S.modelL?'inline-flex':'none';
   document.getElementById('gearR').style.display=S.modelR?'inline-flex':'none';
 }
@@ -476,6 +344,7 @@ function openSettings(side){
     aggHtml+
     '<label>'+t('sp')+'</label><textarea id="setSys" rows="3" style="width:100%;padding:8px;border-radius:6px;border:1px solid #333;background:#1a1a1a;color:#e0e0e0;font-size:13px;resize:vertical;font-family:inherit;margin-bottom:6px" placeholder="'+t('spPlace')+'">'+(sys||'')+'</textarea>'+
     '<div id="sugWrap_'+side+'" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;align-items:center">'+
+      '<span style="font-size:10px;color:#666">AI Oneriler:</span>'+
       '<span id="sugChips_'+side+'" style="display:flex;flex-wrap:wrap;gap:4px">'+
         '<span style="font-size:10px;color:#555;padding:3px 6px">yukleniyor...</span>'+
       '</span>'+
@@ -484,8 +353,6 @@ function openSettings(side){
     '<button class="btn-primary" style="background:'+c+'!important" id="saveSet">'+t('save')+'</button></div>';
   document.body.appendChild(ov);
   document.getElementById('modalCloseBtn').onclick=function(){ov.remove();};
-  var sl=document.getElementById('aggSlider');
-  sl.addEventListener('input',function(){var ve=document.getElementById('aggVal_'+side);if(ve)ve.textContent=this.value+'/10';});
   document.getElementById('sugReroll_'+side).onclick=function(){rerollSuggestions(side);};
   document.getElementById('saveSet').onclick=function(){
     var m=document.getElementById('setModel').value,s2=document.getElementById('setSys').value;
@@ -500,21 +367,15 @@ async function loadSuggestions(side){
   var wrap=document.getElementById('sugChips_'+side);
   if(!wrap)return;
   try{
-    var seed=Date.now()+'x'+Math.random().toString(36);
-    var p=(L==='tr')?
-      'AI tartismaci onerileri: SADECE 6 maddelik JSON array. HER MADDE TEK BIR KELIME VEYA KISA IFADE. Ilk 4: kisisilik stili (ornek: analitik, espirili, sakin, dogrudan). Son 2: UNLU BIR ISI (ornek: Einstein, Darth Vader, Ataturk, Taylor Swift). Kesinlikle virgulle ayrilmis coklu oneri KOYMA. Ornek cikti: ["analitik","espirili","sakin","dogrudan","Einstein","Darth Vader"]. Sadece JSON. Seed:'+seed:
-      'AI debater suggestions: ONLY 6-item JSON array. EACH ITEM IS A SINGLE WORD OR SHORT PHRASE. First 4: personality style (example: analytical, witty, calm, direct). Last 2: ONE FAMOUS NAME (example: Einstein, Darth Vader, Ataturk, Taylor Swift). Do NOT put comma-separated multiple suggestions. Example: ["analytical","witty","calm","direct","Einstein","Darth Vader"]. Just JSON. Seed:'+seed;
-    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'gemma3:27b',messages:[{role:'user',content:p}],options:{num_predict:200,temperature:1.8,top_p:0.99}})});
+    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'gemma3:27b',messages:[{role:'user',content:'Generate exactly 5 debate personality suggestions for an AI. Return ONLY a raw JSON array. First 4: single-word personality descriptors (creative, varied). 5th: a famous person, philosopher, or fictional character name. Format: ["style1","style2","style3","style4","Character Name"]. No explanation, no markdown, pure JSON array.'}],options:{num_predict:120,temperature:1.3,top_p:.95}})});
     var d=await r.json();var raw=d.message?d.message.content:'';
     var m=raw.match(/\[.*\]/s);var arr=null;
     if(m)try{arr=JSON.parse(m[0])}catch(e){}
     if(!arr||arr.length<2){wrap.innerHTML='<span style="font-size:10px;color:#555;padding:3px 6px">--</span>';return}
     var h='';
     for(var i=0;i<arr.length;i++){
-      var raw=String(arr[i]);
-      var label=raw.split(',')[0].split(';')[0].split('+')[0].trim().substring(0,30);
-      if(!label)label=raw.substring(0,30);
-      var isChar=i>=4,bg=isChar?'#3d3520':'#2a2a2a',bd=isChar?'#5a4a20':'#333';
+      var label=String(arr[i]);
+      var bg=i===4?'#3d3520':'#2a2a2a',bd=i===4?'#5a4a20':'#333';
       h+='<button data-label="'+label+'" style="font-size:10px;padding:3px 8px;border-radius:12px;border:1px solid '+bd+';background:'+bg+';color:#bbb;cursor:pointer;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis">'+label+'</button>';
     }
     wrap.innerHTML=h;
@@ -524,8 +385,9 @@ async function loadSuggestions(side){
         var ta=document.getElementById('setSys');
         if(!ta)return;
         var lbl=this.getAttribute('data-label');
-        var cur=ta.value.trim();
-        ta.value=cur+(cur?'\n':'')+lbl;
+        var current=ta.value.trim();
+        var prompt=lbl.length<25?('Tartisma stili: '+lbl+'. Bu kisilige burun.'):('Sen '+lbl+'sin. Onun gibi dusun, konus.');
+        ta.value=current+(current?'\n':'')+prompt;
         ta.focus();
         rerollSuggestions(side);
       };
@@ -536,11 +398,9 @@ async function loadSuggestions(side){
 function rerollSuggestions(side){
   var wrap=document.getElementById('sugChips_'+side);
   if(!wrap)return;
-  _sugCache=null;
   wrap.innerHTML='<span style="font-size:10px;color:#555;padding:3px 6px">yukleniyor...</span>';
   loadSuggestions(side);
 }
-
 
 TX.en.aggression='Agresyon';TX.tr.aggression='Agresyon';// ── SHARE ──
 function shareChat(){
@@ -749,5 +609,3 @@ function showLicenseModal(){
 refreshUI();applyLang();updateLoginBtn();updateBtn();
 // Stop generation when tab closes
 window.addEventListener('beforeunload',function(){stopAll();});
-</script>
-</body></html>

@@ -339,7 +339,7 @@ function tk(){return new Date().toISOString().split('T')[0]}
 function GM(s){return s==='L'?S.modelL:S.modelR}
 function GO(s){return s==='L'?S.modelR:S.modelL}
 function GS(s){var sys=s==="L"?S.sysL:S.sysR;var agg=A[s];if(agg&&agg!==5)return (sys?sys+"\n":"")+"Agresyon: "+agg+"/10";return sys}
-function bl(m,s){var label=m?fmt(m):t('none');return s==='R'?'▼ '+label:label+' ▼'}
+function bl(m){return m?fmt(m)+' ▼':t('none')+' ▼'}
 function estTok(txt){return Math.ceil(txt.length/4)}
 function totalUsedToday(){
   var k='dk_'+tk();return parseInt(localStorage.getItem(k)||'0');
@@ -348,8 +348,8 @@ function totalUsedToday(){
 // ── UI ──
 function refreshUI(){
   var bL=document.getElementById('btnL'),bR=document.getElementById('btnR');
-  bL.innerHTML=bl(S.modelL,'L');bL.className='m-btn '+(S.modelL?'blue':'none')+' tip';
-  bR.innerHTML=bl(S.modelR,'R');bR.className='m-btn '+(S.modelR?'red':'none')+' tip';
+  bL.innerHTML=bl(S.modelL);bL.className='m-btn '+(S.modelL?'blue':'none')+' tip';
+  bR.innerHTML=bl(S.modelR);bR.className='m-btn '+(S.modelR?'red':'none')+' tip';
   document.getElementById('gearL').style.display=S.modelL?'inline-flex':'none';
   document.getElementById('gearR').style.display=S.modelR?'inline-flex':'none';
 }
@@ -476,6 +476,7 @@ function openSettings(side){
     aggHtml+
     '<label>'+t('sp')+'</label><textarea id="setSys" rows="3" style="width:100%;padding:8px;border-radius:6px;border:1px solid #333;background:#1a1a1a;color:#e0e0e0;font-size:13px;resize:vertical;font-family:inherit;margin-bottom:6px" placeholder="'+t('spPlace')+'">'+(sys||'')+'</textarea>'+
     '<div id="sugWrap_'+side+'" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;align-items:center">'+
+      '<span style="font-size:10px;color:#666">AI Oneriler:</span>'+
       '<span id="sugChips_'+side+'" style="display:flex;flex-wrap:wrap;gap:4px">'+
         '<span style="font-size:10px;color:#555;padding:3px 6px">yukleniyor...</span>'+
       '</span>'+
@@ -484,8 +485,6 @@ function openSettings(side){
     '<button class="btn-primary" style="background:'+c+'!important" id="saveSet">'+t('save')+'</button></div>';
   document.body.appendChild(ov);
   document.getElementById('modalCloseBtn').onclick=function(){ov.remove();};
-  var sl=document.getElementById('aggSlider');
-  sl.addEventListener('input',function(){var ve=document.getElementById('aggVal_'+side);if(ve)ve.textContent=this.value+'/10';});
   document.getElementById('sugReroll_'+side).onclick=function(){rerollSuggestions(side);};
   document.getElementById('saveSet').onclick=function(){
     var m=document.getElementById('setModel').value,s2=document.getElementById('setSys').value;
@@ -500,21 +499,15 @@ async function loadSuggestions(side){
   var wrap=document.getElementById('sugChips_'+side);
   if(!wrap)return;
   try{
-    var seed=Date.now()+'x'+Math.random().toString(36);
-    var p=(L==='tr')?
-      'AI tartismaci onerileri: SADECE 6 maddelik JSON array. HER MADDE TEK BIR KELIME VEYA KISA IFADE. Ilk 4: kisisilik stili (ornek: analitik, espirili, sakin, dogrudan). Son 2: UNLU BIR ISI (ornek: Einstein, Darth Vader, Ataturk, Taylor Swift). Kesinlikle virgulle ayrilmis coklu oneri KOYMA. Ornek cikti: ["analitik","espirili","sakin","dogrudan","Einstein","Darth Vader"]. Sadece JSON. Seed:'+seed:
-      'AI debater suggestions: ONLY 6-item JSON array. EACH ITEM IS A SINGLE WORD OR SHORT PHRASE. First 4: personality style (example: analytical, witty, calm, direct). Last 2: ONE FAMOUS NAME (example: Einstein, Darth Vader, Ataturk, Taylor Swift). Do NOT put comma-separated multiple suggestions. Example: ["analytical","witty","calm","direct","Einstein","Darth Vader"]. Just JSON. Seed:'+seed;
-    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'gemma3:27b',messages:[{role:'user',content:p}],options:{num_predict:200,temperature:1.8,top_p:0.99}})});
+    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'gemma3:27b',messages:[{role:'user',content:'Generate exactly 5 debate personality suggestions for an AI. Return ONLY a raw JSON array. First 4: single-word personality descriptors (creative, varied). 5th: a famous person, philosopher, or fictional character name. Format: ["style1","style2","style3","style4","Character Name"]. No explanation, no markdown, pure JSON array.'}],options:{num_predict:120,temperature:1.3,top_p:.95}})});
     var d=await r.json();var raw=d.message?d.message.content:'';
     var m=raw.match(/\[.*\]/s);var arr=null;
     if(m)try{arr=JSON.parse(m[0])}catch(e){}
     if(!arr||arr.length<2){wrap.innerHTML='<span style="font-size:10px;color:#555;padding:3px 6px">--</span>';return}
     var h='';
     for(var i=0;i<arr.length;i++){
-      var raw=String(arr[i]);
-      var label=raw.split(',')[0].split(';')[0].split('+')[0].trim().substring(0,30);
-      if(!label)label=raw.substring(0,30);
-      var isChar=i>=4,bg=isChar?'#3d3520':'#2a2a2a',bd=isChar?'#5a4a20':'#333';
+      var label=String(arr[i]);
+      var bg=i===4?'#3d3520':'#2a2a2a',bd=i===4?'#5a4a20':'#333';
       h+='<button data-label="'+label+'" style="font-size:10px;padding:3px 8px;border-radius:12px;border:1px solid '+bd+';background:'+bg+';color:#bbb;cursor:pointer;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis">'+label+'</button>';
     }
     wrap.innerHTML=h;
@@ -524,8 +517,9 @@ async function loadSuggestions(side){
         var ta=document.getElementById('setSys');
         if(!ta)return;
         var lbl=this.getAttribute('data-label');
-        var cur=ta.value.trim();
-        ta.value=cur+(cur?'\n':'')+lbl;
+        var current=ta.value.trim();
+        var prompt=lbl.length<25?('Tartisma stili: '+lbl+'. Bu kisilige burun.'):('Sen '+lbl+'sin. Onun gibi dusun, konus.');
+        ta.value=current+(current?'\n':'')+prompt;
         ta.focus();
         rerollSuggestions(side);
       };
@@ -536,11 +530,9 @@ async function loadSuggestions(side){
 function rerollSuggestions(side){
   var wrap=document.getElementById('sugChips_'+side);
   if(!wrap)return;
-  _sugCache=null;
   wrap.innerHTML='<span style="font-size:10px;color:#555;padding:3px 6px">yukleniyor...</span>';
   loadSuggestions(side);
 }
-
 
 TX.en.aggression='Agresyon';TX.tr.aggression='Agresyon';// ── SHARE ──
 function shareChat(){
