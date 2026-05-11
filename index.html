@@ -496,50 +496,47 @@ function openSettings(side){
   loadSuggestions(side);
 }
 
-async function loadSuggestions(side){
-  var wrap=document.getElementById('sugChips_'+side);
-  if(!wrap)return;
-  try{
-    var seed=Date.now()+'x'+Math.random().toString(36);
-    var p=(L==='tr')?
-      'AI tartismaci onerileri: SADECE 6 maddelik JSON array. HER MADDE TEK BIR KELIME VEYA KISA IFADE. Ilk 4: kisisilik stili (ornek: analitik, espirili, sakin, dogrudan). Madde 5: COK UNLU BIR ISI (Einstein, Darth Vader, Ataturk, Taylor Swift, Messi, Napoleon, Socrates, Fatih Sultan Mehmet...). Madde 6: BIR KARAKTER ARKETIPI (mahalle rapcisi, deli diktator, bilim adami, uzayli filozof, sokak saticisi, korsan, hacker, samuray, seytan, melek, kahin...). Kesinlikle virgulle ayrilmis coklu oneri KOYMA. Ornek cikti: ["analitik","espirili","sakin","dogrudan","Einstein","deli diktator"]. Sadece JSON. Seed:'+seed:
-      'AI debater suggestions: ONLY 6-item JSON array. EACH ITEM IS A SINGLE WORD OR SHORT PHRASE. First 4: personality style (example: analytical, witty, calm, direct). Item 5: ONE VERY FAMOUS NAME (Einstein, Darth Vader, Ataturk, Taylor Swift, Messi, Napoleon, Socrates...). Item 6: ONE CHARACTER ARCHETYPE (mahalle rapcisi, deli diktator, bilim adami, uzayli filozof, sokak saticisi, korsan, hacker, samuray, seytan, melek...). Do NOT put comma-separated multiple suggestions. Example: ["analytical","witty","calm","direct","Einstein","deli diktator"]. Just JSON. Seed:'+seed;
-    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'gemma3:27b',messages:[{role:'user',content:p}],options:{num_predict:200,temperature:1.8,top_p:0.99}})});
-    var d=await r.json();var raw=d.message?d.message.content:'';
-    var m=raw.match(/\[.*\]/s);var arr=null;
-    if(m)try{arr=JSON.parse(m[0])}catch(e){}
-    if(!arr||arr.length<2){wrap.innerHTML='<span style="font-size:10px;color:#555;padding:3px 6px">--</span>';return}
-    var h='';
-    for(var i=0;i<arr.length;i++){
-      var raw=String(arr[i]);
-      var label=raw.split(',')[0].split(';')[0].split('+')[0].trim().substring(0,30);
-      if(!label)label=raw.substring(0,30);
-      var isChar=i>=4,bg=isChar?'#3d3520':'#2a2a2a',bd=isChar?'#5a4a20':'#333';
-      h+='<button data-label="'+label+'" style="font-size:10px;padding:3px 8px;border-radius:12px;border:1px solid '+bd+';background:'+bg+';color:#bbb;cursor:pointer;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis">'+label+'</button>';
-    }
-    wrap.innerHTML=h;
-    var btns=wrap.querySelectorAll('button');
-    for(var j=0;j<btns.length;j++){
-      btns[j].onclick=function(){
-        var ta=document.getElementById('setSys');
-        if(!ta)return;
-        var lbl=this.getAttribute('data-label');
-        var cur=ta.value.trim();
-        ta.value=cur+(cur?'\n':'')+lbl;
-        ta.focus();
-        rerollSuggestions(side);
-      };
-    }
-  }catch(e){wrap.innerHTML='<span style="font-size:10px;color:#555;padding:3px 6px">--</span>'}
+
+// ═══ SUGGESTION POOLS (client-side — guaranteed no repeats) ═══
+var _SP={
+ tr_styles:["analitik","espirili","sogukkanli","dogrudan","supheci","sakin","agresif","merhametli","alayci","felsefi","bilimsel","duygusal","mantikli","yaratici","isyankar","diplomatik","kibirli","mutevazi","tutkulu","kinik","iyimser","karamsar","stratejik","kaotik","otoriter","ozgurlukcu","minimalist","abartili","gizemli","seffaf","romantik","nihilist","pragmatik","idealist","savasci","bariscil","teknolojik","geleneksel","asi","uyumlu","keskin","yumusak","hesaplayan","icgudusel","sistematik","daginik","resmi","samimi","provokatif","uzlasmaci","elestirel","destekleyici","lider","takipci","entelektuel","sokak zekasi","burokratik","anarsist"],
+ tr_chars:["Einstein","Ataturk","Napolyon","Fatih Sultan Mehmet","Socrates","Darth Vader","Tesla","Da Vinci","Shakespeare","Hitler","Gandi","Che Guevara","Churchill","Cleopatra","Sezar","Sun Tzu","Nietzsche","Marx","Elon Musk","Trump","Taylor Swift","Messi","Ronaldo","Jobs","Feynman","Hawking","Darwin","Freud","Picasso","Beethoven","Newton","Aristo","Konfucyus","Buda","Iskender"],
+ tr_archetypes:["mahalle rapcisi","deli diktator","bilim adami","uzayli filozof","sokak saticisi","korsan","hacker","samuray","seytan","melek","kahin","magara adami","super kahraman","kotu deha","zaman yolcusu","robot asi","antik bilge","cilgin profesor","gizli ajan","evsiz sair","vampir entelektuel","gladyator","uzay kovboyu","buyucu","suikastci","komplo teorisyeni","fal bakicisi","munzevi kesis","baron","hayalet"],
+ en_styles:["analytical","witty","cold-blooded","direct","skeptical","calm","aggressive","compassionate","sarcastic","philosophical","scientific","emotional","logical","creative","rebellious","diplomatic","arrogant","humble","passionate","cynical","optimistic","pessimistic","strategic","chaotic","authoritarian","libertarian","minimalist","exaggerated","mysterious","transparent","romantic","nihilistic","pragmatic","idealistic","warrior","peaceful","technological","traditional","rebel","conformist","sharp","soft","calculating","instinctive","systematic","messy","formal","genuine","provocative","conciliatory","critical","supportive","leader","follower","intellectual","street-smart","bureaucratic","anarchist"],
+ en_chars:["Einstein","Ataturk","Napoleon","Socrates","Darth Vader","Tesla","Da Vinci","Shakespeare","Hitler","Gandhi","Che Guevara","Churchill","Cleopatra","Caesar","Sun Tzu","Nietzsche","Marx","Elon Musk","Trump","Taylor Swift","Messi","Ronaldo","Steve Jobs","Feynman","Hawking","Darwin","Freud","Picasso","Beethoven","Newton","Aristotle","Confucius","Buddha","Alexander the Great","Batman"],
+ en_archetypes:["street rapper","mad dictator","scientist","alien philosopher","street vendor","pirate","hacker","samurai","devil","angel","prophet","caveman","superhero","evil genius","time traveler","rogue robot","ancient sage","mad professor","secret agent","homeless poet","vampire intellectual","gladiator","space cowboy","wizard","assassin","conspiracy theorist","fortune teller","hermit monk","baron","ghost"]
+};
+var _SU={};
+function _shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}}
+function _pick(items,used,limit){var s=[],u=used.slice(-limit);for(var i=0;i<items.length&&s.length<1;i++){if(u.indexOf(items[i])===-1){s.push(items[i]);used.push(items[i]);break;}}return s;}
+function pickSugs(side){
+ var pf=L==="tr"?"tr_":"en_",st=_SP[pf+"styles"].slice(),ch=_SP[pf+"chars"].slice(),ar=_SP[pf+"archetypes"].slice();
+ _shuffle(st);_shuffle(ch);_shuffle(ar);
+ if(!_SU[side])_SU[side]={s:[],c:[],a:[]};
+ var u=_SU[side],res=[],seen=u.s.slice(-40);
+ for(var i=0;i<st.length&&res.length<4;i++){if(seen.indexOf(st[i])===-1){res.push(st[i]);u.s.push(st[i]);seen.push(st[i]);}}
+ var ck=_pick(ch,u.c,25);if(ck.length)res.push(ck[0]);else{u.c=[];res.push(ch[Math.floor(Math.random()*ch.length)]);u.c=[ch[Math.floor(Math.random()*ch.length)]];}
+ var ak=_pick(ar,u.a,25);if(ak.length)res.push(ak[0]);else{u.a=[];res.push(ar[Math.floor(Math.random()*ar.length)]);u.a=[ar[Math.floor(Math.random()*ar.length)]];}
+ if(u.s.length>100)u.s=u.s.slice(-60);
+ return res;
+}
+function loadSuggestions(side){
+ var w=document.getElementById("sugChips_"+side);if(!w)return;
+ var a=pickSugs(side),h="";
+ for(var i=0;i<a.length;i++){
+  var l=String(a[i]),ic=i>=4,bg=ic?"#3d3520":"#2a2a2a",bd=ic?"#5a4a20":"#333";
+  h+="<button data-label=\""+l.replace(/"/g,"&quot;")+"\" style=\"font-size:11px;padding:4px 10px;border-radius:14px;border:1px solid "+bd+";background:"+bg+";color:#ddd;cursor:pointer;margin:2px;white-space:nowrap;max-width:130px;overflow:hidden;text-overflow:ellipsis\">"+l+"</button>";
+ }
+ w.innerHTML=h;
+ var btns=w.querySelectorAll("button");
+ for(var j=0;j<btns.length;j++){btns[j].onclick=function(){var ta=document.getElementById("setSys");if(!ta)return;var lbl=this.getAttribute("data-label"),cur=ta.value.trim();ta.value=cur+(cur?"\n":"")+lbl;ta.focus();rerollSuggestions(side);}}
+}
+function rerollSuggestions(side){
+ var w=document.getElementById("sugChips_"+side);if(!w)return;
+ _SU[side]={s:[],c:[],a:[]};
+ loadSuggestions(side);
 }
 
-function rerollSuggestions(side){
-  var wrap=document.getElementById('sugChips_'+side);
-  if(!wrap)return;
-  _sugCache=null;
-  wrap.innerHTML='<span style="font-size:10px;color:#555;padding:3px 6px">yukleniyor...</span>';
-  loadSuggestions(side);
-}
 
 
 TX.en.aggression='Agresyon';TX.tr.aggression='Agresyon';// ── SHARE ──
