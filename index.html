@@ -493,7 +493,7 @@ function openSettings(side){
     var a=parseInt(document.getElementById('aggSlider').value)||5;A[side]=a;
     refreshUI();ov.remove();
   };
-  loadSuggestions(side);
+  _SU[side]={s:[],c:[],a:[]};loadSuggestions(side);
 }
 
 
@@ -791,7 +791,6 @@ var _SP={tr_styles:[
 "garage entrepreneur","basement genius","attic poet","elevator philosopher","quantum mystic","neural network prophet","blockchain oracle","singularity preacher","simulation hypothesis monk","matrix glitch hunter","dark forest radio operator","von Neumann replicator","Dyson sphere architect","ringworld engineer","galactic librarian","akashic records indexer","noosphere gardener","meme farmer","virality alchemist","engagement warlock","algorithm whisperer","feed sorcerer","timeline shaman","hashtag prophet","emoji hierophant","captcha demon","cache warmer","load balancer monk","reverse proxy hermit","API gateway guardian","microservice shepherd","monolith nostalgist","serverless ghost","container spirit","orchestrator conductor","pod whisperer","sidecar hitchhiker","service mesh weaver","circuit breaker oracle","bulkhead engineer","throttle guardian","rate limiter sage","retry angel","backoff wizard","jitter jester","dead letter courier","idempotency key master","event storm prophet","CQRS oracle","event sourcing historian","saga choreographer","domain event collector","aggregate root farmer","value object sculptor","entity librarian","repository guardian","unit of work monk","factory method alchemist","builder hermit","prototype cloner","adapter priest","bridge engineer","composite arborist","decorator artist","facade doorman","proxy double","chain of responsibility linker","command invoker","memento keeper","observer watcher","state machine monk","strategy selector","template method scribe","visitor traveller","null object ghost","monad gardener","functor mapper","lens crafter","recursion scheme monk","free monad dreamer","dependent type prophet","effect handler monk","macro expander","syntax tree climber"
 ]};
 
-var _SU={};
 function _shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}}
 function _pick(items,used,limit){var s=[],u=used.slice(-limit);for(var i=0;i<items.length&&s.length<1;i++){if(u.indexOf(items[i])===-1){s.push(items[i]);used.push(items[i]);break;}}return s;}
 function pickSugs(side){
