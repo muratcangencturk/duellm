@@ -286,7 +286,7 @@ function rnd2mods(){
   var m2=a[Math.floor(Math.random()*a.length)];return[m1,m2];
 }
 var initMods=rnd2mods();
-var S={topic:'',aggression:5,modelL:initMods[0],modelR:initMods[1],sysL:'',sysR:'',msgData:[],chatTokens:0};
+var S={topic:'',modelL:initMods[0],modelR:initMods[1],sysL:'',sysR:'',msgData:[],chatTokens:0};
 var E={running:false,speaking:false,side:'L',abort:null,timer:null,chatPaused:false};
 var H=JSON.parse(localStorage.getItem('duellm_hist_local')||'[]');
 
@@ -502,8 +502,8 @@ async function loadSuggestions(side){
   try{
     var seed=Date.now()+'x'+Math.random().toString(36);
     var p=(L==='tr')?
-      'AI tartismaci onerileri: SADECE 6 maddelik JSON array. HER MADDE TEK BIR KELIME VEYA KISA IFADE. Ilk 4: kisisilik stili (ornek: analitik, espirili, sakin, dogrudan). Son 2: UNLU BIR ISI (ornek: Einstein, Darth Vader, Ataturk, Taylor Swift). Kesinlikle virgulle ayrilmis coklu oneri KOYMA. Ornek cikti: ["analitik","espirili","sakin","dogrudan","Einstein","Darth Vader"]. Sadece JSON. Seed:'+seed:
-      'AI debater suggestions: ONLY 6-item JSON array. EACH ITEM IS A SINGLE WORD OR SHORT PHRASE. First 4: personality style (example: analytical, witty, calm, direct). Last 2: ONE FAMOUS NAME (example: Einstein, Darth Vader, Ataturk, Taylor Swift). Do NOT put comma-separated multiple suggestions. Example: ["analytical","witty","calm","direct","Einstein","Darth Vader"]. Just JSON. Seed:'+seed;
+      'AI tartismaci onerileri: SADECE 6 maddelik JSON array. HER MADDE TEK BIR KELIME VEYA KISA IFADE. Ilk 4: kisisilik stili (ornek: analitik, espirili, sakin, dogrudan). Madde 5: COK UNLU BIR ISI (Einstein, Darth Vader, Ataturk, Taylor Swift, Messi, Napoleon, Socrates, Fatih Sultan Mehmet...). Madde 6: BIR KARAKTER ARKETIPI (mahalle rapcisi, deli diktator, bilim adami, uzayli filozof, sokak saticisi, korsan, hacker, samuray, seytan, melek, kahin...). Kesinlikle virgulle ayrilmis coklu oneri KOYMA. Ornek cikti: ["analitik","espirili","sakin","dogrudan","Einstein","deli diktator"]. Sadece JSON. Seed:'+seed:
+      'AI debater suggestions: ONLY 6-item JSON array. EACH ITEM IS A SINGLE WORD OR SHORT PHRASE. First 4: personality style (example: analytical, witty, calm, direct). Item 5: ONE VERY FAMOUS NAME (Einstein, Darth Vader, Ataturk, Taylor Swift, Messi, Napoleon, Socrates...). Item 6: ONE CHARACTER ARCHETYPE (mahalle rapcisi, deli diktator, bilim adami, uzayli filozof, sokak saticisi, korsan, hacker, samuray, seytan, melek...). Do NOT put comma-separated multiple suggestions. Example: ["analytical","witty","calm","direct","Einstein","deli diktator"]. Just JSON. Seed:'+seed;
     var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'gemma3:27b',messages:[{role:'user',content:p}],options:{num_predict:200,temperature:1.8,top_p:0.99}})});
     var d=await r.json();var raw=d.message?d.message.content:'';
     var m=raw.match(/\[.*\]/s);var arr=null;
