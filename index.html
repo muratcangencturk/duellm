@@ -89,6 +89,12 @@ input,textarea{font-size:16px!important}
   .vs{font-size:8px}
 }
 
+
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#2a2a2a;border-radius:3px;outline:none;margin:8px 0;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:#888;border:2px solid #555;cursor:pointer;transition:all .15s}
+input[type=range]::-webkit-slider-thumb:hover{background:#aaa;border-color:#777;transform:scale(1.15)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#888;border:2px solid #555;cursor:pointer}
+input[type=range]:focus{outline:none}
 </style>
 </head><body>
 <div id="app">
@@ -947,7 +953,7 @@ async function speakOnce(side){
   var uname=isAuth()?AU.username:"";
   var msgId=addMsgEl(side,"...",mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
-  var sp="Kullaniciyla ayni dilde cevap ver.\n\n"+    "Kullanici ("+uname+"): "+S.topic+"\n\n"+    "Arkadasinla sohbet eder gibi dogal yaz. Akademik makale gibi yazma, lafi dolandirma. Kisa paragraflar, net cumleler.\n\n"+    "EN FAZLA 10 CUMLE yaz! Uzun yazarsan cumle yarim kalir.\n"+    "Emoji kullan! 🎯🔥👀 Gorselligi artir.\n"+    "Her cumle basina tire (-) koyma. Sadece gercek liste yaparken kullan.\n"+    "Rol yapma, sahne direktifi yazma, hangi model oldugunu soyleme."+GS(side);
+  var sp="Kullaniciyla ayni dilde cevap ver.\n\n"+    "Kullanici ("+uname+"): "+S.topic+"\n\n"+    "Arkadasinla sohbet eder gibi dogal yaz. Akademik makale gibi yazma, lafi dolandirma. Kisa paragraflar, net cumleler.\n\n"+    "0. DIL KURALI: Kullanici hangi dilde yazdiysa o dilde cevap ver. Asla dil degistirme!\n"+    "EN FAZLA 10 CUMLE yaz! Uzun yazarsan cumle yarim kalir.\n"+    "Emoji kullan! 🎯🔥👀 Gorselligi artir.\n"+    "Her cumle basina tire (-) koyma. Sadece gercek liste yaparken kullan.\n"+    "Rol yapma, sahne direktifi yazma, hangi model oldugunu soyleme."+GS(side);
   try{
     var r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json","x-duellm-uid":isAuth()?AU.user_id:"","x-duellm-tier":userTier()},body:JSON.stringify({model:mn,messages:[{role:"system",content:sp},{role:"user",content:S.topic}],options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
     var d=await r.json();
@@ -973,7 +979,7 @@ async function speakDebate(side){
   var uname=isAuth()?AU.username:"";
   var msgId=addMsgEl(side,"...",mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
-  var sp="Sen duellm.xyz sitesindesin - iki AI modelin canli tartistigi bir arena.\n\n"+    "SiTENiN YAPISI: Sol tarafta MAVi model ("+fmt(S.modelL)+"), sag tarafta KIRMIZI model ("+fmt(S.modelR)+").\n"+    "Sen "+myColor+" taraftasin. Model adin: "+mn+". Rakibin: "+opName+" ("+opColor+").\n"+    "Kullanici: "+uname+". Kullanici istedigi an mesaj yazip araya girebilir.\n\n"+    "KURALLAR:\n"+    "1. EN FAZLA 10 CUMLE yaz! Daha uzun yazarsan cumle yarim kalir, rezil olur. Kisa ve oz ol.\n"+    "2. Emoji kullan! 🎯💀🔥👀🤡 Mizah kat, gorselligi artir.\n"+    "3. Her cumle basina tire (-) koyma. Sadece gercek liste yaparken kullan.\n"+    "4. "+uname+" sana hitap ederse adinla/renginle cevap ver.\n"+    "5. Rakibine model adiyla veya rengiyle hitap edebilirsin.\n"+    "6. Rol yapma, sahne direktifi yazma, kendini tanitma.\n\n"+    "Konu: "+S.topic+"\n\n"+    "Rakibinin argumanini oku, acigini bul, karsi cik. Yanlissa curut, eksik biraktiysa ustune koy."+GS(side);
+  var sp="Sen duellm.xyz sitesindesin - iki AI modelin canli tartistigi bir arena.\n\n"+    "SiTENiN YAPISI: Sol tarafta MAVi model ("+fmt(S.modelL)+"), sag tarafta KIRMIZI model ("+fmt(S.modelR)+").\n"+    "Sen "+myColor+" taraftasin. Model adin: "+mn+". Rakibin: "+opName+" ("+opColor+").\n"+    "Kullanici: "+uname+". Kullanici istedigi an mesaj yazip araya girebilir.\n\n"+    "KURALLAR:\n"+    "0. DIL KURALI: Kullanici hangi dilde yazarsa SEN DE O DILDE cevap ver! Turkce yazdiysa Turkce, Ingilizce yazdiysa Ingilizce konus. Asla dil degistirme. Bu en onemli kural.\n"+    "1. EN FAZLA 10 CUMLE yaz! Daha uzun yazarsan cumle yarim kalir, rezil olur. Kisa ve oz ol.\n"+    "2. Emoji kullan! 🎯💀🔥👀🤡 Mizah kat, gorselligi artir.\n"+    "3. Her cumle basina tire (-) koyma. Sadece gercek liste yaparken kullan.\n"+    "4. "+uname+" sana hitap ederse adinla/renginle cevap ver.\n"+    "5. Rakibine model adiyla veya rengiyle hitap edebilirsin.\n"+    "6. Rol yapma, sahne direktifi yazma, kendini tanitma.\n\n"+    "Konu: "+S.topic+"\n\n"+    "Rakibinin argumanini oku, acigini bul, karsi cik. Yanlissa curut, eksik biraktiysa ustune koy."+GS(side);
   var am=[{role:"system",content:sp}];
   var rows=document.getElementById("msgs").children;
   var ctxLen=0,ctxMax=10000;
@@ -1048,7 +1054,7 @@ function showLicenseModal(){
 }
 
 // ── BOOT ──
-refreshUI();applyLang();updateLoginBtn();updateBtn();
+loadHistoryFromCloud();refreshUI();applyLang();updateLoginBtn();updateBtn();
 // Stop generation when tab closes
 window.addEventListener('beforeunload',function(){stopAll();});
 </script>
