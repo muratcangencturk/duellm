@@ -296,7 +296,7 @@ function rnd2mods(){
 }
 var initMods=rnd2mods();
 var S={topic:'',modelL:initMods[0],modelR:initMods[1],sysL:'',sysR:'',msgData:[],chatTokens:0};
-var E={running:false,speaking:false,side:'L',abort:null,timer:null,chatPaused:false};
+var E={running:false,speaking:false,paused:false,pauseSide:null,side:'L',abort:null,timer:null,chatPaused:false};
 var H=JSON.parse(localStorage.getItem('duellm_hist_local')||'[]');
 
 // ── SAVE/LOAD ──
@@ -961,15 +961,15 @@ async function speakOnce(side){
   try{
     var r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json","x-duellm-uid":isAuth()?AU.user_id:"","x-duellm-tier":userTier()},body:JSON.stringify({model:mn,messages:[{role:"system",content:sp},{role:"user",content:S.topic}],options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
     var d=await r.json();
-    if(d.error==="daily_limit"){updateBub(msgId,t("limitUser"),false);E.speaking=false;E.abort=null;E.running=false;updateBtn();updateLimitMsg();return}
+    if(d.error==="daily_limit"){updateBub(msgId,t("limitUser"),false);E.speaking=false;E.abort=null;updateBtn();updateLimitMsg();return}
     var txt=(d.message?.content||"").trim();
-    if(!txt||txt.length<4){E.speaking=false;E.abort=null;E.running=false;updateBtn();return}
+    if(!txt||txt.length<4){E.speaking=false;E.abort=null;updateBtn();return}
     E.abort=null;
     var respTok=estTok(txt)+estTok(sp)+estTok(S.topic);
     trackLocal(respTok);
     if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+"...",false);E.speaking=false;updateBtn();updateLimitMsg();return}
     typewrite(msgId,txt,function(){E.speaking=false;updateBtn();saveHistory();});
-  }catch(e){if(e.name!=="AbortError")updateBub(msgId,"...",false);E.speaking=false;E.abort=null;E.running=false;updateBtn();}
+  }catch(e){if(e.name!=="AbortError")updateBub(msgId,"...",false);E.speaking=false;E.abort=null;updateBtn();}
 }
 
 // ── DEBATE MODE ──
@@ -1006,9 +1006,9 @@ async function speakDebate(side){
   try{
     var rr=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json","x-duellm-uid":isAuth()?AU.user_id:"","x-duellm-tier":userTier()},body:JSON.stringify({model:mn,messages:am,options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
     var dd=await rr.json();
-    if(dd.error==="daily_limit"){updateBub(msgId,t("limitUser"),false);E.speaking=false;E.abort=null;E.running=false;updateBtn();updateLimitMsg();return}
+    if(dd.error==="daily_limit"){updateBub(msgId,t("limitUser"),false);E.speaking=false;E.abort=null;updateBtn();updateLimitMsg();return}
     var txt=(dd.message?.content||"").trim();
-    if(!txt||txt.length<4){E.speaking=false;E.abort=null;E.running=false;updateBtn();return}
+    if(!txt||txt.length<4){E.speaking=false;E.abort=null;updateBtn();return}
     E.abort=null;
     var respTok=estTok(txt)+estTok(JSON.stringify(am));
     trackLocal(respTok);
