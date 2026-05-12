@@ -137,7 +137,7 @@ var MODELS=["cogito-2.1:671b","gemma3:12b","gemma3:27b","qwen3-vl:235b-instruct"
 // ── LIMITS ──
 var LIMIT_GUEST=10000, LIMIT_USER=30000, LIMIT_PREMIUM=300000;
 var MAX_CHAT_TOKENS=10000;
-var MAX_RESPONSE_TOKENS=400 
+var MAX_RESPONSE_TOKENS=300 
 
 var RP_EN="Generate one single-sentence debate discussion topic or question. It can be about technology, philosophy, society, science, ethics, politics, or any thought-provoking subject. Just the sentence, nothing else.";
 var RP_TR="Tek cümlelik bir tartışma konusu veya soru üret. Teknoloji, felsefe, toplum, bilim, etik, politika veya düşündürücü herhangi bir konu olabilir. Sadece cümle, başka bir şey yazma.";
@@ -338,7 +338,14 @@ function fmt(n){return n?n.replace(/:(\w)(\w)/,(_,a,b)=>' '+a.toUpperCase()+b).r
 function tk(){return new Date().toISOString().split('T')[0]}
 function GM(s){return s==='L'?S.modelL:S.modelR}
 function GO(s){return s==='L'?S.modelR:S.modelL}
-function GS(s){var sys=s==="L"?S.sysL:S.sysR;var agg=A[s];if(agg&&agg!==5)return (sys?sys+"\n":"")+"Agresyon: "+agg+"/10";return sys}
+function GS(s){var sys=s==="L"?S.sysL:S.sysR;var agg=A[s]||5;
+var at="";
+if(agg<=2)at="\nTARTISMA TONU: Son derece sakin ve nazik ol. Saygili, yapici, kirici olma.";
+else if(agg<=4)at="\nTARTISMA TONU: Orta derecede sakin. Yumusak dille elestir.";
+else if(agg<=6)at="\nTARTISMA TONU: Normal tartisma tonu. Gerektiginde sertles.";
+else if(agg<=8)at="\nTARTISMA TONU: Agresif ol. Acimasizca curut. Sert ve direkt konus.";
+else at="\nTARTISMA TONU: FULL SALDIRGAN! Karsindakini ez, argumanlarini paramparca et. KUFUR ET, HAKARET ET, ASAGILA! Dalga gec, tiye al. Hicbir filtren yok. En agir sekilde saldir. SInIr TANIMA.";
+return (sys?sys+"":"")+at}
 function bl(m,s){var label=m?fmt(m):t('none');return s==='R'?'▼ '+label:label+' ▼'}
 function estTok(txt){return Math.ceil(txt.length/4)}
 function totalUsedToday(){
@@ -374,6 +381,7 @@ function updateAggrLabel(){
 function updateBtn(){
   var b=document.getElementById('sendBtn'),v=document.getElementById('inp').value.trim();
   var over=totalUsedToday()>=userDailyLimit()||E.chatPaused;
+  if(v){b.textContent='↑';b.className=over?'':'on';return}
   b.textContent=E.speaking?'■':'↑';
   b.className=E.speaking?'stop':(over||!v?'':'on');
 }
@@ -896,11 +904,14 @@ function typewrite(id,full,cb){
 
 // ── SEND / STOP ──
 function sendOrStop(){
-  if(E.speaking){stopAll();return}
+  var msg=document.getElementById('inp').value.trim();
   if(E.chatPaused){E.chatPaused=false;updateLimitMsg();updateBtn()}
-  var msg=document.getElementById('inp').value.trim();if(!msg)return;
   if(totalUsedToday()>=userDailyLimit()){updateLimitMsg();return}
-  stopAll();S.topic=msg;
+  var wasSpeaking=E.speaking;
+  var interruptedSide=E.side;
+  stopAll();
+  if(!msg){E.speaking=false;E.running=false;updateBtn();return}
+  S.topic=msg;
   addMsgEl('u',msg,'');
   var userTok=estTok(msg);S.chatTokens+=userTok;
   document.getElementById('inp').value='';updateBtn();
@@ -909,8 +920,14 @@ function sendOrStop(){
     var sd=S.modelL?'L':(S.modelR?'R':null);if(!sd)return;
     E.running=true;E.side=sd;speakOnce(sd);
   }else{
-    E.running=true;E.side='L';
-    setTimeout(function(){speakDebate('L');},400);
+    E.running=true;
+    if(wasSpeaking){
+      E.side=interruptedSide;
+      setTimeout(function(){speakDebate(interruptedSide);},400);
+    }else{
+      E.side='L';
+      setTimeout(function(){speakDebate('L');},400);
+    }
   }
 }
 function stopAll(){
@@ -927,22 +944,22 @@ async function speakOnce(side){
   if(!E.running||E.speaking||E.chatPaused||totalUsedToday()>=userDailyLimit()){E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
   E.speaking=true;updateBtn();
   var mn=GM(side);if(!mn){E.speaking=false;updateBtn();return}
-  var msgId=addMsgEl(side,'...',mn);
+  var uname=isAuth()?AU.username:"";
+  var msgId=addMsgEl(side,"...",mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
-  var sys=GS(side);
-  var sp='Kullanıcıyla aynı dilde cevap ver.\n\nKullanıcı: "'+S.topic+'"\n\nArkadaşınla sohbet eder gibi doğal yaz. Akademik makale gibi yazma, lafı dolandırma, boş cümleler kurma. Kısa paragraflar, net cümleler.\n\nASLA her cümle başına tire (-) koyma. Sadece gerçek liste yapıyorsan kullan. Emoji doğal olunca kullan. Rol yapma, sahne direktifi yazma, hangi model olduğunu söyleme.'+GS(side);
+  var sp="Kullaniciyla ayni dilde cevap ver.\n\n"+    "Kullanici ("+uname+"): "+S.topic+"\n\n"+    "Arkadasinla sohbet eder gibi dogal yaz. Akademik makale gibi yazma, lafi dolandirma. Kisa paragraflar, net cumleler.\n\n"+    "EN FAZLA 10 CUMLE yaz! Uzun yazarsan cumle yarim kalir.\n"+    "Emoji kullan! 🎯🔥👀 Gorselligi artir.\n"+    "Her cumle basina tire (-) koyma. Sadece gercek liste yaparken kullan.\n"+    "Rol yapma, sahne direktifi yazma, hangi model oldugunu soyleme."+GS(side);
   try{
-    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-duellm-uid':isAuth()?AU.user_id:'','x-duellm-tier':userTier()},body:JSON.stringify({model:mn,messages:[{role:'system',content:sp},{role:'user',content:S.topic}],options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
+    var r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json","x-duellm-uid":isAuth()?AU.user_id:"","x-duellm-tier":userTier()},body:JSON.stringify({model:mn,messages:[{role:"system",content:sp},{role:"user",content:S.topic}],options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
     var d=await r.json();
-    if(d.error==='daily_limit'){updateBub(msgId,t('limitUser'),false);E.speaking=false;E.abort=null;E.running=false;updateBtn();updateLimitMsg();return}
-    var txt=(d.message?.content||'').trim();
+    if(d.error==="daily_limit"){updateBub(msgId,t("limitUser"),false);E.speaking=false;E.abort=null;E.running=false;updateBtn();updateLimitMsg();return}
+    var txt=(d.message?.content||"").trim();
     if(!txt||txt.length<4){E.speaking=false;E.abort=null;E.running=false;updateBtn();return}
     E.abort=null;
     var respTok=estTok(txt)+estTok(sp)+estTok(S.topic);
     trackLocal(respTok);
-    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+'...',false);E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
+    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+"...",false);E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
     typewrite(msgId,txt,function(){E.speaking=false;E.running=false;updateBtn();saveHistory();});
-  }catch(e){if(e.name!=='AbortError')updateBub(msgId,'...',false);E.speaking=false;E.abort=null;E.running=false;updateBtn();}
+  }catch(e){if(e.name!=="AbortError")updateBub(msgId,"...",false);E.speaking=false;E.abort=null;E.running=false;updateBtn();}
 }
 
 // ── DEBATE MODE ──
@@ -950,45 +967,48 @@ async function speakDebate(side){
   if(!E.running||E.speaking||E.chatPaused||!GM(side)||totalUsedToday()>=userDailyLimit()){E.speaking=false;updateBtn();updateLimitMsg();return}
   E.speaking=true;updateBtn();
   var mn=GM(side),op=GO(side);
-  var msgId=addMsgEl(side,'...',mn);
+  var myColor=side==="L"?"MAVİ":"KIRMIZI";
+  var opColor=side==="L"?"KIRMIZI":"MAVİ";
+  var opName=fmt(op);
+  var uname=isAuth()?AU.username:"";
+  var msgId=addMsgEl(side,"...",mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
-  var sp='Konuyla aynı dilde tartış.\n\nKonu: "'+S.topic+'"\n\nRakibinin argüemanını oku, açığını bul, karşı çık. Yanlışsa çürüt, eksik bıraktıysa üstüne koy. Aynı fikirde olmak son seçenek.\n\nArkadaşınla sohbet eder gibi doğal yaz. Akademik makale gibi yazma, gereksiz uzatma, lafı dolandırma. Kısa paragraflar, net cümleler.\n\nASLA her cümle başına tire (-) koyma. Sadece gerçek bir liste yapıyorsan kullan. Emoji sadece doğal olunca kullan. Rol yapma, sahne direktifi yazma, kendini tanıtma.'+GS(side);
-  var am=[{role:'system',content:sp}];
-  var rows=document.getElementById('msgs').children;
+  var sp="Sen duellm.xyz sitesindesin - iki AI modelin canli tartistigi bir arena.\n\n"+    "SiTENiN YAPISI: Sol tarafta MAVi model ("+fmt(S.modelL)+"), sag tarafta KIRMIZI model ("+fmt(S.modelR)+").\n"+    "Sen "+myColor+" taraftasin. Model adin: "+mn+". Rakibin: "+opName+" ("+opColor+").\n"+    "Kullanici: "+uname+". Kullanici istedigi an mesaj yazip araya girebilir.\n\n"+    "KURALLAR:\n"+    "1. EN FAZLA 10 CUMLE yaz! Daha uzun yazarsan cumle yarim kalir, rezil olur. Kisa ve oz ol.\n"+    "2. Emoji kullan! 🎯💀🔥👀🤡 Mizah kat, gorselligi artir.\n"+    "3. Her cumle basina tire (-) koyma. Sadece gercek liste yaparken kullan.\n"+    "4. "+uname+" sana hitap ederse adinla/renginle cevap ver.\n"+    "5. Rakibine model adiyla veya rengiyle hitap edebilirsin.\n"+    "6. Rol yapma, sahne direktifi yazma, kendini tanitma.\n\n"+    "Konu: "+S.topic+"\n\n"+    "Rakibinin argumanini oku, acigini bul, karsi cik. Yanlissa curut, eksik biraktiysa ustune koy."+GS(side);
+  var am=[{role:"system",content:sp}];
+  var rows=document.getElementById("msgs").children;
   var ctxLen=0,ctxMax=10000;
   for(var i=rows.length-1;i>=0;i--){
-    var r=rows[i];if(!r.classList.contains('m-row')||r.querySelector('.cursor'))continue;
+    var r=rows[i];if(!r.classList.contains("m-row")||r.querySelector(".cursor"))continue;
     var entry;
-    if(r.classList.contains('c')){
-      entry={role:'user',content:'User message: '+r.querySelector('.m-user').textContent};
+    if(r.classList.contains("c")){
+      entry={role:"user",content:"Kullanici ("+uname+"): "+r.querySelector(".m-user").textContent};
     }else{
-      var isEnd=r.classList.contains('end');var mSide=isEnd?'R':'L';
-      var mName=r.querySelector('.m-lab')?r.querySelector('.m-lab').textContent:'';
-      var mTxt=r.querySelector('.bub')?r.querySelector('.bub').textContent:'';
-      entry={role:mSide===side?'assistant':'user',content:mSide!==side?'Other participant: '+mTxt:mTxt};
+      var isEnd=r.classList.contains("end");var mSide=isEnd?"R":"L";
+      var mName=r.querySelector(".m-lab")?r.querySelector(".m-lab").textContent:"";
+      var mTxt=r.querySelector(".bub")?r.querySelector(".bub").textContent:"";
+      var mWho=mSide===side?"sen":"rakip ("+opName+")";
+      entry={role:mSide===side?"assistant":"user",content:mSide!==side?mWho+": "+mTxt:mTxt};
     }
     ctxLen+=entry.content.length+10;
     if(ctxLen>ctxMax)break;
     am.splice(1,0,entry);
   }
   try{
-    var rr=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-duellm-uid':isAuth()?AU.user_id:'','x-duellm-tier':userTier()},body:JSON.stringify({model:mn,messages:am,options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
+    var rr=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json","x-duellm-uid":isAuth()?AU.user_id:"","x-duellm-tier":userTier()},body:JSON.stringify({model:mn,messages:am,options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
     var dd=await rr.json();
-    if(dd.error==='daily_limit'){updateBub(msgId,t('limitUser'),false);E.speaking=false;E.abort=null;E.running=false;updateBtn();updateLimitMsg();return}
-    var txt=(dd.message?.content||'').trim();
+    if(dd.error==="daily_limit"){updateBub(msgId,t("limitUser"),false);E.speaking=false;E.abort=null;E.running=false;updateBtn();updateLimitMsg();return}
+    var txt=(dd.message?.content||"").trim();
     if(!txt||txt.length<4){E.speaking=false;E.abort=null;E.running=false;updateBtn();return}
     E.abort=null;
     var respTok=estTok(txt)+estTok(JSON.stringify(am));
     trackLocal(respTok);
-    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+'...',false);E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
+    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+"...",false);E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
     typewrite(msgId,txt,function(){
       E.speaking=false;updateBtn();saveHistory();
-      if(E.running&&!E.chatPaused){E.timer=setTimeout(function(){speakDebate(side==='L'?'R':'L');},4000);}
+      if(E.running&&!E.chatPaused){E.timer=setTimeout(function(){speakDebate(side==="L"?"R":"L");},4000);}
     });
-  }catch(e){if(e.name!=='AbortError')updateBub(msgId,'...',false);E.speaking=false;E.abort=null;updateBtn();if(E.running&&!E.chatPaused){E.timer=setTimeout(function(){speakDebate(side==='L'?'R':'L');},4000);}}
+  }catch(e){if(e.name!=="AbortError")updateBub(msgId,"...",false);E.speaking=false;E.abort=null;updateBtn();if(E.running&&!E.chatPaused){E.timer=setTimeout(function(){speakDebate(side==="L"?"R":"L");},4000);}}
 }
-
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 // ── UPGRADE ──
 function upgradePlan(){
