@@ -831,7 +831,7 @@ function loadSuggestions(side){
  }
  w.innerHTML=h;
  var btns=w.querySelectorAll("button");
- for(var j=0;j<btns.length;j++){btns[j].onclick=function(){var ta=document.getElementById("setSys");if(!ta)return;var lbl=this.getAttribute("data-label"),cur=ta.value.trim();ta.value=cur+(cur?"\n":"")+lbl;ta.focus();rerollSuggestions(side);}}
+ for(var j=0;j<btns.length;j++){btns[j].onclick=function(){var ta=document.getElementById("setSys");if(!ta)return;var lbl=this.getAttribute("data-label"),cur=ta.value.trim(),sep=cur&&!cur.endsWith(",")?"; ":"",add=lbl;if(lbl.charAt(0)==="+")add=lbl.substring(1)+" ol";else add=lbl+" gibi konus";ta.value=cur+sep+add+", ";ta.focus();rerollSuggestions(side);}}
 }
 function rerollSuggestions(side){
  var w=document.getElementById("sugChips_"+side);if(!w)return;
@@ -903,7 +903,7 @@ function updateBub(id,txt,showCursor){
   if(ms.scrollHeight-ms.scrollTop-ms.clientHeight<60)ms.scrollTop=ms.scrollHeight;
 }
 function typewrite(id,full,cb){
-  var i=0,spd=55,chunk=1;
+  var i=0,spd=35,chunk=1;
   function step(){
     if(i>=full.length){updateBub(id,full,false);E.timer=null;if(cb)cb();return}
     i+=chunk;if(i>full.length)i=full.length;
