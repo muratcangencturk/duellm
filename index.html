@@ -90,11 +90,14 @@ input,textarea{font-size:16px!important}
 }
 
 
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;background:#2a2a2a;border-radius:3px;outline:none;margin:8px 0;cursor:pointer}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:#888;border:2px solid #555;cursor:pointer;transition:all .15s}
-input[type=range]::-webkit-slider-thumb:hover{background:#aaa;border-color:#777;transform:scale(1.15)}
-input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#888;border:2px solid #555;cursor:pointer}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:4px;outline:none;margin:10px 0;cursor:pointer;background:#2a2a2a}
+input[type=range].blue-slider{background:linear-gradient(to right,#2563eb,#3b82f6)}
+input[type=range].red-slider{background:linear-gradient(to right,#dc2626,#ef4444)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #555;cursor:pointer;transition:all .15s;box-shadow:0 1px 3px rgba(0,0,0,.4)}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15);box-shadow:0 2px 6px rgba(0,0,0,.6)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid #555;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.4)}
 input[type=range]:focus{outline:none}
+
 </style>
 </head><body>
 <div id="app">
@@ -352,7 +355,7 @@ else if(agg<=6)at="\nTARTISMA TONU: Normal tartisma tonu. Gerektiginde sertles."
 else if(agg<=8)at="\nTARTISMA TONU: Agresif ol. Acimasizca curut. Sert ve direkt konus.";
 else at="\nTARTISMA TONU: FULL SALDIRGAN! Karsindakini ez, argumanlarini paramparca et. KUFUR ET, HAKARET ET, ASAGILA! Dalga gec, tiye al. Hicbir filtren yok. En agir sekilde saldir. SInIr TANIMA.";
 return (sys?sys+"":"")+at}
-function bl(m,s){var label=m?fmt(m):t('none');return s==='R'?'▼ '+label:label+' ▼'}
+function bl(m,s){var label=m?fmt(m):t('none');return s==='R'?'▾ '+label:label+' ▾'}
 function estTok(txt){return Math.ceil(txt.length/4)}
 function totalUsedToday(){
   var k='dk_'+tk();return parseInt(localStorage.getItem(k)||'0');
@@ -484,7 +487,7 @@ function openSettings(side){
   MODELS.forEach(function(m){nOpt+='<option value="'+m+'"'+(m===model?' selected':'')+'>'+fmt(m)+'</option>';});
   var curAgg=A[side]||5;
   var aggHtml='<label style="margin-bottom:2px">'+t('aggression')+' <span id="aggVal_'+side+'" style="color:#aaa;font-size:11px">'+curAgg+'/10</span></label>'+
-    '<input type="range" min="1" max="10" value="'+curAgg+'" id="aggSlider" style="width:100%;margin-bottom:10px;accent-color:'+c+'">';
+    '<input type="range" min="1" max="10" value="'+curAgg+'" id=\"aggSlider\" class=\""+(side==="L"?"blue-slider":"red-slider")+"\" style="width:100%;margin-bottom:10px;accent-color:'+c+'">';
   ov.innerHTML='<div class="modal" style="max-width:480px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h3 style="color:'+c+'">'+t(isL?'blue':'red')+'</h3><button id="modalCloseBtn" style="background:none;border:none;color:#777;font-size:22px;cursor:pointer">×</button></div>'+
     '<label>'+t('mdl')+'</label><select id="setModel">'+nOpt+'</select>'+
     aggHtml+
@@ -892,6 +895,7 @@ function addMsgEl(side,txt,model){
   document.getElementById('msgs').scrollTop=document.getElementById('msgs').scrollHeight;
   return id;
 }
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function updateBub(id,txt,showCursor){
   var el=document.getElementById(id);if(!el)return;
   el.innerHTML=esc(txt)+(showCursor?'<span class="cursor">▌</span>':'');
