@@ -920,7 +920,7 @@ function sendOrStop(){
   var wasSpeaking=E.speaking;
   var interruptedSide=E.side;
   stopAll();
-  if(!msg){E.speaking=false;E.running=false;updateBtn();return}
+  if(!msg){E.speaking=false;updateBtn();return}
   S.topic=msg;
   addMsgEl('u',msg,'');
   var userTok=estTok(msg);S.chatTokens+=userTok;
@@ -943,7 +943,7 @@ function sendOrStop(){
 function stopAll(){
   if(E.abort){try{E.abort()}catch(e){}E.abort=null}
   if(E.timer){clearTimeout(E.timer);E.timer=null}
-  E.speaking=false;E.running=false;
+  E.speaking=false;
   var cursors=document.querySelectorAll('.cursor');
   for(var i=0;i<cursors.length;i++){cursors[i].remove();}
   updateBtn();
@@ -951,7 +951,7 @@ function stopAll(){
 
 // ── CHAT MODE ──
 async function speakOnce(side){
-  if(!E.running||E.speaking||E.chatPaused||totalUsedToday()>=userDailyLimit()){E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
+  if(!E.running||E.speaking||E.chatPaused||totalUsedToday()>=userDailyLimit()){E.speaking=false;updateBtn();updateLimitMsg();return}
   E.speaking=true;updateBtn();
   var mn=GM(side);if(!mn){E.speaking=false;updateBtn();return}
   var uname=isAuth()?AU.username:"";
@@ -967,8 +967,8 @@ async function speakOnce(side){
     E.abort=null;
     var respTok=estTok(txt)+estTok(sp)+estTok(S.topic);
     trackLocal(respTok);
-    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+"...",false);E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
-    typewrite(msgId,txt,function(){E.speaking=false;E.running=false;updateBtn();saveHistory();});
+    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+"...",false);E.speaking=false;updateBtn();updateLimitMsg();return}
+    typewrite(msgId,txt,function(){E.speaking=false;updateBtn();saveHistory();});
   }catch(e){if(e.name!=="AbortError")updateBub(msgId,"...",false);E.speaking=false;E.abort=null;E.running=false;updateBtn();}
 }
 
@@ -1012,7 +1012,7 @@ async function speakDebate(side){
     E.abort=null;
     var respTok=estTok(txt)+estTok(JSON.stringify(am));
     trackLocal(respTok);
-    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+"...",false);E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
+    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+"...",false);E.speaking=false;updateBtn();updateLimitMsg();return}
     typewrite(msgId,txt,function(){
       E.speaking=false;updateBtn();saveHistory();
       if(E.running&&!E.chatPaused){E.timer=setTimeout(function(){speakDebate(side==="L"?"R":"L");},4000);}
