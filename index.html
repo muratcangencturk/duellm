@@ -917,9 +917,13 @@ function sendOrStop(){
   var msg=document.getElementById('inp').value.trim();
   if(E.chatPaused){E.chatPaused=false;updateLimitMsg();updateBtn()}
   if(totalUsedToday()>=userDailyLimit()){updateLimitMsg();return}
+  /* PAUSE/RESUME - msg empty => toggle */
+  if(E.paused&&!msg){E.paused=false;E.running=true;updateBtn();var rs=E.pauseSide||'L';if(!S.modelL||!S.modelR)speakOnce(rs);else setTimeout(function(){speakDebate(rs);},400);return}
+  if(E.running&&!E.paused&&!msg){E.paused=true;E.pauseSide=E.side;stopAll();E.running=true;updateBtn();return}
+  /* SEND */
   var wasSpeaking=E.speaking;
   var interruptedSide=E.side;
-  stopAll();
+  stopAll();E.paused=false;
   if(!msg){E.speaking=false;updateBtn();return}
   S.topic=msg;
   addMsgEl('u',msg,'');
