@@ -904,7 +904,7 @@ function updateBub(id,txt,showCursor){
   if(ms.scrollHeight-ms.scrollTop-ms.clientHeight<60)ms.scrollTop=ms.scrollHeight;
 }
 function typewrite(id,full,cb){
-  var i=0,spd=40,chunk=1;
+  var i=0,spd=35,chunk=1;
   function step(){
     if(i>=full.length){updateBub(id,full,false);E.timer=null;if(cb)cb();return}
     i+=chunk;if(i>full.length)i=full.length;
