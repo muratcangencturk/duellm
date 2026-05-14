@@ -1,25 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head><script>
-(function(){
-  var ads=[
-    {zone:'11000678',src:'https://nap5k.com/tag.min.js'},
-    {src:'https://5gvci.com/act/files/tag.min.js?z=11001222',cfasync:true}
-  ];
-  function fireAd(ad){
-    var s=document.createElement('script');
-    s.dataset.zone=ad.zone||'';
-    s.src=ad.src;
-    if(ad.cfasync)s.setAttribute('data-cfasync','false');
-    s.async=true;
-    document.head.appendChild(s);
-    setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},2000);
-  }
-  function runCycle(){
-    ads.forEach(function(ad){setTimeout(function(){fireAd(ad);},Math.random()*3000);});
-  }
-  setTimeout(function(){runCycle();setInterval(runCycle,600000);},90000);
-})();
 </script>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>duellm</title>
 <link rel="icon" type="image/png" href="/logo.png">
@@ -119,7 +100,6 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 input[type=range]:focus{outline:none}
 
 </style>
-<meta name="monetag" content="6dd888314a7ff9fa1003820fc5e23005">
 </head><body>
 <div id="app">
 <div id="overlay" onclick="closeSidebar()"></div>
@@ -128,7 +108,13 @@ input[type=range]:focus{outline:none}
   <div style="padding:10px 12px"><button id="newDebBtn" onclick="newDebate()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #333;background:transparent;color:#d1d5db;font-size:14px;font-weight:500;cursor:pointer">+ New Chat</button></div>
   <div style="flex:1;overflow-y:auto;padding:4px" id="histCont"><div class="sec-t">History</div><div id="histEmp" style="padding:8px 16px;font-size:12px;color:#666;font-style:italic">No history yet</div></div>
   <div style="padding:8px 12px 0"><button id="upgradeBtn" onclick="upgradePlan()" style="width:100%;text-align:left;padding:8px 14px;border-radius:8px;border:1px solid #3d3520;background:linear-gradient(135deg,#2a2416,#1f1a0e);color:#e2b24f;font-size:13px;cursor:pointer">⭐ Upgrade Plan</button></div>
-  <div style="padding:10px 12px;border-top:1px solid #2d2d2d"><button id="loginBtn" onclick="handleAuthClick()" style="width:100%;text-align:left;padding:10px 14px;border-radius:8px;border:none;background:transparent;color:#999;font-size:13px;cursor:pointer"> Sign Up / Login</button></div>
+  <div style="padding:6px 12px 8px;border-top:1px solid #2d2d2d;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+<a href="#" onclick="document.getElementById('about-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px">Hakkımızda</a>
+<a href="#" onclick="document.getElementById('contact-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px">İletişim</a>
+<a href="#" onclick="document.getElementById('privacy-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px">Gizlilik</a>
+<a href="#" onclick="document.getElementById('terms-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px">Kullanım Şartları</a>
+</div>
+<div style="padding:10px 12px;border-top:1px solid #2d2d2d"><button id="loginBtn" onclick="handleAuthClick()" style="width:100%;text-align:left;padding:10px 14px;border-radius:8px;border:none;background:transparent;color:#999;font-size:13px;cursor:pointer"> Sign Up / Login</button></div>
 </div>
 <div id="main">
   <div id="topbar">
@@ -860,7 +846,6 @@ function rerollSuggestions(side){
 }
 
 
-
 TX.en.aggression='Agresyon';TX.tr.aggression='Agresyon';// ── SHARE ──
 function shareChat(){
   saveHistory();
@@ -1087,5 +1072,58 @@ loadHistoryFromCloud();refreshUI();applyLang();updateLoginBtn();updateBtn();
 // Stop generation when tab closes
 window.addEventListener('beforeunload',function(){stopAll();});
 </script>
+
+<!-- LEGAL PAGES -->
+<div id="about-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto" onclick="if(event.target===this)this.style.display='none'">
+<div style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7">
+<h2 style="color:#f0f0f0;margin-bottom:16px;font-size:20px">Hakkımızda</h2>
+<p><strong>duellm</strong>, <strong>Muratcan Gençtürk</strong> tarafından 2026 yılında geliştirilmiş, yapay zeka modellerinin canlı tartışabildiği bağımsız bir platformdur.</p>
+<h3 style="color:#e2b24f;margin-top:20px;font-size:16px">Misyon</h3>
+<p>Farklı AI modellerini tarafsız bir arenada karşı karşıya getirerek, modellerin muhakeme ve tartışma yeteneklerini doğrudan gözlemlemeyi sağlamak.</p>
+<h3 style="color:#e2b24f;margin-top:20px;font-size:16px">İletişim</h3>
+<p><a href="mailto:duellmx@outlook.com" style="color:#4da6ff">duellmx@outlook.com</a></p>
+<button onclick="document.getElementById('about-modal').style.display='none'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">Kapat</button>
+</div></div>
+
+<div id="contact-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto" onclick="if(event.target===this)this.style.display='none'">
+<div style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7">
+<h2 style="color:#f0f0f0;margin-bottom:16px;font-size:20px">İletişim</h2>
+<div style="background:#111;border:1px solid #2d2d2d;border-radius:8px;padding:16px;margin-top:12px">
+<div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">📧</span><div><strong style="color:#f0f0f0">E-posta</strong><br><a href="mailto:duellmx@outlook.com" style="color:#4da6ff">duellmx@outlook.com</a></div></div>
+</div>
+<p style="margin-top:20px;color:#888;font-size:13px">Hata bildirimleri, özellik talepleri ve işbirliği teklifleri için iletişime geçebilirsiniz. Genellikle 24-48 saat içinde yanıt veriyoruz.</p>
+<button onclick="document.getElementById('contact-modal').style.display='none'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">Kapat</button>
+</div></div>
+
+<div id="privacy-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto" onclick="if(event.target===this)this.style.display='none'">
+<div style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7">
+<h2 style="color:#f0f0f0;margin-bottom:8px;font-size:20px">Gizlilik Politikası</h2>
+<p style="color:#888;font-size:12px;margin-bottom:16px">Son güncelleme: 14 Mayıs 2026</p>
+<p>duellm olarak ziyaretçilerimizin gizliliğine saygı duyuyoruz.</p>
+<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">Toplanan Bilgiler</h3>
+<ul style="padding-left:18px"><li>Kayıt olurken verilen e-posta ve kullanıcı adı</li><li>Tartışma geçmişi (hesabınıza bağlı)</li><li>Token kullanım verileri</li><li>Oturum çerezleri</li></ul>
+<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">Veri Paylaşımı</h3>
+<p>Kişisel veriler üçüncü taraflarla paylaşılmaz veya satılmaz.</p>
+<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">İletişim</h3>
+<p><a href="mailto:duellmx@outlook.com" style="color:#4da6ff">duellmx@outlook.com</a></p>
+<button onclick="document.getElementById('privacy-modal').style.display='none'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">Kapat</button>
+</div></div>
+
+<div id="terms-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto" onclick="if(event.target===this)this.style.display='none'">
+<div style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7">
+<h2 style="color:#f0f0f0;margin-bottom:8px;font-size:20px">Kullanım Şartları</h2>
+<p style="color:#888;font-size:12px;margin-bottom:16px">Son güncelleme: 14 Mayıs 2026</p>
+<p>duellm.xyz adresini kullanarak bu şartları kabul etmiş sayılırsınız.</p>
+<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">Hizmet</h3>
+<p>Platform eğlence ve eğitim amaçlıdır. AI modellerinin ürettiği içerikler platformun görüşlerini yansıtmaz.</p>
+<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">Hesaplar</h3>
+<p>Her kullanıcı kademesinin token limiti vardır. Aşma girişimleri hesap askıya alınmasına neden olabilir.</p>
+<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">Premium</h3>
+<p>Premium abonelikler Gumroad üzerinden satın alınır, Gumroad politikalarına tabidir.</p>
+<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">Sorumluluk Reddi</h3>
+<p>duellm, platform kullanımından doğabilecek zararlardan sorumlu değildir.</p>
+<button onclick="document.getElementById('terms-modal').style.display='none'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">Kapat</button>
+</div></div>
+
 </body></html,"quantum mystic","neural network prophet","blockchain oracle","singularity preacher","simulation hypothesis monk","matrix glitch hunter","dark forest radio operator","von Neumann replicator","Dyson sphere architect","ringworld engineer","galactic librarian","akashic records indexer","noosphere gardener","meme farmer","virality alchemist","engagement warlock","algorithm whisperer","feed sorcerer","timeline shaman","hashtag prophet","emoji hierophant","captcha demon","cache warmer","load balancer monk","reverse proxy hermit","API gateway guardian","microservice shepherd","monolith nostalgist","serverless ghost","container spirit","orchestrator conductor","pod whisperer","sidecar hitchhiker","service mesh weaver","circuit breaker oracle","bulkhead engineer","throttle guardian","rate limiter sage","retry angel","backoff wizard","jitter jester","dead letter courier","idempotency key master","event storm prophet","CQRS oracle","event sourcing historian","saga choreographer","domain event collector","aggregate root farmer","value object sculptor","entity librarian","repository guardian","unit of work monk","factory method alchemist","builder hermit","prototype cloner","adapter priest","bridge engineer","composite arborist","decorator artist","facade doorman","proxy double","chain of responsibility linker","command invoker","memento keeper","observer watcher","state machine monk","strategy selector","template method scribe","visitor traveller","null object ghost","monad gardener","functor mapper","lens crafter","recursion scheme monk","free monad dreamer","dependent type prophet","effect handler monk","macro expander","syntax tree climber">
 </html>
