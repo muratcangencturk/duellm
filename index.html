@@ -109,10 +109,10 @@ input[type=range]:focus{outline:none}
   <div style="flex:1;overflow-y:auto;padding:4px" id="histCont"><div class="sec-t">History</div><div id="histEmp" style="padding:8px 16px;font-size:12px;color:#666;font-style:italic">No history yet</div></div>
   <div style="padding:8px 12px 0"><button id="upgradeBtn" onclick="upgradePlan()" style="width:100%;text-align:left;padding:8px 14px;border-radius:8px;border:1px solid #3d3520;background:linear-gradient(135deg,#2a2416,#1f1a0e);color:#e2b24f;font-size:13px;cursor:pointer">⭐ Upgrade Plan</button></div>
   <div style="padding:6px 12px 8px;border-top:1px solid #2d2d2d;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-<a href="#" onclick="document.getElementById('about-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px">Hakkımızda</a>
-<a href="#" onclick="document.getElementById('contact-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px">İletişim</a>
-<a href="#" onclick="document.getElementById('privacy-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px">Gizlilik</a>
-<a href="#" onclick="document.getElementById('terms-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px">Kullanım Şartları</a>
+<a href="#" onclick="document.getElementById('about-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px" id="footAbout">Hakkımızda</a>
+<a href="#" onclick="document.getElementById('contact-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px" id="footContact">İletişim</a>
+<a href="#" onclick="document.getElementById('privacy-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px" id="footPrivacy">Gizlilik</a>
+<a href="#" onclick="document.getElementById('terms-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px" id="footTerms">Kullanım Şartları</a>
 </div>
 <div style="padding:10px 12px;border-top:1px solid #2d2d2d"><button id="loginBtn" onclick="handleAuthClick()" style="width:100%;text-align:left;padding:10px 14px;border-radius:8px;border:none;background:transparent;color:#999;font-size:13px;cursor:pointer"> Sign Up / Login</button></div>
 </div>
@@ -160,8 +160,66 @@ var RP_TR="Tek cümlelik bir tartışma konusu veya soru üret. Teknoloji, felse
 // ── TRANSLATIONS ──
 var L='en';
 var TX={
-  en:{newDebate:'+ New Chat',history:'History',noHistory:'No history yet',loginIn:' Sign Up / Login',loginOut:' Sign Out',upgrade:'⭐ Upgrade Plan',upgradeWarn:'Please sign up / login first.',sendMsg:'Send a message',change:'Change Model',settings:'Settings',rand:'Random topic',none:'— None —',limitGuest:'Daily limit reached.\nSign up for more usage.',limitUser:'Daily limit reached.\nPlease upgrade plan for x10 more tokens.',limitPremium:'Daily limit reached.\nUpgrade for even more tokens.',limitChat:'Chat limit reached (10K tokens).\nSend a message to continue.',rp:RP_EN,vs:'VS',blue:'Blue',red:'Red',mdl:'Model',sp:'System Prompt',spPlace:'Instructions for this model...',save:'Save',share:'Share',shared:'Link copied! Share this link to show this conversation.',shareTooltip:'Share',signupTitle:'Create Account',loginTitle:'Sign In',email:'Email',password:'Password',username:'Username',signupBtn:'Create Account',loginBtn:'Sign In',switchSignup:'Already have an account? Sign in',switchLogin:"Don't have an account? Sign up",logout:'Sign Out',licenseTitle:'Activate Premium',licenseKey:'Order ID',licenseBtn:'Activate',licenseDesc:'Enter your Gumroad Order ID:',licenseLink:'Buy on Gumroad →',licenseSuccess:'Premium activated! You now have 300K tokens/day.',licenseFail:'Invalid Order ID. Please try again.',activated:'Premium ✓'},
-  tr:{newDebate:'+ Yeni Sohbet',history:'Geçmiş',noHistory:'Henüz geçmiş yok',loginIn:' Kayıt Ol / Giriş Yap',loginOut:' Çıkış Yap',upgrade:'⭐ Planı Yükselt',upgradeWarn:'Lütfen önce kayıt olun / giriş yapın.',sendMsg:'Mesaj gönder',change:'Model Değiştir',settings:'Ayarlar',rand:'Rastgele konu',none:'— Boş —',limitGuest:'Günlük limit doldu.\nDaha fazla kullanım için kayıt olun.',limitUser:'Günlük limit doldu.\nx10 daha fazla token için planı yükseltin.',limitPremium:'Günlük limit doldu.\nDaha fazlası için yükseltin.',limitChat:'Sohbet limiti doldu (10K token).\nDevam etmek için mesaj gönder.',rp:RP_TR,vs:'VS',blue:'Mavi',red:'Kırmızı',mdl:'Model',sp:'Sistem Promptu',spPlace:'Bu model için talimatlar...',save:'Kaydet',share:'Paylaş',shared:'Link kopyalandı! Bu linkle sohbeti paylaşabilirsin.',shareTooltip:'Paylaş',signupTitle:'Hesap Oluştur',loginTitle:'Giriş Yap',email:'E-posta',password:'Şifre',username:'Kullanıcı Adı',signupBtn:'Hesap Oluştur',loginBtn:'Giriş Yap',switchSignup:'Zaten hesabın var mı? Giriş yap',switchLogin:'Hesabın yok mu? Kayıt ol',logout:'Çıkış Yap',licenseTitle:'Premium Aktifleştir',licenseKey:'Sipariş No',licenseBtn:'Aktifleştir',licenseDesc:'Gumroad Sipariş Numaranı gir:',licenseLink:'Gumroad\'dan Satın Al →',licenseSuccess:'Premium aktif! Artık günlük 300K token kullanabilirsin.',licenseFail:'Geçersiz Sipariş No. Tekrar dene.',activated:'Premium ✓'}
+  en:{newDebate:'+ New Chat',history:'History',noHistory:'No history yet',loginIn:' Sign Up / Login',loginOut:' Sign Out',upgrade:'⭐ Upgrade Plan',upgradeWarn:'Please sign up / login first.',sendMsg:'Send a message',change:'Change Model',settings:'Settings',rand:'Random topic',none:'— None —',limitGuest:'Daily limit reached.\nSign up for more usage.',limitUser:'Daily limit reached.\nPlease upgrade plan for x10 more tokens.',limitPremium:'Daily limit reached.\nUpgrade for even more tokens.',limitChat:'Chat limit reached (10K tokens).\nSend a message to continue.',rp:RP_EN,vs:'VS',blue:'Blue',red:'Red',mdl:'Model',sp:'System Prompt',spPlace:'Instructions for this model...',save:'Save',share:'Share',shared:'Link copied! Share this link to show this conversation.',shareTooltip:'Share',signupTitle:'Create Account',loginTitle:'Sign In',email:'Email',password:'Password',username:'Username',signupBtn:'Create Account',loginBtn:'Sign In',switchSignup:'Already have an account? Sign in',switchLogin:"Don't have an account? Sign up",logout:'Sign Out',licenseTitle:'Activate Premium',licenseKey:'Order ID',licenseBtn:'Activate',licenseDesc:'Enter your Gumroad Order ID:',licenseLink:'Buy on Gumroad →',licenseSuccess:'Premium activated! You now have 300K tokens/day.',licenseFail:'Invalid Order ID. Please try again.',activated:'Premium ✓',
+  about:'About',contact:'Contact',privacy:'Privacy',terms:'Terms of Service',
+  close:'Close',
+  aboutTitle:'About',
+  aboutBody:'<strong>duellm</strong> is an independent platform developed by <strong>Muratcan Gen\u00e7t\u00fcrk</strong> in 2026 where AI models can debate live.',
+  aboutMissionTitle:'Mission',
+  aboutMissionBody:'To observe the reasoning and debate capabilities of different AI models by pitting them against each other in an unbiased arena.',
+  aboutContactTitle:'Contact',
+  aboutContactBody:'<a href=\'mailto:duellmx@outlook.com\' style=\'color:#4da6ff\'>duellmx@outlook.com</a>',
+  contactTitle:'Contact',
+  contactEmail:'Email',
+  contactBody:'For bug reports, feature requests, and collaboration offers. We typically respond within 24-48 hours.',
+  privacyTitle:'Privacy Policy',
+  privacyUpdate:'Last updated: May 14, 2026',
+  privacyIntro:'At duellm, we respect the privacy of our visitors.',
+  privacyCollectedTitle:'Collected Information',
+  privacyCollectedItems:'<ul style=\'padding-left:18px\'><li>Email and username provided during registration</li><li>Debate history (linked to your account)</li><li>Token usage data</li><li>Session cookies</li></ul>',
+  privacySharingTitle:'Data Sharing',
+  privacySharingBody:'Personal data is not shared or sold to third parties.',
+  termsTitle:'Terms of Service',
+  termsUpdate:'Last updated: May 14, 2026',
+  termsIntro:'By using duellm.xyz, you agree to these terms.',
+  termsServiceTitle:'Service',
+  termsServiceBody:'The platform is for entertainment and educational purposes. Content generated by AI models does not reflect the views of the platform.',
+  termsAccountsTitle:'Accounts',
+  termsAccountsBody:'Each user tier has a token limit. Exceeding attempts may result in account suspension.',
+  termsPremiumTitle:'Premium',
+  termsPremiumBody:'Premium subscriptions are purchased through Gumroad and are subject to Gumroad policies.',
+  termsDisclaimerTitle:'Disclaimer',
+  termsDisclaimerBody:'duellm is not responsible for any damages arising from the use of the platform.'},
+  tr:{newDebate:'+ Yeni Sohbet',history:'Geçmiş',noHistory:'Henüz geçmiş yok',loginIn:' Kayıt Ol / Giriş Yap',loginOut:' Çıkış Yap',upgrade:'⭐ Planı Yükselt',upgradeWarn:'Lütfen önce kayıt olun / giriş yapın.',sendMsg:'Mesaj gönder',change:'Model Değiştir',settings:'Ayarlar',rand:'Rastgele konu',none:'— Boş —',limitGuest:'Günlük limit doldu.\nDaha fazla kullanım için kayıt olun.',limitUser:'Günlük limit doldu.\nx10 daha fazla token için planı yükseltin.',limitPremium:'Günlük limit doldu.\nDaha fazlası için yükseltin.',limitChat:'Sohbet limiti doldu (10K token).\nDevam etmek için mesaj gönder.',rp:RP_TR,vs:'VS',blue:'Mavi',red:'Kırmızı',mdl:'Model',sp:'Sistem Promptu',spPlace:'Bu model için talimatlar...',save:'Kaydet',share:'Paylaş',shared:'Link kopyalandı! Bu linkle sohbeti paylaşabilirsin.',shareTooltip:'Paylaş',signupTitle:'Hesap Oluştur',loginTitle:'Giriş Yap',email:'E-posta',password:'Şifre',username:'Kullanıcı Adı',signupBtn:'Hesap Oluştur',loginBtn:'Giriş Yap',switchSignup:'Zaten hesabın var mı? Giriş yap',switchLogin:'Hesabın yok mu? Kayıt ol',logout:'Çıkış Yap',licenseTitle:'Premium Aktifleştir',licenseKey:'Sipariş No',licenseBtn:'Aktifleştir',licenseDesc:'Gumroad Sipariş Numaranı gir:',licenseLink:'Gumroad\'dan Satın Al →',licenseSuccess:'Premium aktif! Artık günlük 300K token kullanabilirsin.',licenseFail:'Geçersiz Sipariş No. Tekrar dene.',activated:'Premium ✓',
+  about:'Hakk\u0131m\u0131zda',contact:'\u0130leti\u015fim',privacy:'Gizlilik',terms:'Kullan\u0131m \u015eartlar\u0131',
+  close:'Kapat',
+  aboutTitle:'Hakk\u0131m\u0131zda',
+  aboutBody:'<strong>duellm</strong>, <strong>Muratcan Gen\u00e7t\u00fcrk</strong> taraf\u0131ndan 2026 y\u0131l\u0131nda geli\u015ftirilmi\u015f, yapay zeka modellerinin canl\u0131 tart\u0131\u015fabildi\u011fi ba\u011f\u0131ms\u0131z bir platformdur.',
+  aboutMissionTitle:'Misyon',
+  aboutMissionBody:'Farkl\u0131 AI modellerini tarafs\u0131z bir arenada kar\u015f\u0131 kar\u015f\u0131ya getirerek, modellerin muhakeme ve tart\u0131\u015fma yeteneklerini do\u011frudan g\u00f6zlemlemeyi sa\u011flamak.',
+  aboutContactTitle:'\u0130leti\u015fim',
+  aboutContactBody:'<a href=\'mailto:duellmx@outlook.com\' style=\'color:#4da6ff\'>duellmx@outlook.com</a>',
+  contactTitle:'\u0130leti\u015fim',
+  contactEmail:'E-posta',
+  contactBody:'Hata bildirimleri, \u00f6zellik talepleri ve i\u015fbirli\u011fi teklifleri i\u00e7in ileti\u015fime ge\u00e7ebilirsiniz. Genellikle 24-48 saat i\u00e7inde yan\u0131t veriyoruz.',
+  privacyTitle:'Gizlilik Politikas\u0131',
+  privacyUpdate:'Son g\u00fcncelleme: 14 May\u0131s 2026',
+  privacyIntro:'duellm olarak ziyaret\u00e7ilerimizin gizlili\u011fine sayg\u0131 duyuyoruz.',
+  privacyCollectedTitle:'Toplanan Bilgiler',
+  privacyCollectedItems:'<ul style=\'padding-left:18px\'><li>Kay\u0131t olurken verilen e-posta ve kullan\u0131c\u0131 ad\u0131</li><li>Tart\u0131\u015fma ge\u00e7mi\u015fi (hesab\u0131n\u0131za ba\u011fl\u0131)</li><li>Token kullan\u0131m verileri</li><li>Oturum \u00e7erezleri</li></ul>',
+  privacySharingTitle:'Veri Payla\u015f\u0131m\u0131',
+  privacySharingBody:'Ki\u015fisel veriler \u00fc\u00e7\u00fcnc\u00fc taraflarla payla\u015f\u0131lmaz veya sat\u0131lmaz.',
+  termsTitle:'Kullan\u0131m \u015eartlar\u0131',
+  termsUpdate:'Son g\u00fcncelleme: 14 May\u0131s 2026',
+  termsIntro:'duellm.xyz adresini kullanarak bu \u015fartlar\u0131 kabul etmi\u015f say\u0131l\u0131rs\u0131n\u0131z.',
+  termsServiceTitle:'Hizmet',
+  termsServiceBody:'Platform e\u011flence ve e\u011fitim ama\u00e7l\u0131d\u0131r. AI modellerinin \u00fcretti\u011fi i\u00e7erikler platformun g\u00f6r\u00fc\u015flerini yans\u0131tmaz.',
+  termsAccountsTitle:'Hesaplar',
+  termsAccountsBody:'Her kullan\u0131c\u0131 kademesinin token limiti vard\u0131r. A\u015fma giri\u015fimleri hesap ask\u0131ya al\u0131nmas\u0131na neden olabilir.',
+  termsPremiumTitle:'Premium',
+  termsPremiumBody:'Premium abonelikler Gumroad \u00fczerinden sat\u0131n al\u0131n\u0131r, Gumroad politikalar\u0131na tabidir.',
+  termsDisclaimerTitle:'Sorumluluk Reddi',
+  termsDisclaimerBody:'duellm, platform kullan\u0131m\u0131ndan do\u011fabilecek zararlardan sorumlu de\u011fildir.'}
 };
 function t(k){return TX[L][k]||k}
 
@@ -233,14 +291,68 @@ function applyLang(){
   document.getElementById('gearL').setAttribute('tip',t('settings'));
   document.getElementById('gearR').setAttribute('tip',t('settings'));
   document.getElementById('vsSpan').textContent='VS';
+  var fa=document.getElementById('footAbout');if(fa)fa.textContent=t('about');
+  var fc=document.getElementById('footContact');if(fc)fc.textContent=t('contact');
+  var fp=document.getElementById('footPrivacy');if(fp)fp.textContent=t('privacy');
+  var ft=document.getElementById('footTerms');if(ft)ft.textContent=t('terms');
   updateLoginBtn();
   renderHistory();
   updateLimitMsg();
+  buildModals();
+}function buildModals(){
+  var L2=L;
+  // About modal
+  document.getElementById('about-modal-inner').innerHTML=
+    '<h2 style="color:#f0f0f0;margin-bottom:16px;font-size:20px">'+t('aboutTitle')+'</h2>'+
+    '<p>'+t('aboutBody')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:20px;font-size:16px">'+t('aboutMissionTitle')+'</h3>'+
+    '<p>'+t('aboutMissionBody')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:20px;font-size:16px">'+t('aboutContactTitle')+'</h3>'+
+    '<p>'+t('aboutContactBody')+'</p>'+
+    '<button onclick="document.getElementById(\'about-modal\').style.display=\'none\'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">'+t('close')+'</button>';
+  // Contact modal
+  document.getElementById('contact-modal-inner').innerHTML=
+    '<h2 style="color:#f0f0f0;margin-bottom:16px;font-size:20px">'+t('contactTitle')+'</h2>'+
+    '<div style="background:#111;border:1px solid #2d2d2d;border-radius:8px;padding:16px;margin-top:12px">'+
+    '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">\ud83d\udce7</span><div><strong style="color:#f0f0f0">'+t('contactEmail')+'</strong><br><a href="mailto:duellmx@outlook.com" style="color:#4da6ff">duellmx@outlook.com</a></div></div>'+
+    '</div>'+
+    '<p style="margin-top:20px;color:#888;font-size:13px">'+t('contactBody')+'</p>'+
+    '<button onclick="document.getElementById(\'contact-modal\').style.display=\'none\'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">'+t('close')+'</button>';
+  // Privacy modal
+  document.getElementById('privacy-modal-inner').innerHTML=
+    '<h2 style="color:#f0f0f0;margin-bottom:8px;font-size:20px">'+t('privacyTitle')+'</h2>'+
+    '<p style="color:#888;font-size:12px;margin-bottom:16px">'+t('privacyUpdate')+'</p>'+
+    '<p>'+t('privacyIntro')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">'+t('privacyCollectedTitle')+'</h3>'+
+    t('privacyCollectedItems')+
+    '<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">'+t('privacySharingTitle')+'</h3>'+
+    '<p>'+t('privacySharingBody')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">'+t('contactTitle')+'</h3>'+
+    '<p><a href="mailto:duellmx@outlook.com" style="color:#4da6ff">duellmx@outlook.com</a></p>'+
+    '<button onclick="document.getElementById(\'privacy-modal\').style.display=\'none\'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">'+t('close')+'</button>';
+  // Terms modal
+  document.getElementById('terms-modal-inner').innerHTML=
+    '<h2 style="color:#f0f0f0;margin-bottom:8px;font-size:20px">'+t('termsTitle')+'</h2>'+
+    '<p style="color:#888;font-size:12px;margin-bottom:16px">'+t('termsUpdate')+'</p>'+
+    '<p>'+t('termsIntro')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">'+t('termsServiceTitle')+'</h3>'+
+    '<p>'+t('termsServiceBody')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">'+t('termsAccountsTitle')+'</h3>'+
+    '<p>'+t('termsAccountsBody')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">'+t('termsPremiumTitle')+'</h3>'+
+    '<p>'+t('termsPremiumBody')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">'+t('termsDisclaimerTitle')+'</h3>'+
+    '<p>'+t('termsDisclaimerBody')+'</p>'+
+    '<button onclick="document.getElementById(\'terms-modal\').style.display=\'none\'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">'+t('close')+'</button>';
 }
+
+
 (function(){
   var sl=localStorage.getItem('dlang')||'en';L=sl;
   document.getElementById('lEN').className='lang-btn'+(sl==='en'?' on':'');
   document.getElementById('lTR').className='lang-btn'+(sl==='tr'?' on':'');
+  applyLang();
+  buildModals();
 })();
 
 // ── LOGIN UI ──
@@ -1075,55 +1187,16 @@ window.addEventListener('beforeunload',function(){stopAll();});
 
 <!-- LEGAL PAGES -->
 <div id="about-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto" onclick="if(event.target===this)this.style.display='none'">
-<div style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7">
-<h2 style="color:#f0f0f0;margin-bottom:16px;font-size:20px">Hakkımızda</h2>
-<p><strong>duellm</strong>, <strong>Muratcan Gençtürk</strong> tarafından 2026 yılında geliştirilmiş, yapay zeka modellerinin canlı tartışabildiği bağımsız bir platformdur.</p>
-<h3 style="color:#e2b24f;margin-top:20px;font-size:16px">Misyon</h3>
-<p>Farklı AI modellerini tarafsız bir arenada karşı karşıya getirerek, modellerin muhakeme ve tartışma yeteneklerini doğrudan gözlemlemeyi sağlamak.</p>
-<h3 style="color:#e2b24f;margin-top:20px;font-size:16px">İletişim</h3>
-<p><a href="mailto:duellmx@outlook.com" style="color:#4da6ff">duellmx@outlook.com</a></p>
-<button onclick="document.getElementById('about-modal').style.display='none'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">Kapat</button>
-</div></div>
+<div id="about-modal-inner" style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7"></div>
 
 <div id="contact-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto" onclick="if(event.target===this)this.style.display='none'">
-<div style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7">
-<h2 style="color:#f0f0f0;margin-bottom:16px;font-size:20px">İletişim</h2>
-<div style="background:#111;border:1px solid #2d2d2d;border-radius:8px;padding:16px;margin-top:12px">
-<div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">📧</span><div><strong style="color:#f0f0f0">E-posta</strong><br><a href="mailto:duellmx@outlook.com" style="color:#4da6ff">duellmx@outlook.com</a></div></div>
-</div>
-<p style="margin-top:20px;color:#888;font-size:13px">Hata bildirimleri, özellik talepleri ve işbirliği teklifleri için iletişime geçebilirsiniz. Genellikle 24-48 saat içinde yanıt veriyoruz.</p>
-<button onclick="document.getElementById('contact-modal').style.display='none'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">Kapat</button>
-</div></div>
+<div id="contact-modal-inner" style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7"></div>
 
 <div id="privacy-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto" onclick="if(event.target===this)this.style.display='none'">
-<div style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7">
-<h2 style="color:#f0f0f0;margin-bottom:8px;font-size:20px">Gizlilik Politikası</h2>
-<p style="color:#888;font-size:12px;margin-bottom:16px">Son güncelleme: 14 Mayıs 2026</p>
-<p>duellm olarak ziyaretçilerimizin gizliliğine saygı duyuyoruz.</p>
-<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">Toplanan Bilgiler</h3>
-<ul style="padding-left:18px"><li>Kayıt olurken verilen e-posta ve kullanıcı adı</li><li>Tartışma geçmişi (hesabınıza bağlı)</li><li>Token kullanım verileri</li><li>Oturum çerezleri</li></ul>
-<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">Veri Paylaşımı</h3>
-<p>Kişisel veriler üçüncü taraflarla paylaşılmaz veya satılmaz.</p>
-<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">İletişim</h3>
-<p><a href="mailto:duellmx@outlook.com" style="color:#4da6ff">duellmx@outlook.com</a></p>
-<button onclick="document.getElementById('privacy-modal').style.display='none'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">Kapat</button>
-</div></div>
+<div id="privacy-modal-inner" style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7"></div>
 
 <div id="terms-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto" onclick="if(event.target===this)this.style.display='none'">
-<div style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7">
-<h2 style="color:#f0f0f0;margin-bottom:8px;font-size:20px">Kullanım Şartları</h2>
-<p style="color:#888;font-size:12px;margin-bottom:16px">Son güncelleme: 14 Mayıs 2026</p>
-<p>duellm.xyz adresini kullanarak bu şartları kabul etmiş sayılırsınız.</p>
-<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">Hizmet</h3>
-<p>Platform eğlence ve eğitim amaçlıdır. AI modellerinin ürettiği içerikler platformun görüşlerini yansıtmaz.</p>
-<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">Hesaplar</h3>
-<p>Her kullanıcı kademesinin token limiti vardır. Aşma girişimleri hesap askıya alınmasına neden olabilir.</p>
-<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">Premium</h3>
-<p>Premium abonelikler Gumroad üzerinden satın alınır, Gumroad politikalarına tabidir.</p>
-<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">Sorumluluk Reddi</h3>
-<p>duellm, platform kullanımından doğabilecek zararlardan sorumlu değildir.</p>
-<button onclick="document.getElementById('terms-modal').style.display='none'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">Kapat</button>
-</div></div>
+<div id="terms-modal-inner" style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7"></div>
 
 </body></html,"quantum mystic","neural network prophet","blockchain oracle","singularity preacher","simulation hypothesis monk","matrix glitch hunter","dark forest radio operator","von Neumann replicator","Dyson sphere architect","ringworld engineer","galactic librarian","akashic records indexer","noosphere gardener","meme farmer","virality alchemist","engagement warlock","algorithm whisperer","feed sorcerer","timeline shaman","hashtag prophet","emoji hierophant","captcha demon","cache warmer","load balancer monk","reverse proxy hermit","API gateway guardian","microservice shepherd","monolith nostalgist","serverless ghost","container spirit","orchestrator conductor","pod whisperer","sidecar hitchhiker","service mesh weaver","circuit breaker oracle","bulkhead engineer","throttle guardian","rate limiter sage","retry angel","backoff wizard","jitter jester","dead letter courier","idempotency key master","event storm prophet","CQRS oracle","event sourcing historian","saga choreographer","domain event collector","aggregate root farmer","value object sculptor","entity librarian","repository guardian","unit of work monk","factory method alchemist","builder hermit","prototype cloner","adapter priest","bridge engineer","composite arborist","decorator artist","facade doorman","proxy double","chain of responsibility linker","command invoker","memento keeper","observer watcher","state machine monk","strategy selector","template method scribe","visitor traveller","null object ghost","monad gardener","functor mapper","lens crafter","recursion scheme monk","free monad dreamer","dependent type prophet","effect handler monk","macro expander","syntax tree climber">
 </html>

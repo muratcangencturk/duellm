@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head><script>
+</script>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>duellm</title>
 <link rel="icon" type="image/png" href="/logo.png">
 <meta property="og:image" content="/logo.png">
@@ -107,7 +108,13 @@ input[type=range]:focus{outline:none}
   <div style="padding:10px 12px"><button id="newDebBtn" onclick="newDebate()" style="width:100%;padding:9px;border-radius:8px;border:1px solid #333;background:transparent;color:#d1d5db;font-size:14px;font-weight:500;cursor:pointer">+ New Chat</button></div>
   <div style="flex:1;overflow-y:auto;padding:4px" id="histCont"><div class="sec-t">History</div><div id="histEmp" style="padding:8px 16px;font-size:12px;color:#666;font-style:italic">No history yet</div></div>
   <div style="padding:8px 12px 0"><button id="upgradeBtn" onclick="upgradePlan()" style="width:100%;text-align:left;padding:8px 14px;border-radius:8px;border:1px solid #3d3520;background:linear-gradient(135deg,#2a2416,#1f1a0e);color:#e2b24f;font-size:13px;cursor:pointer">⭐ Upgrade Plan</button></div>
-  <div style="padding:10px 12px;border-top:1px solid #2d2d2d"><button id="loginBtn" onclick="handleAuthClick()" style="width:100%;text-align:left;padding:10px 14px;border-radius:8px;border:none;background:transparent;color:#999;font-size:13px;cursor:pointer"> Sign Up / Login</button></div>
+  <div style="padding:6px 12px 8px;border-top:1px solid #2d2d2d;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+<a href="#" onclick="document.getElementById('about-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px" id="footAbout">Hakkımızda</a>
+<a href="#" onclick="document.getElementById('contact-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px" id="footContact">İletişim</a>
+<a href="#" onclick="document.getElementById('privacy-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px" id="footPrivacy">Gizlilik</a>
+<a href="#" onclick="document.getElementById('terms-modal').style.display='block';return false" style="color:#666;text-decoration:none;font-size:11px" id="footTerms">Kullanım Şartları</a>
+</div>
+<div style="padding:10px 12px;border-top:1px solid #2d2d2d"><button id="loginBtn" onclick="handleAuthClick()" style="width:100%;text-align:left;padding:10px 14px;border-radius:8px;border:none;background:transparent;color:#999;font-size:13px;cursor:pointer"> Sign Up / Login</button></div>
 </div>
 <div id="main">
   <div id="topbar">
@@ -146,16 +153,73 @@ var MODELS=["cogito-2.1:671b","gemma3:12b","gemma3:27b","qwen3-vl:235b-instruct"
 // ── LIMITS ──
 var LIMIT_GUEST=10000, LIMIT_USER=30000, LIMIT_PREMIUM=300000;
 var MAX_CHAT_TOKENS=10000;
-var MAX_RESPONSE_TOKENS=300 
-
+var MAX_RESPONSE_TOKENS=350;
 var RP_EN="Generate one single-sentence debate discussion topic or question. It can be about technology, philosophy, society, science, ethics, politics, or any thought-provoking subject. Just the sentence, nothing else.";
 var RP_TR="Tek cümlelik bir tartışma konusu veya soru üret. Teknoloji, felsefe, toplum, bilim, etik, politika veya düşündürücü herhangi bir konu olabilir. Sadece cümle, başka bir şey yazma.";
 
 // ── TRANSLATIONS ──
 var L='en';
 var TX={
-  en:{newDebate:'+ New Chat',history:'History',noHistory:'No history yet',loginIn:' Sign Up / Login',loginOut:' Sign Out',upgrade:'⭐ Upgrade Plan',upgradeWarn:'Please sign up / login first.',sendMsg:'Send a message',change:'Change Model',settings:'Settings',rand:'Random topic',none:'— None —',limitGuest:'Daily limit reached.\nSign up for more usage.',limitUser:'Daily limit reached.\nPlease upgrade plan for x10 more tokens.',limitPremium:'Daily limit reached.\nUpgrade for even more tokens.',limitChat:'Chat limit reached (10K tokens).\nSend a message to continue.',rp:RP_EN,vs:'VS',blue:'Blue',red:'Red',mdl:'Model',sp:'System Prompt',spPlace:'Instructions for this model...',save:'Save',share:'Share',shared:'Link copied! Share this link to show this conversation.',shareTooltip:'Share',signupTitle:'Create Account',loginTitle:'Sign In',email:'Email',password:'Password',username:'Username',signupBtn:'Create Account',loginBtn:'Sign In',switchSignup:'Already have an account? Sign in',switchLogin:"Don't have an account? Sign up",logout:'Sign Out',licenseTitle:'Activate Premium',licenseKey:'Order ID',licenseBtn:'Activate',licenseDesc:'Enter your Gumroad Order ID:',licenseLink:'Buy on Gumroad →',licenseSuccess:'Premium activated! You now have 300K tokens/day.',licenseFail:'Invalid Order ID. Please try again.',activated:'Premium ✓'},
-  tr:{newDebate:'+ Yeni Sohbet',history:'Geçmiş',noHistory:'Henüz geçmiş yok',loginIn:' Kayıt Ol / Giriş Yap',loginOut:' Çıkış Yap',upgrade:'⭐ Planı Yükselt',upgradeWarn:'Lütfen önce kayıt olun / giriş yapın.',sendMsg:'Mesaj gönder',change:'Model Değiştir',settings:'Ayarlar',rand:'Rastgele konu',none:'— Boş —',limitGuest:'Günlük limit doldu.\nDaha fazla kullanım için kayıt olun.',limitUser:'Günlük limit doldu.\nx10 daha fazla token için planı yükseltin.',limitPremium:'Günlük limit doldu.\nDaha fazlası için yükseltin.',limitChat:'Sohbet limiti doldu (10K token).\nDevam etmek için mesaj gönder.',rp:RP_TR,vs:'VS',blue:'Mavi',red:'Kırmızı',mdl:'Model',sp:'Sistem Promptu',spPlace:'Bu model için talimatlar...',save:'Kaydet',share:'Paylaş',shared:'Link kopyalandı! Bu linkle sohbeti paylaşabilirsin.',shareTooltip:'Paylaş',signupTitle:'Hesap Oluştur',loginTitle:'Giriş Yap',email:'E-posta',password:'Şifre',username:'Kullanıcı Adı',signupBtn:'Hesap Oluştur',loginBtn:'Giriş Yap',switchSignup:'Zaten hesabın var mı? Giriş yap',switchLogin:'Hesabın yok mu? Kayıt ol',logout:'Çıkış Yap',licenseTitle:'Premium Aktifleştir',licenseKey:'Sipariş No',licenseBtn:'Aktifleştir',licenseDesc:'Gumroad Sipariş Numaranı gir:',licenseLink:'Gumroad\'dan Satın Al →',licenseSuccess:'Premium aktif! Artık günlük 300K token kullanabilirsin.',licenseFail:'Geçersiz Sipariş No. Tekrar dene.',activated:'Premium ✓'}
+  en:{newDebate:'+ New Chat',history:'History',noHistory:'No history yet',loginIn:' Sign Up / Login',loginOut:' Sign Out',upgrade:'⭐ Upgrade Plan',upgradeWarn:'Please sign up / login first.',sendMsg:'Send a message',change:'Change Model',settings:'Settings',rand:'Random topic',none:'— None —',limitGuest:'Daily limit reached.\nSign up for more usage.',limitUser:'Daily limit reached.\nPlease upgrade plan for x10 more tokens.',limitPremium:'Daily limit reached.\nUpgrade for even more tokens.',limitChat:'Chat limit reached (10K tokens).\nSend a message to continue.',rp:RP_EN,vs:'VS',blue:'Blue',red:'Red',mdl:'Model',sp:'System Prompt',spPlace:'Instructions for this model...',save:'Save',share:'Share',shared:'Link copied! Share this link to show this conversation.',shareTooltip:'Share',signupTitle:'Create Account',loginTitle:'Sign In',email:'Email',password:'Password',username:'Username',signupBtn:'Create Account',loginBtn:'Sign In',switchSignup:'Already have an account? Sign in',switchLogin:"Don't have an account? Sign up",logout:'Sign Out',licenseTitle:'Activate Premium',licenseKey:'Order ID',licenseBtn:'Activate',licenseDesc:'Enter your Gumroad Order ID:',licenseLink:'Buy on Gumroad →',licenseSuccess:'Premium activated! You now have 300K tokens/day.',licenseFail:'Invalid Order ID. Please try again.',activated:'Premium ✓',
+  about:'About',contact:'Contact',privacy:'Privacy',terms:'Terms of Service',
+  close:'Close',
+  aboutTitle:'About',
+  aboutBody:'<strong>duellm</strong> is an independent platform developed by <strong>Muratcan Gen\u00e7t\u00fcrk</strong> in 2026 where AI models can debate live.',
+  aboutMissionTitle:'Mission',
+  aboutMissionBody:'To observe the reasoning and debate capabilities of different AI models by pitting them against each other in an unbiased arena.',
+  aboutContactTitle:'Contact',
+  aboutContactBody:'<a href=\'mailto:duellmx@outlook.com\' style=\'color:#4da6ff\'>duellmx@outlook.com</a>',
+  contactTitle:'Contact',
+  contactEmail:'Email',
+  contactBody:'For bug reports, feature requests, and collaboration offers. We typically respond within 24-48 hours.',
+  privacyTitle:'Privacy Policy',
+  privacyUpdate:'Last updated: May 14, 2026',
+  privacyIntro:'At duellm, we respect the privacy of our visitors.',
+  privacyCollectedTitle:'Collected Information',
+  privacyCollectedItems:'<ul style=\'padding-left:18px\'><li>Email and username provided during registration</li><li>Debate history (linked to your account)</li><li>Token usage data</li><li>Session cookies</li></ul>',
+  privacySharingTitle:'Data Sharing',
+  privacySharingBody:'Personal data is not shared or sold to third parties.',
+  termsTitle:'Terms of Service',
+  termsUpdate:'Last updated: May 14, 2026',
+  termsIntro:'By using duellm.xyz, you agree to these terms.',
+  termsServiceTitle:'Service',
+  termsServiceBody:'The platform is for entertainment and educational purposes. Content generated by AI models does not reflect the views of the platform.',
+  termsAccountsTitle:'Accounts',
+  termsAccountsBody:'Each user tier has a token limit. Exceeding attempts may result in account suspension.',
+  termsPremiumTitle:'Premium',
+  termsPremiumBody:'Premium subscriptions are purchased through Gumroad and are subject to Gumroad policies.',
+  termsDisclaimerTitle:'Disclaimer',
+  termsDisclaimerBody:'duellm is not responsible for any damages arising from the use of the platform.'},
+  tr:{newDebate:'+ Yeni Sohbet',history:'Geçmiş',noHistory:'Henüz geçmiş yok',loginIn:' Kayıt Ol / Giriş Yap',loginOut:' Çıkış Yap',upgrade:'⭐ Planı Yükselt',upgradeWarn:'Lütfen önce kayıt olun / giriş yapın.',sendMsg:'Mesaj gönder',change:'Model Değiştir',settings:'Ayarlar',rand:'Rastgele konu',none:'— Boş —',limitGuest:'Günlük limit doldu.\nDaha fazla kullanım için kayıt olun.',limitUser:'Günlük limit doldu.\nx10 daha fazla token için planı yükseltin.',limitPremium:'Günlük limit doldu.\nDaha fazlası için yükseltin.',limitChat:'Sohbet limiti doldu (10K token).\nDevam etmek için mesaj gönder.',rp:RP_TR,vs:'VS',blue:'Mavi',red:'Kırmızı',mdl:'Model',sp:'Sistem Promptu',spPlace:'Bu model için talimatlar...',save:'Kaydet',share:'Paylaş',shared:'Link kopyalandı! Bu linkle sohbeti paylaşabilirsin.',shareTooltip:'Paylaş',signupTitle:'Hesap Oluştur',loginTitle:'Giriş Yap',email:'E-posta',password:'Şifre',username:'Kullanıcı Adı',signupBtn:'Hesap Oluştur',loginBtn:'Giriş Yap',switchSignup:'Zaten hesabın var mı? Giriş yap',switchLogin:'Hesabın yok mu? Kayıt ol',logout:'Çıkış Yap',licenseTitle:'Premium Aktifleştir',licenseKey:'Sipariş No',licenseBtn:'Aktifleştir',licenseDesc:'Gumroad Sipariş Numaranı gir:',licenseLink:'Gumroad\'dan Satın Al →',licenseSuccess:'Premium aktif! Artık günlük 300K token kullanabilirsin.',licenseFail:'Geçersiz Sipariş No. Tekrar dene.',activated:'Premium ✓',
+  about:'Hakk\u0131m\u0131zda',contact:'\u0130leti\u015fim',privacy:'Gizlilik',terms:'Kullan\u0131m \u015eartlar\u0131',
+  close:'Kapat',
+  aboutTitle:'Hakk\u0131m\u0131zda',
+  aboutBody:'<strong>duellm</strong>, <strong>Muratcan Gen\u00e7t\u00fcrk</strong> taraf\u0131ndan 2026 y\u0131l\u0131nda geli\u015ftirilmi\u015f, yapay zeka modellerinin canl\u0131 tart\u0131\u015fabildi\u011fi ba\u011f\u0131ms\u0131z bir platformdur.',
+  aboutMissionTitle:'Misyon',
+  aboutMissionBody:'Farkl\u0131 AI modellerini tarafs\u0131z bir arenada kar\u015f\u0131 kar\u015f\u0131ya getirerek, modellerin muhakeme ve tart\u0131\u015fma yeteneklerini do\u011frudan g\u00f6zlemlemeyi sa\u011flamak.',
+  aboutContactTitle:'\u0130leti\u015fim',
+  aboutContactBody:'<a href=\'mailto:duellmx@outlook.com\' style=\'color:#4da6ff\'>duellmx@outlook.com</a>',
+  contactTitle:'\u0130leti\u015fim',
+  contactEmail:'E-posta',
+  contactBody:'Hata bildirimleri, \u00f6zellik talepleri ve i\u015fbirli\u011fi teklifleri i\u00e7in ileti\u015fime ge\u00e7ebilirsiniz. Genellikle 24-48 saat i\u00e7inde yan\u0131t veriyoruz.',
+  privacyTitle:'Gizlilik Politikas\u0131',
+  privacyUpdate:'Son g\u00fcncelleme: 14 May\u0131s 2026',
+  privacyIntro:'duellm olarak ziyaret\u00e7ilerimizin gizlili\u011fine sayg\u0131 duyuyoruz.',
+  privacyCollectedTitle:'Toplanan Bilgiler',
+  privacyCollectedItems:'<ul style=\'padding-left:18px\'><li>Kay\u0131t olurken verilen e-posta ve kullan\u0131c\u0131 ad\u0131</li><li>Tart\u0131\u015fma ge\u00e7mi\u015fi (hesab\u0131n\u0131za ba\u011fl\u0131)</li><li>Token kullan\u0131m verileri</li><li>Oturum \u00e7erezleri</li></ul>',
+  privacySharingTitle:'Veri Payla\u015f\u0131m\u0131',
+  privacySharingBody:'Ki\u015fisel veriler \u00fc\u00e7\u00fcnc\u00fc taraflarla payla\u015f\u0131lmaz veya sat\u0131lmaz.',
+  termsTitle:'Kullan\u0131m \u015eartlar\u0131',
+  termsUpdate:'Son g\u00fcncelleme: 14 May\u0131s 2026',
+  termsIntro:'duellm.xyz adresini kullanarak bu \u015fartlar\u0131 kabul etmi\u015f say\u0131l\u0131rs\u0131n\u0131z.',
+  termsServiceTitle:'Hizmet',
+  termsServiceBody:'Platform e\u011flence ve e\u011fitim ama\u00e7l\u0131d\u0131r. AI modellerinin \u00fcretti\u011fi i\u00e7erikler platformun g\u00f6r\u00fc\u015flerini yans\u0131tmaz.',
+  termsAccountsTitle:'Hesaplar',
+  termsAccountsBody:'Her kullan\u0131c\u0131 kademesinin token limiti vard\u0131r. A\u015fma giri\u015fimleri hesap ask\u0131ya al\u0131nmas\u0131na neden olabilir.',
+  termsPremiumTitle:'Premium',
+  termsPremiumBody:'Premium abonelikler Gumroad \u00fczerinden sat\u0131n al\u0131n\u0131r, Gumroad politikalar\u0131na tabidir.',
+  termsDisclaimerTitle:'Sorumluluk Reddi',
+  termsDisclaimerBody:'duellm, platform kullan\u0131m\u0131ndan do\u011fabilecek zararlardan sorumlu de\u011fildir.'}
 };
 function t(k){return TX[L][k]||k}
 
@@ -227,14 +291,68 @@ function applyLang(){
   document.getElementById('gearL').setAttribute('tip',t('settings'));
   document.getElementById('gearR').setAttribute('tip',t('settings'));
   document.getElementById('vsSpan').textContent='VS';
+  var fa=document.getElementById('footAbout');if(fa)fa.textContent=t('about');
+  var fc=document.getElementById('footContact');if(fc)fc.textContent=t('contact');
+  var fp=document.getElementById('footPrivacy');if(fp)fp.textContent=t('privacy');
+  var ft=document.getElementById('footTerms');if(ft)ft.textContent=t('terms');
   updateLoginBtn();
   renderHistory();
   updateLimitMsg();
+  buildModals();
+}function buildModals(){
+  var L2=L;
+  // About modal
+  document.getElementById('about-modal-inner').innerHTML=
+    '<h2 style="color:#f0f0f0;margin-bottom:16px;font-size:20px">'+t('aboutTitle')+'</h2>'+
+    '<p>'+t('aboutBody')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:20px;font-size:16px">'+t('aboutMissionTitle')+'</h3>'+
+    '<p>'+t('aboutMissionBody')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:20px;font-size:16px">'+t('aboutContactTitle')+'</h3>'+
+    '<p>'+t('aboutContactBody')+'</p>'+
+    '<button onclick="document.getElementById(\'about-modal\').style.display=\'none\'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">'+t('close')+'</button>';
+  // Contact modal
+  document.getElementById('contact-modal-inner').innerHTML=
+    '<h2 style="color:#f0f0f0;margin-bottom:16px;font-size:20px">'+t('contactTitle')+'</h2>'+
+    '<div style="background:#111;border:1px solid #2d2d2d;border-radius:8px;padding:16px;margin-top:12px">'+
+    '<div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">\ud83d\udce7</span><div><strong style="color:#f0f0f0">'+t('contactEmail')+'</strong><br><a href="mailto:duellmx@outlook.com" style="color:#4da6ff">duellmx@outlook.com</a></div></div>'+
+    '</div>'+
+    '<p style="margin-top:20px;color:#888;font-size:13px">'+t('contactBody')+'</p>'+
+    '<button onclick="document.getElementById(\'contact-modal\').style.display=\'none\'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">'+t('close')+'</button>';
+  // Privacy modal
+  document.getElementById('privacy-modal-inner').innerHTML=
+    '<h2 style="color:#f0f0f0;margin-bottom:8px;font-size:20px">'+t('privacyTitle')+'</h2>'+
+    '<p style="color:#888;font-size:12px;margin-bottom:16px">'+t('privacyUpdate')+'</p>'+
+    '<p>'+t('privacyIntro')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">'+t('privacyCollectedTitle')+'</h3>'+
+    t('privacyCollectedItems')+
+    '<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">'+t('privacySharingTitle')+'</h3>'+
+    '<p>'+t('privacySharingBody')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">'+t('contactTitle')+'</h3>'+
+    '<p><a href="mailto:duellmx@outlook.com" style="color:#4da6ff">duellmx@outlook.com</a></p>'+
+    '<button onclick="document.getElementById(\'privacy-modal\').style.display=\'none\'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">'+t('close')+'</button>';
+  // Terms modal
+  document.getElementById('terms-modal-inner').innerHTML=
+    '<h2 style="color:#f0f0f0;margin-bottom:8px;font-size:20px">'+t('termsTitle')+'</h2>'+
+    '<p style="color:#888;font-size:12px;margin-bottom:16px">'+t('termsUpdate')+'</p>'+
+    '<p>'+t('termsIntro')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">'+t('termsServiceTitle')+'</h3>'+
+    '<p>'+t('termsServiceBody')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">'+t('termsAccountsTitle')+'</h3>'+
+    '<p>'+t('termsAccountsBody')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">'+t('termsPremiumTitle')+'</h3>'+
+    '<p>'+t('termsPremiumBody')+'</p>'+
+    '<h3 style="color:#e2b24f;margin-top:16px;font-size:16px">'+t('termsDisclaimerTitle')+'</h3>'+
+    '<p>'+t('termsDisclaimerBody')+'</p>'+
+    '<button onclick="document.getElementById(\'terms-modal\').style.display=\'none\'" style="margin-top:20px;padding:8px 20px;background:#333;color:#d1d5db;border:1px solid #555;border-radius:6px;cursor:pointer;font-size:14px">'+t('close')+'</button>';
 }
+
+
 (function(){
   var sl=localStorage.getItem('dlang')||'en';L=sl;
   document.getElementById('lEN').className='lang-btn'+(sl==='en'?' on':'');
   document.getElementById('lTR').className='lang-btn'+(sl==='tr'?' on':'');
+  applyLang();
+  buildModals();
 })();
 
 // ── LOGIN UI ──
@@ -296,7 +414,7 @@ function rnd2mods(){
 }
 var initMods=rnd2mods();
 var S={topic:'',modelL:initMods[0],modelR:initMods[1],sysL:'',sysR:'',msgData:[],chatTokens:0};
-var E={running:false,speaking:false,side:'L',abort:null,timer:null,chatPaused:false};
+var E={running:false,speaking:false,paused:false,pauseSide:null,side:'L',abort:null,timer:null,chatPaused:false};
 var H=JSON.parse(localStorage.getItem('duellm_hist_local')||'[]');
 
 // ── SAVE/LOAD ──
@@ -391,8 +509,8 @@ function updateBtn(){
   var b=document.getElementById('sendBtn'),v=document.getElementById('inp').value.trim();
   var over=totalUsedToday()>=userDailyLimit()||E.chatPaused;
   if(v){b.textContent='↑';b.className=over?'':'on';return}
-  b.textContent=E.speaking?'■':'↑';
-  b.className=E.speaking?'stop':(over||!v?'':'on');
+  b.textContent=E.paused?'▶':(E.running?'■':'↑');
+  b.className=E.running?'stop':(over||!v?'':'on');
 }
 document.getElementById('inp').addEventListener('input',function(){updateBtn()});
 
@@ -827,18 +945,17 @@ function loadSuggestions(side){
  var a=pickSugs(side),h="";
  for(var i=0;i<a.length;i++){
   var l=String(a[i]),ic=i>=4,bg=ic?"#3d3520":"#2a2a2a",bd=ic?"#5a4a20":"#333";
-  h+="<button data-label=\""+l.replace(/"/g,"&quot;")+"\" style=\"font-size:11px;padding:4px 10px;border-radius:14px;border:1px solid "+bd+";background:"+bg+";color:#ddd;cursor:pointer;margin:2px;white-space:nowrap;max-width:130px;overflow:hidden;text-overflow:ellipsis\">"+l+"</button>";
+  h+="<button data-label=\""+(i<4?"+":"")+l.replace(/"/g,"&quot;")+"\" style=\"font-size:11px;padding:4px 10px;border-radius:14px;border:1px solid "+bd+";background:"+bg+";color:#ddd;cursor:pointer;margin:2px;white-space:nowrap;max-width:130px;overflow:hidden;text-overflow:ellipsis\">"+l+"</button>";
  }
  w.innerHTML=h;
  var btns=w.querySelectorAll("button");
- for(var j=0;j<btns.length;j++){btns[j].onclick=function(){var ta=document.getElementById("setSys");if(!ta)return;var lbl=this.getAttribute("data-label"),cur=ta.value.trim(),sep=cur&&!cur.endsWith(",")?"; ":"",add=lbl;var eng=/^[a-zA-Z]/.test(lbl.charAt(0)==="+"?lbl.substring(1):lbl);if(lbl.charAt(0)==="+"){add=eng?"be "+lbl.substring(1):lbl.substring(1)+" ol";}else{add=eng?"be "+lbl:lbl+" gibi konus";}ta.value=cur+sep+add+", ";ta.focus();rerollSuggestions(side);}}
+ for(var j=0;j<btns.length;j++){btns[j].onclick=function(){var ta=document.getElementById("setSys");if(!ta)return;var lbl=this.getAttribute("data-label"),cur=ta.value.trim(),sep=cur&&!cur.endsWith(",")?"; ":"",add=lbl;if(lbl.charAt(0)==="+"){add=L==="en"?"be "+lbl.substring(1):lbl.substring(1)+" ol";}else{add=L==="en"?"You are "+lbl+".":"Sen "+lbl+"'sin.";}ta.value=cur+sep+add+", ";ta.focus();rerollSuggestions(side);}}
 }
 function rerollSuggestions(side){
  var w=document.getElementById("sugChips_"+side);if(!w)return;
  _SU[side]={s:[],c:[],a:[]};
  loadSuggestions(side);
 }
-
 
 
 TX.en.aggression='Agresyon';TX.tr.aggression='Agresyon';// ── SHARE ──
@@ -856,6 +973,7 @@ function shareChat(){
     document.body.removeChild(ta);
     showToast(t('shared'));
   }
+  var inp=document.getElementById('inp');if(inp)inp.focus();
 }
 function showToast(msg){
   var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
@@ -903,7 +1021,7 @@ function updateBub(id,txt,showCursor){
   if(ms.scrollHeight-ms.scrollTop-ms.clientHeight<60)ms.scrollTop=ms.scrollHeight;
 }
 function typewrite(id,full,cb){
-  var i=0,spd=40,chunk=1;
+  var i=0,spd=35,chunk=1;
   function step(){
     if(i>=full.length){updateBub(id,full,false);E.timer=null;if(cb)cb();return}
     i+=chunk;if(i>full.length)i=full.length;
@@ -917,10 +1035,14 @@ function sendOrStop(){
   var msg=document.getElementById('inp').value.trim();
   if(E.chatPaused){E.chatPaused=false;updateLimitMsg();updateBtn()}
   if(totalUsedToday()>=userDailyLimit()){updateLimitMsg();return}
+  /* PAUSE/RESUME - msg empty => toggle */
+  if(E.paused&&!msg){E.paused=false;E.running=true;updateBtn();var rs=E.pauseSide||'L';if(!S.modelL||!S.modelR)speakOnce(rs);else setTimeout(function(){speakDebate(rs);},400);return}
+  if(E.running&&!E.paused&&!msg){E.paused=true;E.pauseSide=E.side;stopAll();E.running=true;updateBtn();return}
+  /* SEND */
   var wasSpeaking=E.speaking;
   var interruptedSide=E.side;
-  stopAll();
-  if(!msg){E.speaking=false;E.running=false;updateBtn();return}
+  stopAll();E.paused=false;
+  if(!msg){E.speaking=false;updateBtn();return}
   S.topic=msg;
   addMsgEl('u',msg,'');
   var userTok=estTok(msg);S.chatTokens+=userTok;
@@ -943,7 +1065,7 @@ function sendOrStop(){
 function stopAll(){
   if(E.abort){try{E.abort()}catch(e){}E.abort=null}
   if(E.timer){clearTimeout(E.timer);E.timer=null}
-  E.speaking=false;E.running=false;
+  E.speaking=false;
   var cursors=document.querySelectorAll('.cursor');
   for(var i=0;i<cursors.length;i++){cursors[i].remove();}
   updateBtn();
@@ -951,30 +1073,30 @@ function stopAll(){
 
 // ── CHAT MODE ──
 async function speakOnce(side){
-  if(!E.running||E.speaking||E.chatPaused||totalUsedToday()>=userDailyLimit()){E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
+  if(!E.running||E.paused||E.speaking||E.chatPaused||totalUsedToday()>=userDailyLimit()){E.speaking=false;updateBtn();updateLimitMsg();return}
   E.speaking=true;updateBtn();
   var mn=GM(side);if(!mn){E.speaking=false;updateBtn();return}
   var uname=isAuth()?AU.username:"";
   var msgId=addMsgEl(side,"...",mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
-  var sp="Kullaniciyla ayni dilde cevap ver.\n\n"+    "Kullanici ("+uname+"): "+S.topic+"\n\n"+    "Arkadasinla sohbet eder gibi dogal yaz. Akademik makale gibi yazma, lafi dolandirma. Kisa paragraflar, net cumleler.\n\n"+    "0. DIL KURALI: Kullanici hangi dilde yazdiysa o dilde cevap ver. Asla dil degistirme!\n"+    "EN FAZLA 9 CUMLE yaz! Uzun yazarsan cumle yarim kalir.\n"+    "Emoji kullan! YARATICI OL - her 2 cumlede bir, uygun yerde emoji kullan. Ayni emojiyi tekrarlama. Asiri emoji kullanma, sadece gereken yerde.\n"+    "KESINLIKLE her cumle basina tire (-) koyma! Bu cok onemli. Asla cumlelere tireyle baslama. Sadece madde listesi yaparken kullan.\n"+    "Rol yapma, sahne direktifi yazma, hangi model oldugunu soyleme.\n"+    "SELAM VERME! Her mesajda selam verme, sadece ilk mesajda."+GS(side);
+  var sp="Kullaniciyla ayni dilde cevap ver.\n\n"+    "Kullanici ("+uname+"): "+S.topic+"\n\n"+    "Arkadasinla sohbet eder gibi dogal yaz. Akademik makale gibi yazma, lafi dolandirma. Kisa paragraflar, net cumleler.\n\n"+    "0. DIL KURALI: Kullanici hangi dilde yazdiysa o dilde cevap ver. Asla dil degistirme!\n"+    "EN FAZLA 7 CUMLE yaz! Cok uzun yazma. Gereksiz uzatma. Kisa ve oz ol, tartisma aksin.\n"+    "Emoji kullan! YARATICI OL - her 3 cumlede bir, uygun yerde emoji kullan. Ayni emojiyi tekrarlama. Asiri emoji kullanma, sadece gereken yerde.\n"+    "KESINLIKLE her cumle basina tire (-) koyma! Bu cok onemli. Asla cumlelere tireyle baslama. Sadece madde listesi yaparken kullan.\n"+    "Rol yapma, sahne direktifi yazma, hangi model oldugunu soyleme.\n"+    "SELAM VERME! Her mesajda selam verme, sadece ilk mesajda."+GS(side);
   try{
     var r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json","x-duellm-uid":isAuth()?AU.user_id:"","x-duellm-tier":userTier()},body:JSON.stringify({model:mn,messages:[{role:"system",content:sp},{role:"user",content:S.topic}],options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
     var d=await r.json();
-    if(d.error==="daily_limit"){updateBub(msgId,t("limitUser"),false);E.speaking=false;E.abort=null;E.running=false;updateBtn();updateLimitMsg();return}
+    if(d.error==="daily_limit"){updateBub(msgId,t("limitUser"),false);E.speaking=false;E.abort=null;updateBtn();updateLimitMsg();return}
     var txt=(d.message?.content||"").trim();
-    if(!txt||txt.length<4){E.speaking=false;E.abort=null;E.running=false;updateBtn();return}
+    if(!txt||txt.length<4){E.speaking=false;E.abort=null;updateBtn();return}
     E.abort=null;
     var respTok=estTok(txt)+estTok(sp)+estTok(S.topic);
     trackLocal(respTok);
-    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+"...",false);E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
-    typewrite(msgId,txt,function(){E.speaking=false;E.running=false;updateBtn();saveHistory();});
-  }catch(e){if(e.name!=="AbortError")updateBub(msgId,"...",false);E.speaking=false;E.abort=null;E.running=false;updateBtn();}
+    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+"...",false);E.speaking=false;updateBtn();updateLimitMsg();return}
+    typewrite(msgId,txt,function(){E.speaking=false;updateBtn();saveHistory();});
+  }catch(e){if(e.name!=="AbortError")updateBub(msgId,"...",false);E.speaking=false;E.abort=null;updateBtn();}
 }
 
 // ── DEBATE MODE ──
 async function speakDebate(side){
-  if(!E.running||E.speaking||E.chatPaused||!GM(side)||totalUsedToday()>=userDailyLimit()){E.speaking=false;updateBtn();updateLimitMsg();return}
+  if(!E.running||E.paused||E.speaking||E.chatPaused||!GM(side)||totalUsedToday()>=userDailyLimit()){E.speaking=false;updateBtn();updateLimitMsg();return}
   E.speaking=true;updateBtn();
   var mn=GM(side),op=GO(side);
   var myColor=side==="L"?"MAVİ":"KIRMIZI";
@@ -983,7 +1105,7 @@ async function speakDebate(side){
   var uname=isAuth()?AU.username:"";
   var msgId=addMsgEl(side,"...",mn);
   var ctrl=new AbortController();E.abort=function(){ctrl.abort();};
-  var sp="Sen duellm.xyz sitesindesin - iki AI modelin canli tartistigi bir arena.\n\n"+    "SiTENiN YAPISI: Sol tarafta MAVi model ("+fmt(S.modelL)+"), sag tarafta KIRMIZI model ("+fmt(S.modelR)+").\n"+    "Sen "+myColor+" taraftasin. Model adin: "+mn+". Rakibin: "+opName+" ("+opColor+").\n"+    "Kullanici: "+uname+". Kullanici istedigi an mesaj yazip araya girebilir.\n\n"+    "KURALLAR:\n"+    "0. DIL KURALI: Kullanici hangi dilde yazarsa SEN DE O DILDE cevap ver! Turkce yazdiysa Turkce, Ingilizce yazdiysa Ingilizce konus. Asla dil degistirme. Bu en onemli kural.\n"+    "1. EN FAZLA 9 CUMLE yaz! Daha uzun yazarsan cumle yarim kalir, rezil olur. Kisa ve oz ol.\n"+    "2. Emoji kullan! YARATICI OL - her 2 cumlede bir, uygun yerde emoji kullan. Ayni emojiyi tekrarlama. Asiri emoji kullanma, sadece gereken yerde.\n"+    "3. KESINLIKLE her cumle basina tire (-) koyma! Bu cok onemli. Asla cumlelere tireyle baslama. Sadece madde listesi yaparken kullan.\n"+    "4. "+uname+" sana hitap ederse adinla/renginle cevap ver.\n"+    "5. Rakibine model adiyla veya rengiyle hitap edebilirsin.\n"+    "6. Rol yapma, sahne direktifi yazma, kendini tanitma.\n"+    "7. SELAM VERME! Her mesajda Merhaba veya Selam deme. Sadece ilk mesajda selam ver. Sohbet akisi icinde selam verilmez.\n\n"+    "Konu: "+S.topic+"\n\n"+    "Rakibinin argumanini oku, acigini bul, karsi cik. Yanlissa curut, eksik biraktiysa ustune koy."+GS(side);
+  var sp="Sen duellm.xyz sitesindesin - iki AI modelin canli tartistigi bir arena.\n\n"+    "SiTENiN YAPISI: Sol tarafta MAVi model ("+fmt(S.modelL)+"), sag tarafta KIRMIZI model ("+fmt(S.modelR)+").\n"+    "Sen "+myColor+" taraftasin. Model adin: "+mn+". Rakibin: "+opName+" ("+opColor+").\n"+    "Kullanici: "+uname+". Kullanici istedigi an mesaj yazip araya girebilir.\n\n"+    "KURALLAR:\n"+    "0. DIL KURALI: Kullanici hangi dilde yazarsa SEN DE O DILDE cevap ver! Turkce yazdiysa Turkce, Ingilizce yazdiysa Ingilizce konus. Asla dil degistirme. Bu en onemli kural.\n"+    "1. EN FAZLA 7-8 CUMLE yaz! Cok uzun yazma. Gereksiz laf kalabaligi yapma. Tartisma aksin, kisa ve oz ol.\n"+    "2. Emoji kullan! YARATICI OL - her 3 cumlede bir, uygun yerde emoji kullan. Ayni emojiyi tekrarlama. Asiri emoji kullanma, sadece gereken yerde.\n"+    "3. KESINLIKLE her cumle basina tire (-) koyma! Bu cok onemli. Asla cumlelere tireyle baslama. Sadece madde listesi yaparken kullan.\n"+    "4. "+uname+" sana hitap ederse adinla/renginle cevap ver.\n"+    "5. Rakibine model adiyla veya rengiyle hitap edebilirsin. Ama zorunlu degil. Her cümlede degil, sadece gerekirse.\n"+    "6. Rol yapma, sahne direktifi yazma, kendini tanitma.\n"+    "7. SELAM VERME! Her mesajda Merhaba veya Selam deme. Sadece ilk mesajda selam ver. Sohbet akisi icinde selam verilmez.\n\n"+    "Konu: "+S.topic+"\n\n"+    "GOREVIN:\n"+    "- Eger henuz kimse konuşmadıysa: konuyu AÇ, ilk argumani net bir sekilde sun.\n"+    "- Eger rakip daha once konustuysa: argumanini DEGERLENDIR. Dogruysa ve ikna ettiysen kabul et, gelistir veya ustune koy. Yanlis veya zayifsa mantikli sekilde cevap ver. Her seye sarti refleksle karsi cikma.\n"+    "- GENEL KURAL: Bu bir tartisma platformu oldugu icin AYNI FIKIRDE OLMAK SON CAREDIR. Rakibin argumanini oku, zayif noktasini bul, farkli acidan bak, eksikleri tamamla, fikri gelistir, gerekirse curut.\n"+    "- TEK ISTISNA: Eger rakip 2+2=4 gibi tartismasiz, net bir HAKIKAT sunarsa Dogru oldugunu kabul et, ama tamam deyip SUSMA. \"Dogru, ama bir de sunu dusunun...\" diyerek farkli acidan bak, yeni bir boyut ekle, fikri zenginlestir.\n"+    "- Ama bu istisna disinda her zaman karsi arguman bulmaya calis, tartismayi zenginlestir."+GS(side);
   var am=[{role:"system",content:sp}];
   var rows=document.getElementById("msgs").children;
   var ctxLen=0,ctxMax=10000;
@@ -1006,18 +1128,18 @@ async function speakDebate(side){
   try{
     var rr=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json","x-duellm-uid":isAuth()?AU.user_id:"","x-duellm-tier":userTier()},body:JSON.stringify({model:mn,messages:am,options:{num_predict:MAX_RESPONSE_TOKENS,temperature:.85,top_p:.9}}),signal:ctrl.signal});
     var dd=await rr.json();
-    if(dd.error==="daily_limit"){updateBub(msgId,t("limitUser"),false);E.speaking=false;E.abort=null;E.running=false;updateBtn();updateLimitMsg();return}
+    if(dd.error==="daily_limit"){updateBub(msgId,t("limitUser"),false);E.speaking=false;E.abort=null;updateBtn();updateLimitMsg();return}
     var txt=(dd.message?.content||"").trim();
-    if(!txt||txt.length<4){E.speaking=false;E.abort=null;E.running=false;updateBtn();return}
+    if(!txt||txt.length<4){E.speaking=false;E.abort=null;updateBtn();return}
     E.abort=null;
     var respTok=estTok(txt)+estTok(JSON.stringify(am));
     trackLocal(respTok);
-    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+"...",false);E.speaking=false;E.running=false;updateBtn();updateLimitMsg();return}
+    if(E.chatPaused||totalUsedToday()>=userDailyLimit()){updateBub(msgId,txt.slice(0,300)+"...",false);E.speaking=false;updateBtn();updateLimitMsg();return}
     typewrite(msgId,txt,function(){
       E.speaking=false;updateBtn();saveHistory();
-      if(E.running&&!E.chatPaused){E.timer=setTimeout(function(){speakDebate(side==="L"?"R":"L");},4000);}
+      if(E.running&&!E.paused&&!E.chatPaused){E.timer=setTimeout(function(){speakDebate(side==="L"?"R":"L");},4000);}
     });
-  }catch(e){if(e.name!=="AbortError")updateBub(msgId,"...",false);E.speaking=false;E.abort=null;updateBtn();if(E.running&&!E.chatPaused){E.timer=setTimeout(function(){speakDebate(side==="L"?"R":"L");},4000);}}
+  }catch(e){if(e.name!=="AbortError")updateBub(msgId,"...",false);E.speaking=false;E.abort=null;updateBtn();if(E.running&&!E.paused&&!E.chatPaused){E.timer=setTimeout(function(){speakDebate(side==="L"?"R":"L");},4000);}}
 }
 
 // ── UPGRADE ──
@@ -1062,4 +1184,19 @@ loadHistoryFromCloud();refreshUI();applyLang();updateLoginBtn();updateBtn();
 // Stop generation when tab closes
 window.addEventListener('beforeunload',function(){stopAll();});
 </script>
+
+<!-- LEGAL PAGES -->
+<div id="about-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto" onclick="if(event.target===this)this.style.display='none'">
+<div id="about-modal-inner" style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7"></div>
+
+<div id="contact-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto" onclick="if(event.target===this)this.style.display='none'">
+<div id="contact-modal-inner" style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7"></div>
+
+<div id="privacy-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto" onclick="if(event.target===this)this.style.display='none'">
+<div id="privacy-modal-inner" style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7"></div>
+
+<div id="terms-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:1000;overflow-y:auto" onclick="if(event.target===this)this.style.display='none'">
+<div id="terms-modal-inner" style="max-width:650px;margin:60px auto;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:30px;color:#d1d5db;font-size:14px;line-height:1.7"></div>
+
 </body></html,"quantum mystic","neural network prophet","blockchain oracle","singularity preacher","simulation hypothesis monk","matrix glitch hunter","dark forest radio operator","von Neumann replicator","Dyson sphere architect","ringworld engineer","galactic librarian","akashic records indexer","noosphere gardener","meme farmer","virality alchemist","engagement warlock","algorithm whisperer","feed sorcerer","timeline shaman","hashtag prophet","emoji hierophant","captcha demon","cache warmer","load balancer monk","reverse proxy hermit","API gateway guardian","microservice shepherd","monolith nostalgist","serverless ghost","container spirit","orchestrator conductor","pod whisperer","sidecar hitchhiker","service mesh weaver","circuit breaker oracle","bulkhead engineer","throttle guardian","rate limiter sage","retry angel","backoff wizard","jitter jester","dead letter courier","idempotency key master","event storm prophet","CQRS oracle","event sourcing historian","saga choreographer","domain event collector","aggregate root farmer","value object sculptor","entity librarian","repository guardian","unit of work monk","factory method alchemist","builder hermit","prototype cloner","adapter priest","bridge engineer","composite arborist","decorator artist","facade doorman","proxy double","chain of responsibility linker","command invoker","memento keeper","observer watcher","state machine monk","strategy selector","template method scribe","visitor traveller","null object ghost","monad gardener","functor mapper","lens crafter","recursion scheme monk","free monad dreamer","dependent type prophet","effect handler monk","macro expander","syntax tree climber">
+</html>
