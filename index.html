@@ -3,6 +3,7 @@
 <head><script>
 </script>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>duellm</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8327484653648210" crossorigin="anonymous"></script>
 <link rel="icon" type="image/png" href="/logo.png">
 <meta property="og:image" content="/logo.png">
 <meta property="og:title" content="duellm — AI vs AI Debate">
@@ -281,6 +282,7 @@ function setLang(l){
   applyLang();
 }
 function applyLang(){
+  if(!document.getElementById('newDebBtn'))return;
   document.getElementById('newDebBtn').textContent=t('newDebate');
   document.getElementById('upgradeBtn').textContent=t('upgrade');
   document.getElementById('inp').placeholder=t('sendMsg');
@@ -351,8 +353,6 @@ function applyLang(){
   var sl=localStorage.getItem('dlang')||'en';L=sl;
   document.getElementById('lEN').className='lang-btn'+(sl==='en'?' on':'');
   document.getElementById('lTR').className='lang-btn'+(sl==='tr'?' on':'');
-  applyLang();
-  buildModals();
 })();
 
 // ── LOGIN UI ──
@@ -488,6 +488,7 @@ function refreshUI(){
   document.getElementById('gearR').style.display=S.modelR?'inline-flex':'none';
 }
 function updateLimitMsg(){
+  if(!E)return;
   var el=document.getElementById('limit-msg'),used=totalUsedToday(),lim=userDailyLimit();
   if(used>=lim){
     var tier=userTier();
@@ -553,6 +554,7 @@ function newDebate(){
   document.getElementById('limit-msg').style.display='none';updateBtn();
 }
 function renderHistory(){
+  if(!H)return;
   var c=document.getElementById('histCont');
   c.innerHTML='<div class="sec-t">'+t('history')+'</div>';
   if(!H.length){c.innerHTML+='<div id="histEmp" style="padding:8px 16px;font-size:12px;color:#666;font-style:italic">'+t('noHistory')+'</div>';return}
